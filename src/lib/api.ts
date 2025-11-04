@@ -76,14 +76,13 @@ export async function searchPublications(
     // Step 1: Search for publication IDs
     const searchResponse = await fetch(
       `${PUBMED_API_BASE_URL}/esearch.fcgi?db=pubmed&term=${query}&retmax=${pageSize}&retmode=json`
-    ).catch(e => { throw new Error('PubMed search request failed.'); });
+    );
 
     if (!searchResponse.ok) {
       throw new Error(`PubMed search API error! status: ${searchResponse.status}`);
     }
     const searchData = await searchResponse.json();
     
-    // The API can return a response without a `esearchresult` field.
     if (!searchData.esearchresult || !searchData.esearchresult.idlist) {
         console.warn('PubMed API returned no result for query:', query);
         return [];
@@ -98,14 +97,13 @@ export async function searchPublications(
     // Step 2: Fetch summaries for the found IDs
     const summaryResponse = await fetch(
       `${PUBMED_API_BASE_URL}/esummary.fcgi?db=pubmed&id=${ids.join(',')}&retmode=json`
-    ).catch(e => { throw new Error('PubMed summary request failed.'); });
+    );
 
     if (!summaryResponse.ok) {
       throw new Error(`PubMed summary API error! status: ${summaryResponse.status}`);
     }
     const summaryData = await summaryResponse.json();
     
-    // Check if the summary data is valid
     if (!summaryData.result) {
       console.error('PubMed summary API returned no result for IDs:', ids);
       return [];

@@ -17,7 +17,6 @@ import {
 import Link from 'next/link';
 import { Logo } from '@/components/logo';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Chatbot } from '@/components/chatbot';
 
 const featureCards = [
   {
@@ -253,7 +252,6 @@ export default function Home() {
             </div>
         </div>
       </footer>
-      <Chatbot />
     </div>
   );
 }

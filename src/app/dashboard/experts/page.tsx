@@ -13,6 +13,16 @@ import { Input } from '@/components/ui/input';
 
 const PAGE_SIZE = 12;
 
+const CATEGORIES = [
+    "Cardiology",
+    "Oncology",
+    "Neurology",
+    "Pediatrics",
+    "Dermatology",
+    "Orthopedics",
+    "Radiology",
+];
+
 function ExpertCard({ expert }: { expert: Expert }) {
     const { isFavorite, toggleFavorite } = useFavorites();
     const initials = expert.name ? expert.name.split(' ').map(n => n[0]).join('') : '??';
@@ -84,12 +94,18 @@ export default function ExpertsPage() {
             isMounted = false;
         };
     }, [currentQuery, currentPage]);
-
-    const handleSearch = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setCurrentPage(1); // Reset to first page on new search
+    
+    const handleSearch = (e?: React.FormEvent) => {
+        e?.preventDefault();
+        setCurrentPage(1);
         setCurrentQuery(searchTerm);
     };
+
+    const handleCategoryClick = (category: string) => {
+        setSearchTerm(category);
+        setCurrentPage(1);
+        setCurrentQuery(category);
+    }
 
     const handlePageChange = (newPage: number) => {
         if (newPage >= 1 && newPage <= totalPages) {
@@ -107,12 +123,30 @@ export default function ExpertsPage() {
                     Find healthcare providers in the US via the NPI Registry. Search by name, specialty, or location.
                 </p>
             </div>
+            
+            <Card>
+                <CardHeader>
+                    <CardTitle>Filter by Specialty</CardTitle>
+                    <CardDescription>Select a category to find experts in that field.</CardDescription>
+                </CardHeader>
+                <CardContent className="flex flex-wrap gap-2">
+                    {CATEGORIES.map(category => (
+                        <Button
+                            key={category}
+                            variant={currentQuery === category ? 'default' : 'outline'}
+                            onClick={() => handleCategoryClick(category)}
+                        >
+                            {category}
+                        </Button>
+                    ))}
+                </CardContent>
+            </Card>
 
             <form onSubmit={handleSearch}>
                 <div className="flex gap-4">
                     <Input 
                         id="expert-search" 
-                        placeholder="e.g. Dr. John Doe, Cardiology, Boston..." 
+                        placeholder="Or type a custom search, e.g. Dr. John Doe..." 
                         value={searchTerm} 
                         onChange={(e) => setSearchTerm(e.target.value)} 
                     />
@@ -176,7 +210,12 @@ export default function ExpertsPage() {
                  <Card className="flex items-center justify-center h-64 border-dashed col-span-full">
                     <div className="text-center">
                         <p className="text-lg font-medium">No Providers Found</p>
-                        <p className="text-sm text-muted-foreground">Your search for "{currentQuery}" did not return any results. Try different or broader criteria.</p>
+                        <p className="text-sm text-muted-foreground">
+                            {currentQuery 
+                                ? `Your search for "${currentQuery}" did not return any results. Try a different category or search term.`
+                                : "Select a category or enter a search term to find health experts."
+                            }
+                        </p>
                     </div>
                 </Card>
             )}

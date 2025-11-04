@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 
 const NPI_REGISTRY_API_BASE_URL = 'https://npiregistry.cms.hhs.gov/api/';
-const MAX_RESULTS = 1200; // NPI API limit
+const MAX_RESULTS = 1000; // NPI API has a hard limit around 1200, we'll use 1000 to be safe.
 
 const formatNPIRecord = (record: any): any | null => {
     if (!record || !record.number) return null;
@@ -40,23 +40,29 @@ export async function GET(request: Request) {
   if (skip >= MAX_RESULTS) {
     return NextResponse.json({ results: [], totalCount: 0 });
   }
+  
+  // The API is limited in how many results it can skip/return, so we cap the limit.
+  const effectiveLimit = Math.min(limit, MAX_RESULTS - skip);
+  if (effectiveLimit <= 0) {
+     return NextResponse.json({ results: [], totalCount: 0 });
+  }
 
   const apiParams = new URLSearchParams({
     version: '2.1',
-    limit: limit.toString(),
+    limit: effectiveLimit.toString(),
     skip: skip.toString(),
   });
 
+  // Use a broad search if a query is provided
   if (query) {
-    // Apply the query to multiple fields for a broad search
     apiParams.set('taxonomy_description', query);
-    apiParams.set('first_name', query);
-    apiParams.set('last_name', query);
-    apiParams.set('organization_name', query);
-    apiParams.set('city', query);
-    apiParams.set('state', query);
+    apiParams.append('first_name', query);
+    apiParams.append('last_name', query);
+    apiParams.append('organization_name', query);
+    apiParams.append('city', query);
   } else {
-    // Default to a common search to show initial results if no query is provided
+    // If no query, return a default set of results (e.g., from a specific state)
+    // This ensures the page is not blank on initial load.
     apiParams.set('state', 'NY');
   }
 
@@ -67,9 +73,10 @@ export async function GET(request: Request) {
     if (!apiResponse.ok) {
       const errorText = await apiResponse.text();
       // Gracefully handle "no results" which the API sometimes returns as an error
-      if (apiResponse.status === 404 || errorText.includes("No results found")) {
+      if (apiResponse.status === 404 || (errorText && errorText.includes("No results found"))) {
          return NextResponse.json({ results: [], totalCount: 0 });
       }
+      console.error(`NPI API Error: ${apiResponse.status} ${errorText}`);
       return NextResponse.json({ error: `NPI API Error: ${errorText}` }, { status: apiResponse.status });
     }
 
@@ -83,7 +90,7 @@ export async function GET(request: Request) {
       .map(formatNPIRecord)
       .filter((expert: any | null): expert is any => expert !== null);
       
-    // The API returns the total count for the query, but caps it at MAX_RESULTS.
+    // The API returns the total count for the query, but we cap it at MAX_RESULTS.
     const totalCount = Math.min(data.result_count, MAX_RESULTS);
 
     return NextResponse.json({ results: formattedResults, totalCount });

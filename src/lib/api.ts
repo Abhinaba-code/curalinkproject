@@ -220,7 +220,7 @@ export async function searchExperts(
 
   try {
     const url = `${NPI_REGISTRY_API_BASE_URL}?${params.toString()}`;
-    const response = await fetch(url);
+    const response = await fetch(url, { cache: 'no-store' });
 
     if (!response.ok) {
       throw new Error(`NPI Registry API error! status: ${response.status}`);

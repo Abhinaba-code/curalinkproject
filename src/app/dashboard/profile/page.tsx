@@ -12,9 +12,11 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
-import { Calendar, MapPin, Stethoscope, User, Edit } from 'lucide-react';
+import { Calendar, MapPin, Stethoscope, User, Edit, X } from 'lucide-react';
 import { Chatbot } from '@/components/chatbot';
 import { format } from 'date-fns';
+import { useFavorites } from '@/context/favorites-provider';
+import type { Expert } from '@/lib/types';
 
 function ProfileDetail({ icon, label, value }: { icon: React.ReactNode, label: string, value: React.ReactNode }) {
     if (!value) return null;
@@ -29,13 +31,41 @@ function ProfileDetail({ icon, label, value }: { icon: React.ReactNode, label: s
     )
 }
 
+function FollowedExpertCard({ expert, onUnfollow }: { expert: Expert, onUnfollow: (expert: Expert) => void }) {
+    const initials = expert.name ? expert.name.split(' ').map(n => n[0]).join('') : '??';
+
+    return (
+        <div className="flex items-center justify-between p-3 rounded-lg border">
+            <div className="flex items-center gap-3">
+                <Avatar className="h-10 w-10">
+                    <AvatarImage src={expert.avatarUrl} alt={expert.name} />
+                    <AvatarFallback>{initials}</AvatarFallback>
+                </Avatar>
+                <div>
+                    <p className="font-semibold">{expert.name}</p>
+                    <p className="text-sm text-muted-foreground">{expert.specialty}</p>
+                </div>
+            </div>
+            <Button variant="ghost" size="icon" onClick={() => onUnfollow(expert)}>
+                <X className="h-4 w-4 text-muted-foreground" />
+                <span className="sr-only">Unfollow</span>
+            </Button>
+        </div>
+    )
+}
+
+
 export default function ProfilePage() {
   const { user } = useAuth();
+  const { favorites, toggleFavorite } = useFavorites();
 
-  // The layout now guarantees the user object is present.
   if (!user) {
     return null; 
   }
+
+  const followedExperts = favorites
+    .filter(fav => fav.type === 'expert')
+    .map(fav => fav.item as Expert);
 
   const userInitials = user.name
     ? user.name
@@ -97,9 +127,24 @@ export default function ProfilePage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="text-center text-muted-foreground border-2 border-dashed rounded-lg p-8">
-            <p>You are not following any experts yet. Click the "Follow" button on an expert's card to add them here.</p>
-          </div>
+          {followedExperts.length > 0 ? (
+            <div className="grid gap-4 md:grid-cols-2">
+                {followedExperts.map(expert => (
+                    <FollowedExpertCard 
+                        key={expert.id} 
+                        expert={expert} 
+                        onUnfollow={() => toggleFavorite(expert, 'expert')} 
+                    />
+                ))}
+            </div>
+          ) : (
+            <div className="text-center text-muted-foreground border-2 border-dashed rounded-lg p-8">
+                <p>You are not following any experts yet.</p>
+                <Button variant="link" asChild className="mt-2">
+                    <Link href="/dashboard/experts">Find Experts to Follow</Link>
+                </Button>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

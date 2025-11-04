@@ -60,7 +60,7 @@ function RequestMeetingDialog({ expert, onRequested }: { expert: Expert, onReque
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>
-                <Button variant="outline" size="sm">
+                <Button variant="outline" className="w-full">
                     <Calendar className="mr-2 h-4 w-4" />
                     Request Meeting
                 </Button>
@@ -243,26 +243,30 @@ function ExpertCard({ expert }: { expert: Expert }) {
                  </a>
             </CardContent>
             <CardFooter>
-                 <div className="grid grid-cols-2 gap-2 w-full">
-                    <Button variant={following ? 'secondary' : 'default'} onClick={handleFollow} size="sm">
-                        <Plus className="mr-2 h-4 w-4" />
-                        {following ? 'Unfollow' : 'Follow'}
-                    </Button>
-                    <ExpertProfileDialog expert={expert}>
-                        <Button variant="outline" size="sm" className="w-full"><User className="mr-2 h-4 w-4" />View Profile</Button>
-                    </ExpertProfileDialog>
-                    <Button variant="outline" size="sm" onClick={handleNudge}>
-                        {nudged ? <Check className="mr-2 h-4 w-4" /> : <Bell className="mr-2 h-4 w-4" />}
-                        {nudged ? 'Nudged' : 'Nudge to Join'}
-                    </Button>
-                    {meetingRequested ? (
-                         <Button variant="destructive" size="sm" onClick={handleCancelRequest}>
-                            <Calendar className="mr-2 h-4 w-4" />
-                            Cancel Request
+                 <div className="flex flex-col gap-2 w-full">
+                    <div className="grid grid-cols-2 gap-2 w-full">
+                        <Button variant={following ? 'secondary' : 'default'} onClick={handleFollow} size="sm">
+                            <Plus className="mr-2 h-4 w-4" />
+                            {following ? 'Unfollow' : 'Follow'}
                         </Button>
-                    ) : (
-                        <RequestMeetingDialog expert={expert} onRequested={() => setMeetingRequested(true)} />
-                    )}
+                        <ExpertProfileDialog expert={expert}>
+                            <Button variant="outline" size="sm" className="w-full"><User className="mr-2 h-4 w-4" />View Profile</Button>
+                        </ExpertProfileDialog>
+                    </div>
+                    <div className="flex flex-col gap-2 w-full">
+                        <Button variant="outline" onClick={handleNudge}>
+                            {nudged ? <Check className="mr-2 h-4 w-4" /> : <Bell className="mr-2 h-4 w-4" />}
+                            {nudged ? 'Nudged' : 'Nudge to Join'}
+                        </Button>
+                        {meetingRequested ? (
+                             <Button variant="destructive" onClick={handleCancelRequest}>
+                                <Calendar className="mr-2 h-4 w-4" />
+                                Cancel Request
+                            </Button>
+                        ) : (
+                            <RequestMeetingDialog expert={expert} onRequested={() => setMeetingRequested(true)} />
+                        )}
+                    </div>
                 </div>
             </CardFooter>
         </Card>

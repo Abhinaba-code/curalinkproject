@@ -126,10 +126,12 @@ export async function searchPublications(
 }
 
 const formatExpertFromOrcid = (person: any): Expert => {
-  const orcid = person['orcid-id'];
+  const orcid = person['orcid-identifier']?.path;
+  // This is a simplified name parser, ORCID can have more complex name structures
   const givenName = person['given-names']?.value || '';
-  const familyName = person['family-names']?.value || '';
+  const familyName = person['family-name']?.value || '';
   const name = `${givenName} ${familyName}`.trim();
+  
   return {
     id: orcid,
     name: name,
@@ -151,20 +153,23 @@ export async function searchExperts(
     return [];
   }
   try {
+    // Correctly format the query for ORCID. For keywords, it's often `keyword:<query>`
+    // For general text search, we can just pass the query. Let's try a more robust keyword search.
+    const formattedQuery = `keyword:${encodeURIComponent(query)} OR other-names.value:${encodeURIComponent(query)} OR given-and-family-names:${encodeURIComponent(query)}`;
+    
     const response = await fetch(
-        `${ORCID_API_BASE_URL}/search?q=${encodeURIComponent(query)}&rows=${limit}`,
-        { headers: { 'Accept': 'application/json' } }
+      `${ORCID_API_BASE_URL}/search?q=${formattedQuery}&rows=${limit}`,
+      { headers: { 'Accept': 'application/json' } }
     );
     if (!response.ok) {
       throw new Error(`ORCID API error! status: ${response.status}`);
     }
     const data = await response.json();
     
-    // The ORCID search result is in 'result'
     const results = data.result || [];
 
     // Filter out results that don't have an ORCID ID, as they can't be used as a key.
-    return results.filter((person: any) => person['orcid-id']).map(formatExpertFromOrcid);
+    return results.filter((person: any) => person['orcid-identifier']?.path).map(formatExpertFromOrcid);
   } catch (error) {
     console.error('Failed to fetch experts from ORCID:', error);
     return [];

@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { searchExperts } from '@/lib/api';
 import type { Expert } from '@/lib/types';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -42,7 +42,7 @@ function ExpertCard({ expert }: { expert: Expert }) {
           {expert.id && <Badge variant="outline">ORCID: {expert.id}</Badge>}
         </div>
       </CardContent>
-      <div className="pt-4 flex justify-center gap-2 p-6">
+      <CardFooter className="pt-4 flex justify-center gap-2 p-6">
         <Button size="sm">
           <Plus className="mr-2 h-4 w-4" />
           Follow
@@ -53,7 +53,7 @@ function ExpertCard({ expert }: { expert: Expert }) {
             View Profile
           </a>
         </Button>
-      </div>
+      </CardFooter>
     </Card>
   );
 }
@@ -212,10 +212,10 @@ export default function ExpertsPage() {
                            <Skeleton className="h-5 w-24" />
                         </div>
                     </CardContent>
-                     <div className="pt-4 flex justify-center gap-2 p-6">
+                     <CardFooter className="pt-4 flex justify-center gap-2 p-6">
                         <Skeleton className="h-9 w-24" />
                         <Skeleton className="h-9 w-24" />
-                    </div>
+                    </CardFooter>
                 </Card>
             ))}
         </div>

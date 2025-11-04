@@ -1,3 +1,147 @@
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Dna,
+  HeartPulse,
+  Microscope,
+  Stethoscope,
+  Users,
+  FileText,
+  FlaskConical,
+} from 'lucide-react';
+import Link from 'next/link';
+import { Logo } from '@/components/logo';
+
+const featureCards = [
+  {
+    icon: <FlaskConical className="h-8 w-8 text-primary" />,
+    title: 'AI-Powered Trial Matching',
+    description:
+      'Our intelligent platform analyzes your profile to find the most relevant clinical trials for you.',
+  },
+  {
+    icon: <FileText className="h-8 w-8 text-primary" />,
+    title: 'Simplified Research',
+    description:
+      'Access AI-summarized medical publications to easily understand complex research.',
+  },
+  {
+    icon: <Users className="h-8 w-8 text-primary" />,
+    title: 'Expert Connections',
+    description:
+      'Connect with leading health experts and researchers in your field of interest.',
+  },
+];
+
 export default function Home() {
-  return <></>;
+  return (
+    <div className="flex min-h-screen flex-col">
+      <header className="container mx-auto flex h-20 items-center justify-between px-4">
+        <Logo />
+        <nav className="flex items-center gap-4">
+          <Button variant="ghost" asChild>
+            <Link href="/auth/login">Log In</Link>
+          </Button>
+          <Button asChild>
+            <Link href="/auth/signup">Get Started</Link>
+          </Button>
+        </nav>
+      </header>
+      <main className="flex-1">
+        <section className="relative overflow-hidden bg-gradient-to-b from-background to-teal-50/50 py-20 md:py-32">
+          <div className="container mx-auto px-4">
+            <div className="grid grid-cols-1 items-center gap-12 md:grid-cols-2">
+              <div className="z-10 text-center md:text-left">
+                <h1 className="font-headline text-5xl font-bold tracking-tight md:text-7xl">
+                  CuraLink
+                </h1>
+                <p className="mt-4 text-lg text-muted-foreground md:text-xl">
+                  Connecting Patients and Researchers for a Healthier Tomorrow.
+                </p>
+                <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:justify-center md:justify-start">
+                  <Button size="lg" asChild className="font-bold">
+                    <Link href="/auth/signup?role=patient">
+                      I'm a Patient or Caregiver
+                    </Link>
+                  </Button>
+                  <Button size="lg" variant="outline" asChild className="font-bold">
+                    <Link href="/auth/signup?role=researcher">
+                      I'm a Researcher
+                    </Link>
+                  </Button>
+                </div>
+              </div>
+              <div className="relative h-64 md:h-full">
+                <div className="absolute inset-0 grid grid-cols-3 grid-rows-3 gap-4">
+                  <Dna className="h-10 w-10 animate-pulse text-primary/50" style={{ animationDelay: '0.1s' }} />
+                  <Stethoscope className="h-12 w-12 animate-pulse text-accent/60" style={{ animationDelay: '0.3s' }} />
+                  <HeartPulse className="h-14 w-14 animate-pulse text-primary/70" style={{ animationDelay: '0.5s' }} />
+                  <Microscope className="h-16 w-16 animate-pulse text-accent/80" style={{ animationDelay: '0.2s' }} />
+                  <div className="h-8 w-8 rounded-full bg-primary/30 animate-pulse" style={{ animationDelay: '0.4s' }}></div>
+                  <FlaskConical className="h-12 w-12 animate-pulse text-primary/60" style={{ animationDelay: '0.6s' }} />
+                   <div className="h-10 w-10 rounded-full bg-accent/40 animate-pulse" style={{ animationDelay: '0.1s' }}></div>
+                   <Users className="h-14 w-14 animate-pulse text-primary/50" style={{ animationDelay: '0.3s' }} />
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="features" className="py-20 md:py-32">
+          <div className="container mx-auto px-4">
+            <div className="text-center">
+              <h2 className="font-headline text-4xl font-bold">
+                A New Era of Collaborative Healthcare
+              </h2>
+              <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
+                CuraLink empowers you with tools and connections to navigate the
+                complex world of medical research.
+              </p>
+            </div>
+            <div className="mt-16 grid grid-cols-1 gap-8 md:grid-cols-3">
+              {featureCards.map((feature, index) => (
+                <Card
+                  key={index}
+                  className="transform-gpu bg-white/40 backdrop-blur-lg transition-all duration-300 ease-in-out hover:-translate-y-2 hover:shadow-2xl"
+                >
+                  <CardHeader className="items-center text-center">
+                    <div className="rounded-full bg-primary/10 p-4">
+                      {feature.icon}
+                    </div>
+                    <CardTitle className="font-headline pt-4 text-2xl">
+                      {feature.title}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-center text-muted-foreground">
+                      {feature.description}
+                    </p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="py-20">
+          <div className="container mx-auto text-center">
+             <h2 className="font-headline text-4xl font-bold">Ready to Join?</h2>
+             <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
+                Become part of a community dedicated to advancing medical science and improving patient outcomes.
+              </p>
+              <div className="mt-8">
+                <Button size="lg" asChild>
+                  <Link href="/auth/signup">Create Your Free Account</Link>
+                </Button>
+              </div>
+          </div>
+        </section>
+      </main>
+      <footer className="bg-gray-800 text-white">
+        <div className="container mx-auto px-4 py-6 text-center">
+          <p>&copy; {new Date().getFullYear()} CuraLink. All rights reserved.</p>
+        </div>
+      </footer>
+    </div>
+  );
 }

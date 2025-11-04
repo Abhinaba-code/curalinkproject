@@ -5,7 +5,7 @@ import type { Expert, ClinicalTrial } from '@/lib/types';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Microscope, ExternalLink, Loader2, Search, Pin, User, Calendar, Mail, Phone, Plus, Star, Bell } from 'lucide-react';
+import { Microscope, ExternalLink, Loader2, Search, Pin, User, Calendar, Mail, Phone, Plus, Star, Bell, Check } from 'lucide-react';
 import { searchExperts, searchClinicalTrials } from '@/lib/api';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useFavorites } from '@/context/favorites-provider';
@@ -78,6 +78,7 @@ function ExpertCard({ expert }: { expert: Expert }) {
     const initials = expert.name ? expert.name.split(' ').map(n => n[0]).join('') : '??';
     const favorite = isFavorite(expert.id);
     const following = isFollowing(expert.id);
+    const [nudged, setNudged] = useState(false);
 
     const handleFollow = () => {
         toggleFollow(expert);
@@ -85,6 +86,7 @@ function ExpertCard({ expert }: { expert: Expert }) {
 
     const handleNudge = () => {
         sendNudgeNotification(expert);
+        setNudged(true);
         toast({
             title: "Nudge Sent!",
             description: `A notification has been sent to researchers about ${expert.name}.`,
@@ -141,9 +143,9 @@ function ExpertCard({ expert }: { expert: Expert }) {
                     <ExpertProfileDialog expert={expert}>
                         <Button variant="outline" size="sm" className="w-full"><User className="mr-2 h-4 w-4" />View Profile</Button>
                     </ExpertProfileDialog>
-                    <Button variant="outline" size="sm" onClick={handleNudge}>
-                        <Bell className="mr-2 h-4 w-4" />
-                        Nudge to Join
+                    <Button variant="outline" size="sm" onClick={handleNudge} disabled={nudged}>
+                        {nudged ? <Check className="mr-2 h-4 w-4" /> : <Bell className="mr-2 h-4 w-4" />}
+                        {nudged ? 'Nudged' : 'Nudge to Join'}
                     </Button>
                     <Button variant="outline" size="sm" onClick={handleRequestMeeting}>
                         <Calendar className="mr-2 h-4 w-4" />
@@ -370,3 +372,5 @@ export default function ExpertsPage() {
         </div>
     );
 }
+
+    

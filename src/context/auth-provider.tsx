@@ -141,7 +141,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = () => {
     localStorage.removeItem(CURRENT_USER_KEY);
     setUser(null);
-    router.push('/auth/login');
+    router.push('/');
   };
   
   const updateUserProfile = async (profileData: ProfileData) => {

@@ -10,6 +10,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import { googleAI } from '@genkit-ai/google-genai';
 
 const ExpertRecommendationsInputSchema = z.object({
   researchInterests: z
@@ -37,6 +38,7 @@ export async function getExpertRecommendations(
 
 const prompt = ai.definePrompt({
   name: 'expertRecommendationsPrompt',
+  model: googleAI('gemini-pro'),
   input: {schema: ExpertRecommendationsInputSchema},
   output: {schema: ExpertRecommendationsOutputSchema},
   prompt: `You are an AI assistant helping researchers find potential collaborators.

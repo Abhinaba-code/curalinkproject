@@ -9,6 +9,7 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
+import { googleAI } from '@genkit-ai/google-genai';
 
 const ChatHistorySchema = z.object({
   role: z.enum(['user', 'assistant']),
@@ -32,6 +33,7 @@ export async function askCuraLinkAssistant(input: CuraLinkAssistantInput): Promi
 
 const prompt = ai.definePrompt({
   name: 'curaLinkAssistantPrompt',
+  model: googleAI('gemini-pro'),
   input: { schema: CuraLinkAssistantInputSchema },
   output: { schema: CuraLinkAssistantOutputSchema },
   system: `You are a friendly and helpful AI assistant for a platform called CuraLink.

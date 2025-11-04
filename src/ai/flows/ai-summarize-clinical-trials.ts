@@ -9,6 +9,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import { googleAI } from '@genkit-ai/google-genai';
 
 const SummarizeClinicalTrialInputSchema = z.object({
   trialDetails: z.string().describe('The detailed text of a clinical trial.'),
@@ -26,6 +27,7 @@ export async function summarizeClinicalTrial(input: SummarizeClinicalTrialInput)
 
 const prompt = ai.definePrompt({
   name: 'summarizeClinicalTrialPrompt',
+  model: googleAI('gemini-pro'),
   input: {schema: SummarizeClinicalTrialInputSchema},
   output: {schema: SummarizeClinicalTrialOutputSchema},
   prompt: `You are an AI expert in summarizing clinical trials for patients.

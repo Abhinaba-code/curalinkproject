@@ -9,6 +9,7 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
+import { googleAI } from '@genkit-ai/google-genai';
 
 const GeneratePersonalizedFeedInputSchema = z.object({
   interests: z.array(z.string()).describe('A list of the user\'s medical conditions or research interests.'),
@@ -35,6 +36,7 @@ export async function generatePersonalizedFeed(input: GeneratePersonalizedFeedIn
 
 const prompt = ai.definePrompt({
   name: 'personalizedFeedPrompt',
+  model: googleAI('gemini-pro'),
   input: { schema: GeneratePersonalizedFeedInputSchema },
   output: { schema: GeneratePersonalizedFeedOutputSchema },
   system: `You are an AI assistant for CuraLink, a platform that connects patients and researchers.

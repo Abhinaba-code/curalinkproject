@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview Provides AI-powered summaries of medical publications.
@@ -28,7 +29,9 @@ const summarizeMedicalPublicationPrompt = ai.definePrompt({
   name: 'summarizeMedicalPublicationPrompt',
   input: {schema: SummarizeMedicalPublicationInputSchema},
   output: {schema: SummarizeMedicalPublicationOutputSchema},
-  prompt: `Summarize the following medical publication content, focusing on key findings and relevance:
+  prompt: `You are an expert at summarizing complex medical research papers for a general audience.
+  
+  Summarize the following medical publication content, focusing on the key findings, methodology, and significance. Explain it in a way that a patient or non-specialist can understand.
 
   Content: {{{publicationContent}}}`,
 });

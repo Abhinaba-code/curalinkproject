@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -146,7 +147,7 @@ export default function ExpertsPage() {
         return;
       };
       setLoading(true);
-      const fetchedExperts = await searchExperts(searchQuery);
+      const fetchedExperts = await searchExperts(searchQuery, 9);
       setExperts(fetchedExperts);
       setLoading(false);
     }

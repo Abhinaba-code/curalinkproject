@@ -1,3 +1,4 @@
+
 import { ClinicalTrial, Publication, Expert } from './types';
 
 const CLINICAL_TRIALS_API_BASE_URL = 'https://clinicaltrials.gov/api/v2';
@@ -127,53 +128,49 @@ export async function searchPublications(
 
 const formatExpertFromOrcid = (person: any): Expert => {
   const orcid = person['orcid-identifier']?.path;
-  // This is a simplified name parser, ORCID can have more complex name structures
-  const givenName = person['person']?.['name']?.['given-names']?.value || '';
-  const familyName = person['person']?.['name']?.['family-name']?.value || '';
+  const givenName = person.person?.name?.['given-names']?.value || '';
+  const familyName = person.person?.name?.['family-name']?.value || '';
   const name = `${givenName} ${familyName}`.trim();
-  
-  // Simulated data for richer profiles
-  const specialties = ['Neuro-Oncology', 'Surgical Oncology'];
-  const researchAreas = ['Brain Cancer', 'Glioma', 'Tumor Microenvironment'];
-  
+
+  // Simulated data for richer profiles, as the basic search doesn't provide these.
+  const specialties = ['Oncology', 'Immunology', 'Genetics'];
+  const researchAreas = ['Cancer Research', 'T-cell therapy', 'Clinical Trials'];
+  const institutions = ['Memorial Sloan Kettering', 'Stanford University', 'MIT'];
+
   return {
     id: orcid,
     name: name || "Name not found",
-    specialties: specialties,
-    institution: person['institution-name']?.[0] || 'Boston General Hospital',
-    publicationCount: 0, 
-    avatarUrl: `https://picsum.photos/seed/${orcid}/200/200`, 
-    researchAreas: researchAreas,
-    clinicalTrialCount: 0,
-    url: `https://orcid.org/${orcid}`, 
+    specialties: [specialties[Math.floor(Math.random() * specialties.length)]],
+    institution: institutions[Math.floor(Math.random() * institutions.length)],
+    publicationCount: Math.floor(Math.random() * 200) + 10,
+    avatarUrl: `https://picsum.photos/seed/${orcid}/200/200`,
+    researchAreas: researchAreas.slice(0, Math.floor(Math.random() * 2) + 1),
+    clinicalTrialCount: Math.floor(Math.random() * 20),
+    url: `https://orcid.org/${orcid}`,
   };
 };
 
 export async function searchExperts(
   query: string,
-  limit: number = 20
+  limit: number = 9
 ): Promise<Expert[]> {
   if (!query) {
     return [];
   }
   try {
-    // Basic query to get a list of people
     const response = await fetch(
-      `${ORCID_API_BASE_URL}/search?q=text:${encodeURIComponent(query)}&rows=${limit}`,
+      `${ORCID_API_BASE_URL}/search?q=${encodeURIComponent(query)}&rows=${limit}`,
       { headers: { 'Accept': 'application/json' } }
     );
-
     if (!response.ok) {
       throw new Error(`ORCID API error! status: ${response.status}`);
     }
     const data = await response.json();
-
-    const results = data.result || [];
     
+    const results = data.result || [];
     if (results.length === 0) return [];
     
-    // Fallback to basic ORCID search if no mock data matches
-    return results.map(formatExpertFromOrcid).slice(0, limit);
+    return results.map(formatExpertFromOrcid);
 
   } catch (error) {
     console.error('Failed to fetch experts from ORCID:', error);

@@ -43,12 +43,14 @@ export function FollowProvider({ children }: { children: React.ReactNode }) {
       toast({
         title: 'Unfollowed',
         description: `You are no longer following ${expert.name}.`,
+        duration: 3000,
       });
     } else {
       updatedFollows = [...followedExperts, expert];
       toast({
         title: 'Followed',
         description: `You are now following ${expert.name}.`,
+        duration: 3000,
       });
     }
 
@@ -74,3 +76,5 @@ export function useFollow() {
   }
   return context;
 }
+
+    

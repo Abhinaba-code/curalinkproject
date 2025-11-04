@@ -44,13 +44,14 @@ function RequestMeetingDialog({ expert, onRequested }: { expert: Expert, onReque
 
     const handleSendRequest = () => {
         if (!user) {
-            toast({ variant: 'destructive', title: 'You must be logged in.' });
+            toast({ variant: 'destructive', title: 'You must be logged in.', duration: 3000 });
             return;
         }
         sendMeetingRequest(expert, user, reason);
         toast({
             title: "Meeting Request Sent!",
             description: `Your request regarding ${expert.name} has been sent to researchers.`,
+            duration: 3000,
         });
         onRequested();
         setIsOpen(false);
@@ -186,13 +187,15 @@ function ExpertCard({ expert }: { expert: Expert }) {
             toast({
                 title: "Nudge Sent!",
                 description: `A notification has been sent to researchers about ${expert.name}.`,
+                duration: 3000,
             });
         } else {
             removeNudgeNotification(expert.id);
             toast({
                 title: "Nudge Canceled",
                 description: `The nudge for ${expert.name} has been recalled.`,
-                variant: 'destructive'
+                variant: 'destructive',
+                duration: 3000,
             });
         }
         setNudged(!nudged);
@@ -204,6 +207,7 @@ function ExpertCard({ expert }: { expert: Expert }) {
             title: "Meeting Request Canceled",
             description: `Your request for ${expert.name} has been withdrawn.`,
             variant: "destructive",
+            duration: 3000,
         });
         setMeetingRequested(false);
     }
@@ -488,3 +492,5 @@ export default function ExpertsPage() {
         </div>
     );
 }
+
+    

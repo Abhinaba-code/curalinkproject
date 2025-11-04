@@ -120,11 +120,11 @@ export async function searchPublications(
 
 // A utility function to format a single expert from the ORCID API response
 const formatExpert = (author: any): Expert => {
-  const name = `${author['given-names']?.value || ''} ${author['family-names']?.value || ''}`.trim();
+  const name = `${author['given-names']?.value || ''} ${author['family-name']?.value || ''}`.trim();
   return {
     id: author['orcid-id'],
     name: name,
-    specialties: ['N/A'], // Not provided by ORCID search
+    specialties: [], // Not provided by ORCID search
     institution: author['institution-name']?.[0] || 'N/A',
     publicationCount: 0, // Not provided by ORCID search
     avatarUrl: `https://picsum.photos/seed/${author['orcid-id']}/200/200`, // Placeholder image
@@ -151,7 +151,11 @@ export async function searchExperts(
     }
     const data = await response.json();
     if (!data.result) return [];
-    return data.result.map(formatExpert);
+    
+    // Filter out results that don't have an orcid-id to prevent key errors
+    const validResults = data.result.filter((author: any) => author['orcid-id']);
+    
+    return validResults.map(formatExpert);
   } catch (error) {
     console.error('Failed to fetch experts:', error);
     return [];

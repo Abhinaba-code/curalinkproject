@@ -20,11 +20,6 @@ export function AppFooter() {
                   About
                 </Link>
               </li>
-              <li>
-                <a href="#" className="text-slate-300 hover:text-white">
-                  Careers
-                </a>
-              </li>
             </ul>
           </div>
           <div>

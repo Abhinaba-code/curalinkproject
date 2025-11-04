@@ -60,9 +60,6 @@ export async function GET(request: Request) {
     skip: apiSkip.toString(),
   });
 
-  // If a query is provided, use it for the taxonomy description.
-  // This is the most reliable way to search for specialties.
-  // For names, the user can use the generic search which also works.
   if (query) {
     apiParams.set('taxonomy_description', query);
   } else {
@@ -79,10 +76,34 @@ export async function GET(request: Request) {
         try {
             const errorJson = JSON.parse(errorText);
             if (errorJson.Errors && errorJson.Errors.some((e: any) => e.description.includes("No results found"))) {
-                return NextResponse.json({ results: [], totalCount: 0 });
+                // If the primary query fails, try a broader search.
+                const fallbackParams = new URLSearchParams({
+                  version: '2.1',
+                  limit: API_RESULT_LIMIT.toString(),
+                  skip: apiSkip.toString(),
+                });
+                if(query) fallbackParams.set('first_name', `*${query}*`);
+
+                const fallbackUrl = `${NPI_REGISTRY_API_BASE_URL}?${fallbackParams.toString()}`;
+                const fallbackResponse = await fetch(fallbackUrl, { cache: 'no-store' });
+                if (!fallbackResponse.ok) {
+                   const fallbackErrorText = await fallbackResponse.text();
+                   console.error(`NPI API Fallback Error: ${fallbackResponse.status} ${fallbackErrorText}`);
+                   return NextResponse.json({ results: [], totalCount: 0 });
+                }
+                const fallbackData = await fallbackResponse.json();
+                 if (fallbackData.result_count === 0 || !fallbackData.results) {
+                    return NextResponse.json({ results: [], totalCount: 0 });
+                }
+                 const allFormattedResults = fallbackData.results
+                    .map(formatNPIRecord)
+                    .filter((expert: any | null): expert is any => expert !== null);
+                const paginatedResults = allFormattedResults.slice(skipWithinApiPage, skipWithinApiPage + limit);
+                const totalCount = Math.min(fallbackData.result_count, MAX_RESULTS);
+                return NextResponse.json({ results: paginatedResults, totalCount });
             }
         } catch(e) {
-            // Not a JSON error, fall through to general error handling
+            // Not a JSON error with "No results found", fall through to general error handling
         }
         console.error(`NPI API Error: ${apiResponse.status} ${errorText}`);
         return NextResponse.json({ error: `NPI API Error: ${errorText}` }, { status: apiResponse.status });
@@ -110,3 +131,5 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Internal ServerError' }, { status: 500 });
   }
 }
+
+    

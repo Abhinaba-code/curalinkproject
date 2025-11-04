@@ -5,11 +5,14 @@ import type { Expert } from '@/lib/types';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Microscope, ExternalLink, Loader2, Search, Pin, Star } from 'lucide-react';
+import { Microscope, ExternalLink, Loader2, Search, Pin, User, Calendar, Mail, Phone, Plus } from 'lucide-react';
 import { searchExperts } from '@/lib/api';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useFavorites } from '@/context/favorites-provider';
 import { Input } from '@/components/ui/input';
+import { useToast } from '@/hooks/use-toast';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from '@/components/ui/dialog';
+
 
 const PAGE_SIZE = 12;
 
@@ -23,13 +26,72 @@ const CATEGORIES = [
     "Radiology",
 ];
 
+function ExpertProfileDialog({ expert, children }: { expert: Expert, children: React.ReactNode }) {
+    const initials = expert.name ? expert.name.split(' ').map(n => n[0]).join('') : '??';
+    return (
+        <Dialog>
+            <DialogTrigger asChild>{children}</DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                    <div className="flex items-center gap-4 mb-4">
+                        <Avatar className="h-16 w-16">
+                            <AvatarImage src={expert.avatarUrl} alt={expert.name} />
+                            <AvatarFallback>{initials}</AvatarFallback>
+                        </Avatar>
+                        <div>
+                            <DialogTitle className="text-2xl">{expert.name}</DialogTitle>
+                            <DialogDescription>{expert.specialty}</DialogDescription>
+                        </div>
+                    </div>
+                </DialogHeader>
+                <div className="space-y-4">
+                    <p className="text-sm text-muted-foreground">
+                        This is a simulated profile. In a real application, this would contain more details about the health expert.
+                    </p>
+                    <div className="flex items-center gap-2 text-sm">
+                        <Pin className="h-4 w-4 text-muted-foreground" />
+                        <span>{expert.address}, {expert.city}, {expert.state}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                        <Mail className="h-4 w-4 text-muted-foreground" />
+                        <span>contact@example.com</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                        <Phone className="h-4 w-4 text-muted-foreground" />
+                        <span>(555) 123-4567</span>
+                    </div>
+                </div>
+            </DialogContent>
+        </Dialog>
+    );
+}
+
 function ExpertCard({ expert }: { expert: Expert }) {
     const { isFavorite, toggleFavorite } = useFavorites();
+    const { toast } = useToast();
     const initials = expert.name ? expert.name.split(' ').map(n => n[0]).join('') : '??';
-    const favorite = isFavorite(expert.id);
+    const isFollowing = isFavorite(expert.id);
+
+    const handleFollow = () => {
+        toggleFavorite(expert, 'expert');
+    };
+
+    const handleNudge = () => {
+        toast({
+            title: "Nudge Sent!",
+            description: `A notification has been sent to ${expert.name} to join the platform.`,
+        });
+    };
+
+    const handleRequestMeeting = () => {
+        toast({
+            title: "Meeting Request Sent!",
+            description: `Your request for a meeting with ${expert.name} has been sent.`,
+        });
+    };
 
     return (
-        <Card>
+        <Card className="flex flex-col">
             <CardHeader className="flex flex-row items-center gap-4">
                 <Avatar className="h-16 w-16">
                     <AvatarImage src={expert.avatarUrl} alt={expert.name} />
@@ -45,21 +107,30 @@ function ExpertCard({ expert }: { expert: Expert }) {
                     )}
                 </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className="flex-grow">
                  <p className="text-sm text-muted-foreground flex items-center gap-2">
                     <Pin className="h-4 w-4" />
                     {expert.address}, {expert.city}, {expert.state} {expert.zip}
                  </p>
+                 <a href={expert.url} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline flex items-center gap-1 mt-2">
+                    <ExternalLink className="h-3 w-3" />
+                    View on NPI Registry
+                 </a>
             </CardContent>
-            <CardFooter className="flex justify-between items-center">
-                 <Button variant="outline" asChild size="sm">
-                    <a href={expert.url} target="_blank" rel="noopener noreferrer">
-                        <ExternalLink className="mr-2 h-4 w-4" />
-                        View on NPI Registry
-                    </a>
+            <CardFooter className="flex flex-wrap gap-2">
+                 <Button variant={isFollowing ? 'secondary' : 'default'} onClick={handleFollow} size="sm">
+                    <Plus className="mr-2 h-4 w-4" />
+                    {isFollowing ? 'Unfollow' : 'Follow'}
                 </Button>
-                <Button variant="ghost" size="icon" onClick={() => toggleFavorite(expert, 'expert')}>
-                    <Star className={`h-5 w-5 ${favorite ? 'text-yellow-400 fill-yellow-400' : 'text-muted-foreground'}`} />
+                <ExpertProfileDialog expert={expert}>
+                    <Button variant="outline" size="sm"><User className="mr-2 h-4 w-4" />View Profile</Button>
+                </ExpertProfileDialog>
+                <Button variant="outline" size="sm" onClick={handleNudge}>
+                    Nudge to Join
+                </Button>
+                <Button variant="outline" size="sm" onClick={handleRequestMeeting}>
+                    <Calendar className="mr-2 h-4 w-4" />
+                    Request Meeting
                 </Button>
             </CardFooter>
         </Card>
@@ -70,7 +141,7 @@ export default function ExpertsPage() {
     const [experts, setExperts] = useState<Expert[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
-    const [currentQuery, setCurrentQuery] = useState(''); // Initially empty, will be set in useEffect
+    const [currentQuery, setCurrentQuery] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const [totalResults, setTotalResults] = useState(0);
 
@@ -100,13 +171,12 @@ export default function ExpertsPage() {
             }
         }
         
-        // On initial mount, if there's no query, set one to fetch initial data.
-        if (isMounted && !currentQuery) {
-            setCurrentQuery('Cardiology'); // Default category to show something on load
-            return;
+        const initialQuery = currentQuery || "Cardiology";
+        if (isMounted && currentQuery !== initialQuery) {
+            setCurrentQuery(initialQuery);
         }
 
-        fetchData(currentQuery, currentPage);
+        fetchData(initialQuery, currentPage);
 
         return () => {
             isMounted = false;
@@ -240,3 +310,5 @@ export default function ExpertsPage() {
         </div>
     );
 }
+
+    

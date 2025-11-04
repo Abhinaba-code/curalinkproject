@@ -93,27 +93,25 @@ export default function TrialCard({ trial }: { trial: ClinicalTrial }) {
             ))}
           </div>
         </CardContent>
-        <CardFooter className="flex justify-between items-center">
-          <div className="flex gap-1">
-            <Button variant="ghost" size="sm" onClick={handleSummarize}>
-              <Bot className="mr-2 h-4 w-4" />
-              AI Summary
-            </Button>
-            <Button variant="ghost" size="sm" asChild>
-                <a href={trial.url} target="_blank" rel="noopener noreferrer">
-                    <ExternalLink className="mr-2 h-4 w-4" />
-                    Source
-                </a>
-            </Button>
-          </div>
-          <div className="flex gap-1">
-            <Button variant="ghost" size="icon" onClick={() => toggleFavorite(trial, 'trial')}>
-              <Star className={`h-5 w-5 ${favorite ? 'text-yellow-400 fill-yellow-400' : 'text-muted-foreground'}`} />
-            </Button>
-            <Button variant="ghost" size="icon" onClick={handleShare}>
-              <Share2 className="h-4 w-4" />
-            </Button>
-          </div>
+        <CardFooter className="flex-col items-start gap-2">
+             <div className="flex justify-between items-center w-full">
+                <Button variant="ghost" size="sm" onClick={handleSummarize}>
+                <Bot className="mr-2 h-4 w-4" />
+                AI Summary
+                </Button>
+                <div className="flex gap-1">
+                    <Button variant="ghost" size="icon" onClick={() => toggleFavorite(trial, 'trial')}>
+                    <Star className={`h-5 w-5 ${favorite ? 'text-yellow-400 fill-yellow-400' : 'text-muted-foreground'}`} />
+                    </Button>
+                    <Button variant="ghost" size="icon" onClick={handleShare}>
+                    <Share2 className="h-4 w-4" />
+                    </Button>
+                </div>
+            </div>
+             <a href={trial.url} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline flex items-center gap-1 mt-2 px-2">
+                <ExternalLink className="h-3 w-3" />
+                View on clinicaltrials.gov
+             </a>
         </CardFooter>
       </Card>
       

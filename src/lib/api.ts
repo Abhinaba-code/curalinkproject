@@ -156,7 +156,7 @@ export async function searchExperts(
     const formattedQuery = encodeURIComponent(query);
     
     const response = await fetch(
-      `${ORCID_API_BASE_URL}/search?q=${formattedQuery}&rows=${limit}`,
+      `${ORCID_API_BASE_URL}/search?q=${formattedQuery}`,
       { headers: { 'Accept': 'application/json' } }
     );
     if (!response.ok) {

@@ -195,11 +195,11 @@ export default function Home() {
               <Phone className="h-12 w-12 text-primary mb-4 mx-auto" />
               <h2 className="font-headline text-4xl font-bold">Get In Touch</h2>
               <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
-                We'd love to hear from you. Whether you have a question, feedback, or a partnership inquiry, please don't hesitate to reach out.
+                We'd love to hear from you. Whether you have a question, feedback, or a partnership inquiry, please don't hesitate to reach out. This project is maintained by Abhinaba Roy Pradhan.
               </p>
               <div className="mt-8">
                 <Button size="lg" asChild>
-                  <a href="mailto:contact@curalink.com">contact@curalink.com</a>
+                  <a href="mailto:abhinabapradhan@gmail.com">abhinabapradhan@gmail.com</a>
                 </Button>
               </div>
             </div>

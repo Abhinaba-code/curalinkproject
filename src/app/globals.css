@@ -94,6 +94,24 @@
     --sidebar-border: 217.2 32.6% 17.5%;
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
+
+  .theme-ocean {
+    --background: 205 50% 95%;
+    --primary: 220 85% 55%;
+    --accent: 190 70% 88%;
+  }
+
+  .theme-sunset {
+    --background: 25 60% 96%;
+    --primary: 15 90% 60%;
+    --accent: 40 85% 90%;
+  }
+
+  .theme-forest {
+    --background: 110 20% 96%;
+    --primary: 120 40% 40%;
+    --accent: 100 30% 88%;
+  }
 }
 
 @layer base {

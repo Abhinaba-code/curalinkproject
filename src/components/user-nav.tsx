@@ -13,6 +13,16 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/context/auth-provider';
 import Link from 'next/link';
+import {
+  User,
+  Settings,
+  LogOut,
+  Edit,
+  Users,
+  Info,
+  HelpCircle,
+  Mail,
+} from 'lucide-react';
 
 export function UserNav() {
   const { user, logout } = useAuth();
@@ -50,15 +60,55 @@ export function UserNav() {
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuItem asChild>
-            <Link href="/dashboard/profile">Profile</Link>
+            <Link href="/dashboard/profile">
+              <User className="mr-2 h-4 w-4" />
+              <span>Profile</span>
+            </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
-            <Link href="/dashboard/settings">Settings</Link>
+            <Link href="/dashboard/create-profile">
+              <Edit className="mr-2 h-4 w-4" />
+              <span>Edit Profile</span>
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link href="/dashboard/settings">
+              <Settings className="mr-2 h-4 w-4" />
+              <span>Settings</span>
+            </Link>
+          </DropdownMenuItem>
+           <DropdownMenuItem asChild>
+            <Link href="/dashboard/profile">
+              <Users className="mr-2 h-4 w-4" />
+              <span>Followers</span>
+            </Link>
+          </DropdownMenuItem>
+        </DropdownMenuGroup>
+        <DropdownMenuSeparator />
+         <DropdownMenuGroup>
+          <DropdownMenuItem asChild>
+            <Link href="/about">
+              <Info className="mr-2 h-4 w-4" />
+              <span>About</span>
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link href="/help">
+              <HelpCircle className="mr-2 h-4 w-4" />
+              <span>Help</span>
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link href="/contact">
+              <Mail className="mr-2 h-4 w-4" />
+              <span>Contact</span>
+            </Link>
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={logout}>
-          Log out
+          <LogOut className="mr-2 h-4 w-4" />
+          <span>Log out</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

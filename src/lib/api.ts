@@ -3,7 +3,7 @@ import { ClinicalTrial, Publication, Expert } from './types';
 
 const CLINICAL_TRIALS_API_BASE_URL = 'https://clinicaltrials.gov/api/v2';
 const PUBMED_API_BASE_URL = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils';
-const SEMANTIC_SCHOLAR_API_BASE_URL = 'https://api.semanticscholar.org/graph/v1';
+const ORCID_API_BASE_URL = 'https://pub.orcid.org/v3.0';
 
 
 // A mapping from the API's status to the app's status
@@ -118,21 +118,22 @@ export async function searchPublications(
   }
 }
 
-// A utility function to format a single expert from the Semantic Scholar API response
+// A utility function to format a single expert from the ORCID API response
 const formatExpert = (author: any): Expert => {
+  const name = `${author['given-names']?.value || ''} ${author['family-names']?.value || ''}`.trim();
   return {
-    id: author.authorId,
-    name: author.name,
-    specialties: author.fieldsOfStudy?.slice(0, 3) || ['N/A'],
-    institution: author.affiliations?.[0] || 'N/A',
-    publicationCount: author.paperCount || 0,
-    avatarUrl: `https://picsum.photos/seed/${author.authorId}/200/200`, // Placeholder image
-    researchAreas: author.fieldsOfStudy || [],
+    id: author['orcid-id'],
+    name: name,
+    specialties: ['N/A'], // Not provided by ORCID search
+    institution: author['institution-name']?.[0] || 'N/A',
+    publicationCount: 0, // Not provided by ORCID search
+    avatarUrl: `https://picsum.photos/seed/${author['orcid-id']}/200/200`, // Placeholder image
+    researchAreas: [], // Not provided by ORCID search
   };
 };
 
 
-// Function to fetch and format experts from Semantic Scholar
+// Function to fetch and format experts from ORCID
 export async function searchExperts(
   query: string,
   limit: number = 12
@@ -142,16 +143,15 @@ export async function searchExperts(
   }
   try {
     const response = await fetch(
-      `${SEMANTIC_SCHOLAR_API_BASE_URL}/author/search?query=${encodeURIComponent(
-        query
-      )}&fields=name,affiliations,paperCount,fieldsOfStudy&limit=${limit}`
+      `${ORCID_API_BASE_URL}/search?q=${encodeURIComponent(query)}&rows=${limit}`,
+      { headers: { 'Accept': 'application/json' } }
     );
     if (!response.ok) {
-      throw new Error(`Semantic Scholar API error! status: ${response.status}`);
+      throw new Error(`ORCID API error! status: ${response.status}`);
     }
     const data = await response.json();
-    if (!data.data) return [];
-    return data.data.map(formatExpert);
+    if (!data.result) return [];
+    return data.result.map(formatExpert);
   } catch (error) {
     console.error('Failed to fetch experts:', error);
     return [];

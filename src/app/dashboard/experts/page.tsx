@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
-import { Mail, Plus, Loader2, Search, Heart, Activity, Brain, FlaskConical, ExternalLink, Bot, Wand2 } from "lucide-react"
+import { Mail, Plus, Loader2, Search, Heart, Activity, Brain, FlaskConical, ExternalLink, Bot, Wand2, MapPin, Microscope } from "lucide-react"
 import { Skeleton } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
 import { getExpertRecommendations } from '@/ai/flows/ai-powered-expert-recommendations';
@@ -28,25 +28,37 @@ function ExpertCard({ expert }: { expert: Expert }) {
     .join('');
 
   return (
-    <Card className="text-center flex flex-col">
-      <CardHeader className="items-center">
-        <Avatar className="h-24 w-24 border-4 border-primary/20">
-          <AvatarImage src={expert.avatarUrl} alt={expert.name} />
-          <AvatarFallback>{fallback}</AvatarFallback>
-        </Avatar>
-      </CardHeader>
-      <CardContent className="space-y-2 flex-grow">
-        <CardTitle className="font-headline text-2xl">{expert.name}</CardTitle>
-        <CardDescription>{expert.institution}</CardDescription>
-        <div className="flex flex-wrap justify-center gap-2 pt-2">
-          {expert.id && <Badge variant="outline">ORCID: {expert.id}</Badge>}
+    <Card className="flex flex-col">
+      <CardHeader>
+        <div className='flex gap-4 items-start'>
+          <Avatar className="h-16 w-16 border-4 border-primary/20">
+            <AvatarImage src={expert.avatarUrl} alt={expert.name} />
+            <AvatarFallback>{fallback}</AvatarFallback>
+          </Avatar>
+          <div className='flex-1'>
+            <CardTitle className="font-headline text-xl">{expert.name}</CardTitle>
+            {expert.specialties[0] && <CardDescription className='font-medium text-primary'>{expert.specialties[0]}</CardDescription>}
+            <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
+              <MapPin className="h-4 w-4" />
+              <span>{expert.institution}</span>
+            </div>
+          </div>
         </div>
+      </CardHeader>
+      <CardContent className="space-y-3 flex-grow">
+          <div className="flex items-start gap-2 text-sm">
+            <Microscope className="h-4 w-4 mt-0.5 text-muted-foreground" />
+            <div>
+              <h4 className='font-semibold'>Research</h4>
+              <p className='text-muted-foreground'>{expert.researchAreas.join(', ')}</p>
+            </div>
+          </div>
       </CardContent>
-      <CardFooter className="pt-4 flex justify-center gap-2 p-6">
+      <CardFooter className="pt-4 flex justify-end gap-2 p-4">
         <Button size="sm" variant="outline" asChild>
           <a href={expert.url} target="_blank" rel="noopener noreferrer">
             <ExternalLink className="mr-2 h-4 w-4" />
-            View Profile
+            View ORCID
           </a>
         </Button>
       </CardFooter>
@@ -172,7 +184,7 @@ export default function ExpertsPage() {
         <CardContent className="space-y-4">
           <form onSubmit={handleSearch} className="flex-1 max-w-lg relative">
             <Input
-                placeholder="e.g. cancer, immunology, John Smith..."
+                placeholder="e.g. cancer, cardiology, John Smith..."
                 className="pr-10"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -195,19 +207,26 @@ export default function ExpertsPage() {
       
       {loading ? (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {Array.from({ length: 6 }).map((_, i) => (
+            {Array.from({ length: 3 }).map((_, i) => (
                 <Card key={i}>
-                    <CardHeader className="items-center">
-                        <Skeleton className="h-24 w-24 rounded-full" />
-                    </CardHeader>
-                    <CardContent className="space-y-2 items-center flex flex-col">
-                        <Skeleton className="h-6 w-3/4" />
-                        <Skeleton className="h-4 w-1/2" />
-                        <div className="flex flex-wrap justify-center gap-2 pt-2">
-                           <Skeleton className="h-5 w-20" />
+                    <CardHeader className="flex flex-row gap-4 items-start">
+                        <Skeleton className="h-16 w-16 rounded-full" />
+                        <div className='flex-1 space-y-2'>
+                           <Skeleton className="h-6 w-3/4" />
+                           <Skeleton className="h-4 w-1/2" />
+                           <Skeleton className="h-4 w-1/3" />
                         </div>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                       <div className="flex items-start gap-2">
+                           <Skeleton className="h-4 w-4 mt-0.5" />
+                           <div className="flex-1 space-y-1">
+                               <Skeleton className="h-4 w-16" />
+                               <Skeleton className="h-4 w-full" />
+                           </div>
+                       </div>
                     </CardContent>
-                     <CardFooter className="pt-4 flex justify-center gap-2 p-6">
+                     <CardFooter className="pt-4 flex justify-end gap-2 p-4">
                         <Skeleton className="h-9 w-28" />
                     </CardFooter>
                 </Card>

@@ -5,11 +5,22 @@ import type { Expert } from '@/lib/types';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Microscope, ExternalLink, Loader2, Search, Pin, Star } from 'lucide-react';
+import { Microscope, ExternalLink, Loader2, Search, Pin, Star, Tag } from 'lucide-react';
 import { searchExperts } from '@/lib/api';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useFavorites } from '@/context/favorites-provider';
 import { Input } from '@/components/ui/input';
+
+const popularCategories = [
+    'Cardiology',
+    'Oncology',
+    'Neurology',
+    'Dermatology',
+    'Pediatrics',
+    'Gastroenterology',
+    'Orthopedics',
+    'Radiology',
+];
 
 function ExpertCard({ expert }: { expert: Expert }) {
     const { isFavorite, toggleFavorite } = useFavorites();
@@ -75,6 +86,11 @@ export default function ExpertsPage() {
         e.preventDefault();
         setSubmittedQuery(query || 'Cardiology');
     };
+    
+    const handleCategoryClick = (category: string) => {
+        setQuery(category);
+        setSubmittedQuery(category);
+    }
 
     const hasSearched = !!submittedQuery;
 
@@ -103,6 +119,27 @@ export default function ExpertsPage() {
                     </Button>
                 </div>
             </form>
+            
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                        <Tag className="h-5 w-5" />
+                        Browse by Category
+                    </CardTitle>
+                </CardHeader>
+                <CardContent className="flex flex-wrap gap-2">
+                    {popularCategories.map((category) => (
+                        <Button 
+                            key={category} 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => handleCategoryClick(category)}
+                        >
+                            {category}
+                        </Button>
+                    ))}
+                </CardContent>
+            </Card>
 
             {loading ? (
                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">

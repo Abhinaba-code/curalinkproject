@@ -47,7 +47,7 @@ function RequestMeetingDialog({ expert, onRequested }: { expert: Expert, onReque
             toast({ variant: 'destructive', title: 'You must be logged in.' });
             return;
         }
-        const notification = sendMeetingRequest(expert, user, reason);
+        sendMeetingRequest(expert, user, reason);
         toast({
             title: "Meeting Request Sent!",
             description: `Your request regarding ${expert.name} has been sent to researchers.`,

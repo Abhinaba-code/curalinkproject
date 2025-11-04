@@ -16,17 +16,25 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { Logo } from '@/components/logo';
 import { ArrowLeft } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { login } = useAuth();
+  const { toast } = useToast();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    // For demo purposes, we'll log in as a patient if the email contains 'patient'
-    const role = email.includes('researcher') ? 'researcher' : 'patient';
-    login(email, role);
+    try {
+      await login(email, password);
+    } catch (error: any) {
+      toast({
+        variant: 'destructive',
+        title: 'Login Failed',
+        description: error.message,
+      });
+    }
   };
 
   return (

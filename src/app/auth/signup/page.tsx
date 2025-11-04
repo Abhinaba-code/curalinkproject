@@ -14,19 +14,20 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useAuth } from '@/context/auth-provider';
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Logo } from '@/components/logo';
 import { ArrowLeft } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 export default function SignupPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [role, setRole] = useState<'patient' | 'researcher'>('patient');
-  const { login } = useAuth();
+  const { signup } = useAuth();
   const searchParams = useSearchParams();
-  const router = useRouter();
+  const { toast } = useToast();
 
   useEffect(() => {
     const roleParam = searchParams.get('role');
@@ -35,14 +36,25 @@ export default function SignupPage() {
     }
   }, [searchParams]);
 
-  const handleSignup = (e: React.FormEvent) => {
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     if (password !== confirmPassword) {
-      // In a real app, you'd show an error message
-      alert("Passwords don't match!");
+      toast({
+        variant: 'destructive',
+        title: 'Signup Failed',
+        description: "Passwords don't match!",
+      });
       return;
     }
-    login(email, role);
+    try {
+      await signup(email, password, role);
+    } catch (error: any) {
+      toast({
+        variant: 'destructive',
+        title: 'Signup Failed',
+        description: error.message,
+      });
+    }
   };
 
   return (

@@ -7,6 +7,10 @@ export type User = {
   avatarUrl: string;
 };
 
+export type StoredUser = User & {
+  password?: string;
+};
+
 export type ClinicalTrial = {
   id: string;
   title: string;

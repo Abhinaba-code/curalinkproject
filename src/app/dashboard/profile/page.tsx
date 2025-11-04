@@ -12,16 +12,18 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
-import { Calendar, MapPin, Stethoscope, User, Edit, Bot } from 'lucide-react';
+import { Calendar, MapPin, Stethoscope, User, Edit } from 'lucide-react';
 import { Chatbot } from '@/components/chatbot';
+import { format } from 'date-fns';
 
 function ProfileDetail({ icon, label, value }: { icon: React.ReactNode, label: string, value: React.ReactNode }) {
+    if (!value) return null;
     return (
         <div className="flex items-start gap-4">
             <div className="text-muted-foreground mt-1">{icon}</div>
             <div>
                 <p className="text-sm text-muted-foreground">{label}</p>
-                <p className="font-medium">{value || 'Not provided'}</p>
+                <p className="font-medium">{value}</p>
             </div>
         </div>
     )
@@ -73,14 +75,16 @@ export default function ProfilePage() {
         </CardHeader>
         <CardContent className="space-y-6 pt-6 border-t">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <ProfileDetail icon={<User className="h-5 w-5" />} label="About Me" value={"This is a sample bio. It can be updated in the edit profile section."} />
-                <ProfileDetail icon={<Calendar className="h-5 w-5" />} label="Date of Birth" value={"October 27th, 2025"} />
-                <ProfileDetail icon={<MapPin className="h-5 w-5" />} label="Location" value={"Bengaluru, Karnataka, India"} />
-                <ProfileDetail icon={<Stethoscope className="h-5 w-5" />} label="Medical Conditions & Interests" value={"Glioblastoma, Lung Cancer, Immunotherapy"} />
+                <ProfileDetail icon={<User className="h-5 w-5" />} label="About Me" value={user.bio} />
+                <ProfileDetail icon={<Calendar className="h-5 w-5" />} label="Date of Birth" value={user.dob ? format(new Date(user.dob), 'PPP') : null} />
+                <ProfileDetail icon={<MapPin className="h-5 w-5" />} label="Location" value={user.location} />
+                <ProfileDetail icon={<Stethoscope className="h-5 w-5" />} label="Medical Conditions & Interests" value={user.interests?.join(', ')} />
             </div>
-            <p className="text-xs text-muted-foreground text-center pt-4 border-t">
-                Your profile details help us personalize your recommendations.
-            </p>
+            {(user.bio || user.dob || user.location || user.interests) && (
+                 <p className="text-xs text-muted-foreground text-center pt-4 border-t">
+                    Your profile details help us personalize your recommendations.
+                </p>
+            )}
         </CardContent>
       </Card>
 

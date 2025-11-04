@@ -5,6 +5,10 @@ export type User = {
   name: string;
   role: 'patient' | 'researcher';
   avatarUrl: string;
+  dob?: string;
+  location?: string;
+  bio?: string;
+  interests?: string[];
 };
 
 export type StoredUser = User & {

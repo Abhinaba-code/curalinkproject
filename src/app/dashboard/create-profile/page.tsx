@@ -21,30 +21,50 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { CalendarIcon } from 'lucide-react';
+import { CalendarIcon, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 
 export default function CreateProfilePage() {
-  const { user } = useAuth();
+  const { user, updateUserProfile } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
-  const [fullName, setFullName] = useState(user?.name || 'John Doe');
-  const [dob, setDob] = useState<Date>();
-  const [location, setLocation] = useState('');
-  const [bio, setBio] = useState('');
-  const [interests, setInterests] = useState('');
+  
+  const [fullName, setFullName] = useState(user?.name || '');
+  const [dob, setDob] = useState<Date | undefined>(user?.dob ? new Date(user.dob) : undefined);
+  const [location, setLocation] = useState(user?.location || '');
+  const [bio, setBio] = useState(user?.bio || '');
+  const [interests, setInterests] = useState(user?.interests?.join(', ') || '');
+  const [loading, setLoading] = useState(false);
 
-  const handleSaveProfile = (e: React.FormEvent) => {
+  const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real app, you would save this data to your backend.
-    // For now, we'll just show a success message and redirect.
-    toast({
-      title: 'Profile Saved!',
-      description: 'Your information has been successfully saved.',
-    });
-    router.push('/dashboard');
+    setLoading(true);
+
+    try {
+      await updateUserProfile({
+        name: fullName,
+        dob: dob ? dob.toISOString() : undefined,
+        location,
+        bio,
+        interests: interests.split(',').map(i => i.trim()).filter(Boolean),
+      });
+
+      toast({
+        title: 'Profile Saved!',
+        description: 'Your information has been successfully saved.',
+      });
+      router.push('/dashboard/profile');
+    } catch (error: any) {
+       toast({
+        variant: 'destructive',
+        title: 'Save Failed',
+        description: error.message || 'Could not save your profile.',
+      });
+    } finally {
+        setLoading(false);
+    }
   };
 
   return (
@@ -69,6 +89,7 @@ export default function CreateProfilePage() {
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
                   placeholder="John Doe"
+                  required
                 />
               </div>
               <div className="space-y-2">
@@ -93,6 +114,7 @@ export default function CreateProfilePage() {
                       selected={dob}
                       onSelect={setDob}
                       initialFocus
+                      disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
                     />
                   </PopoverContent>
                 </Popover>
@@ -146,7 +168,10 @@ export default function CreateProfilePage() {
             </div>
           </CardContent>
           <CardFooter>
-            <Button type="submit">Save Profile</Button>
+            <Button type="submit" disabled={loading}>
+              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Save Profile
+            </Button>
           </CardFooter>
         </form>
       </Card>

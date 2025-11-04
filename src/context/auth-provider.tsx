@@ -4,11 +4,14 @@ import type { User, StoredUser } from '@/lib/types';
 import { useRouter } from 'next/navigation';
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
+type ProfileData = Omit<User, 'id' | 'email' | 'role' | 'avatarUrl'>;
+
 interface AuthContextType {
   user: User | null;
   signup: (email: string, password: string, role: 'patient' | 'researcher') => Promise<void>;
   login: (email: string, password: string, role: 'patient' | 'researcher') => Promise<void>;
   logout: () => void;
+  updateUserProfile: (profileData: ProfileData) => Promise<void>;
   loading: boolean;
 }
 
@@ -45,6 +48,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return [];
     }
   };
+  
+  const setUsers = (users: StoredUser[]) => {
+      localStorage.setItem(USERS_DB_KEY, JSON.stringify(users));
+  }
 
   const signup = async (email: string, password: string, role: 'patient' | 'researcher') => {
     return new Promise<void>((resolve, reject) => {
@@ -63,7 +70,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       };
 
       users.push(newUser);
-      localStorage.setItem(USERS_DB_KEY, JSON.stringify(users));
+      setUsers(users);
 
       // Automatically log in the user after signup
       const { password: _, ...userToStore } = newUser;
@@ -110,8 +117,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null);
     router.push('/auth/login');
   };
+  
+  const updateUserProfile = async (profileData: ProfileData) => {
+    return new Promise<void>((resolve, reject) => {
+      if (!user) {
+        return reject(new Error('No user is currently logged in.'));
+      }
+  
+      const users = getUsers();
+      const userIndex = users.findIndex(u => u.id === user.id);
+  
+      if (userIndex === -1) {
+        return reject(new Error('Could not find user to update.'));
+      }
+  
+      // Update the user in the "database"
+      const updatedUserDB = { ...users[userIndex], ...profileData, name: profileData.name || users[userIndex].name };
+      users[userIndex] = updatedUserDB;
+      setUsers(users);
+  
+      // Update the current user in state and localStorage
+      const { password, ...userToStore } = updatedUserDB;
+      setUser(userToStore);
+      localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(userToStore));
+      
+      resolve();
+    });
+  };
 
-  const value = { user, signup, login, logout, loading };
+  const value = { user, signup, login, logout, updateUserProfile, loading };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

@@ -24,7 +24,6 @@ import { AppHeader } from '@/components/app-header';
 import { useAuth } from '@/context/auth-provider';
 import { useRouter, usePathname } from 'next/navigation';
 import { useEffect } from 'react';
-import { Skeleton } from '@/components/ui/skeleton';
 import { FavoritesSidebar } from '@/components/favorites-sidebar';
 import { FavoritesProvider, useFavorites } from '@/context/favorites-provider';
 

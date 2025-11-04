@@ -20,7 +20,6 @@ export default function HelpPage() {
                 <CardTitle>Getting Started</CardTitle>
               </CardHeader>
               <CardContent className="space-y-2">
-                <p><a href="/auth/signup" className="text-primary underline">How to create an account?</a></p>
                 <p><a href="/dashboard/profile" className="text-primary underline">How to set up your profile?</a></p>
                 <p><a href="/dashboard" className="text-primary underline">Navigating your dashboard.</a></p>
               </CardContent>

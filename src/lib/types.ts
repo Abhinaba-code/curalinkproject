@@ -36,4 +36,5 @@ export type Expert = {
   publicationCount: number;
   avatarUrl: string;
   researchAreas: string[];
+  clinicalTrialCount: number;
 };

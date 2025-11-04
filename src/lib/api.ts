@@ -78,7 +78,7 @@ export async function searchPublications(
   try {
     // Step 1: Search for publication IDs
     const searchResponse = await fetch(
-      `${PUBMED_API_BASE_URL}/esearch.fcgi?db=pubmed&term=${query}&retmax=${pageSize}&retmode=json`
+      `${PUBMED_API_BASE_URL}/esearch.fcgi?db=pubmed&term=${encodeURIComponent(query)}&retmax=${pageSize}&retmode=json`
     );
 
     if (!searchResponse.ok) {
@@ -128,6 +128,7 @@ const formatExpertFromPublication = (authorName: string, pub: Publication, query
       publicationCount: 1, // Can't easily calculate total, so we start with 1
       avatarUrl: `https://picsum.photos/seed/${authorName}/200/200`, // Placeholder image
       researchAreas: [pub.title], // Use publication title as a research area
+      clinicalTrialCount: 0,
     };
   };
 
@@ -166,8 +167,26 @@ export async function searchExperts(
       });
     });
 
+    const expertList = Array.from(expertsMap.values());
+
+    // Enrich with clinical trials data
+    for (const expert of expertList) {
+        try {
+            const trialsResponse = await fetch(
+              `${CLINICAL_TRIALS_API_BASE_URL}/studies?query.term=${encodeURIComponent(expert.name)}&pageSize=10`
+            );
+            if (trialsResponse.ok) {
+              const trialsData = await trialsResponse.json();
+              expert.clinicalTrialCount = trialsData.studies.length;
+            }
+        } catch (error) {
+            console.error(`Failed to fetch clinical trials for ${expert.name}:`, error);
+        }
+    }
+
+
     // Return the most published authors from the result set, up to the limit
-    const sortedExperts = Array.from(expertsMap.values()).sort((a, b) => b.publicationCount - a.publicationCount);
+    const sortedExperts = expertList.sort((a, b) => b.publicationCount - a.publicationCount);
     return sortedExperts.slice(0, limit);
 
   } catch (error) {

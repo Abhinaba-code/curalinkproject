@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
-import { Mail, Plus, Loader2, Search, Heart, Activity, Brain } from "lucide-react"
+import { Mail, Plus, Loader2, Search, Heart, Activity, Brain, FlaskConical } from "lucide-react"
 import { Skeleton } from '@/components/ui/skeleton';
 
 const specialties = [
@@ -41,6 +41,7 @@ function ExpertCard({ expert }: { expert: Expert }) {
             <Badge key={specialty} variant="secondary">{specialty}</Badge>
           ))}
            {expert.publicationCount > 0 && <Badge variant="outline">Publications: {expert.publicationCount}</Badge>}
+           {expert.clinicalTrialCount > 0 && <Badge variant="outline" className="flex items-center"><FlaskConical className="mr-1 h-3 w-3"/> Trials: {expert.clinicalTrialCount}</Badge>}
         </div>
       </CardContent>
       <div className="pt-4 flex justify-center gap-2 p-6">

@@ -15,6 +15,7 @@ interface AuthContextType {
   logout: () => void;
   updateUserProfile: (profileData: ProfileData) => Promise<void>;
   changePassword: (currentPassword: string, newPassword: string) => Promise<void>;
+  deleteAccount: () => Promise<void>;
   loading: boolean;
 }
 
@@ -23,6 +24,10 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const USERS_DB_KEY = 'cura-users-db';
 const CURRENT_USER_KEY = 'cura-user';
 const FAVORITES_KEY = 'cura-favorites';
+const FOLLOW_STORAGE_KEY = 'cura-followed';
+const POSTS_KEY = 'cura-posts';
+const NOTIFICATIONS_KEY = 'cura-notifications';
+
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -192,7 +197,43 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
   };
 
-  const value = { user, signup, login, logout, updateUserProfile, changePassword, loading };
+  const deleteAccount = async () => {
+    return new Promise<void>((resolve, reject) => {
+        if (!user) {
+            return reject(new Error("No user is currently logged in."));
+        }
+
+        // 1. Remove user from the users "DB"
+        const users = getUsers();
+        const updatedUsers = users.filter(u => u.id !== user.id);
+        setUsers(updatedUsers);
+
+        // 2. Clear all associated data from localStorage
+        localStorage.removeItem(`${FAVORITES_KEY}`);
+        localStorage.removeItem(`${FOLLOW_STORAGE_KEY}`);
+        
+        // Example of removing user-specific posts/notifications (more complex logic might be needed)
+        try {
+            const posts = JSON.parse(localStorage.getItem(POSTS_KEY) || '[]');
+            const notifications = JSON.parse(localStorage.getItem(NOTIFICATIONS_KEY) || '[]');
+            
+            const filteredPosts = posts.filter((p: any) => p.author.id !== user.id);
+            const filteredNotifications = notifications.filter((n: any) => n.authorId !== user.id && n.recipientId !== user.id);
+
+            localStorage.setItem(POSTS_KEY, JSON.stringify(filteredPosts));
+            localStorage.setItem(NOTIFICATIONS_KEY, JSON.stringify(filteredNotifications));
+        } catch (e) {
+            console.error("Error clearing user data from posts/notifications", e);
+        }
+        
+        // 3. Log the user out
+        logout();
+
+        resolve();
+    });
+  };
+
+  const value = { user, signup, login, logout, updateUserProfile, changePassword, deleteAccount, loading };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

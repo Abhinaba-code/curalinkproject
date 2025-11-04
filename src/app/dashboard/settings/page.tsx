@@ -43,7 +43,7 @@ import {
 } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/context/auth-provider';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 
 function ChangePasswordDialog() {
@@ -154,18 +154,92 @@ function ChangePasswordDialog() {
   );
 }
 
-export default function SettingsPage() {
-  const { toast } = useToast();
+function DeleteAccountDialog() {
+  const { user, deleteAccount } = useAuth();
+  const [emailInput, setEmailInput] = useState('');
+  const [isConfirmed, setIsConfirmed] = useState(false);
+  const [countdown, setCountdown] = useState<number | null>(null);
+  const [isOpen, setIsOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
-  const handleDeleteAccount = () => {
-    toast({
-      title: 'Account Deletion Requested',
-      description:
-        'This is a demo. In a real application, this would trigger an account deletion process.',
-      variant: 'destructive',
-    });
+  const isEmailMatch = emailInput === user?.email;
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (countdown !== null && countdown > 0) {
+      timer = setTimeout(() => setCountdown(countdown - 1), 1000);
+    }
+    return () => clearTimeout(timer);
+  }, [countdown]);
+
+  const handleConfirmClick = () => {
+    setIsConfirmed(true);
+    setCountdown(3);
   };
+  
+  const handleDelete = async () => {
+    if (countdown === 0) {
+        setIsDeleting(true);
+        await deleteAccount();
+        // The AuthProvider will handle the redirect
+    }
+  }
+  
+  const resetState = () => {
+      setEmailInput('');
+      setIsConfirmed(false);
+      setCountdown(null);
+      setIsDeleting(false);
+  }
 
+  return (
+    <Dialog open={isOpen} onOpenChange={(open) => { setIsOpen(open); if(!open) resetState(); }}>
+      <DialogTrigger asChild>
+        <Button variant="destructive" className="w-full">
+          <Trash2 className="mr-2 h-4 w-4" /> Delete Account
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Are you absolutely sure?</DialogTitle>
+          <DialogDescription>
+            This action cannot be undone. This will permanently delete
+            your account and remove all your data from our servers.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="space-y-4">
+            {!isConfirmed ? (
+                <>
+                    <Label htmlFor="email-confirm">Please type <span className="font-bold">{user?.email}</span> to confirm.</Label>
+                    <Input id="email-confirm" value={emailInput} onChange={(e) => setEmailInput(e.target.value)} placeholder="Enter your email" />
+                </>
+            ) : (
+                <div className="text-center text-destructive font-bold text-2xl p-4 rounded-lg bg-destructive/10">
+                    {countdown !== null && countdown > 0 ? `Deleting in ${countdown}...` : "Ready to delete"}
+                </div>
+            )}
+        </div>
+        <DialogFooter>
+          <DialogClose asChild>
+            <Button variant="outline" onClick={resetState}>Cancel</Button>
+          </DialogClose>
+          {!isConfirmed ? (
+              <Button variant="destructive" onClick={handleConfirmClick} disabled={!isEmailMatch}>
+                  Confirm
+              </Button>
+          ) : (
+              <Button variant="destructive" onClick={handleDelete} disabled={countdown !== 0 || isDeleting}>
+                  {isDeleting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                  {countdown !== 0 ? 'Waiting...' : 'Delete Permanently'}
+              </Button>
+          )}
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+export default function SettingsPage() {
   return (
     <div className="space-y-8">
       <div>
@@ -210,28 +284,7 @@ export default function SettingsPage() {
             <ChangePasswordDialog />
           </CardContent>
           <CardFooter className="border-t border-destructive/20 bg-destructive/5 pt-4">
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button variant="destructive" className="w-full">
-                  <Trash2 className="mr-2 h-4 w-4" /> Delete Account
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    This action cannot be undone. This will permanently delete
-                    your account and remove your data from our servers.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={handleDeleteAccount}>
-                    Continue
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+            <DeleteAccountDialog />
           </CardFooter>
         </Card>
 

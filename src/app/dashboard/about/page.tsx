@@ -1,6 +1,10 @@
 import { User } from 'lucide-react';
+import Image from 'next/image';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 export default function AboutPage() {
+  const aboutImage = PlaceHolderImages.find((img) => img.id === 'about-us');
+
   return (
     <main className="flex-1">
       <section id="about" className="py-20 md:py-32">
@@ -24,10 +28,22 @@ export default function AboutPage() {
                 involved.
               </p>
             </div>
-            <div className="h-64 bg-secondary/30 rounded-lg flex items-center justify-center">
-              <p className="text-muted-foreground">
-                [Placeholder for an inspiring image]
-              </p>
+            <div className="h-80 w-full relative rounded-lg overflow-hidden shadow-lg">
+              {aboutImage ? (
+                <Image
+                  src={aboutImage.imageUrl}
+                  alt={aboutImage.description}
+                  fill
+                  style={{ objectFit: 'cover' }}
+                  data-ai-hint={aboutImage.imageHint}
+                />
+              ) : (
+                <div className="h-full bg-secondary/30 flex items-center justify-center">
+                  <p className="text-muted-foreground">
+                    [Placeholder for an inspiring image]
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </div>

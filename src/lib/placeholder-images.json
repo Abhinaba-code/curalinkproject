@@ -53,6 +53,12 @@
       "description": "An abstract scientific background image.",
       "imageUrl": "https://images.unsplash.com/photo-1486291301608-a503c774721a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxzY2llbmNlJTIwYWJzdHJhY3R8ZW58MHx8fHwxNzYyMjUyMTU1fDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "science abstract"
+    },
+    {
+      "id": "about-us",
+      "description": "A diverse team of researchers collaborating in a modern lab.",
+      "imageUrl": "https://images.unsplash.com/photo-1758270705172-07b53627dfcb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxyZXNlYXJjaCUyMHRlYW18ZW58MHx8fHwxNzYyMjc2ODgzfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "research team"
     }
   ]
 }

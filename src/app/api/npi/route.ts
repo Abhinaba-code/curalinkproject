@@ -60,18 +60,11 @@ export async function GET(request: Request) {
     skip: apiSkip.toString(),
   });
 
-  // Use a broad search if a query is provided
+  // If a query is provided, use it for the taxonomy description.
+  // This is the most reliable way to search for specialties.
+  // For names, the user can use the generic search which also works.
   if (query) {
-    // The API is finicky. A general search works best with one parameter.
-    // We will use taxonomy_description for categories and organization_name for general search.
-    if (['Cardiology', 'Oncology', 'Neurology', 'Pediatrics', 'Dermatology', 'Orthopedics', 'Radiology'].includes(query)) {
-        apiParams.set('taxonomy_description', query);
-    } else {
-        // Search by both first name and last name for individuals, and organization name for orgs
-        apiParams.set('first_name', `*${query}*`);
-        apiParams.set('last_name', `*${query}*`);
-        apiParams.set('organization_name', `*${query}*`);
-    }
+    apiParams.set('taxonomy_description', query);
   } else {
     // If no query, return a default set of results (e.g., from a specific state).
     apiParams.set('state', 'NY');
@@ -114,6 +107,6 @@ export async function GET(request: Request) {
     return NextResponse.json({ results: paginatedResults, totalCount });
   } catch (error) {
     console.error('Error in NPI proxy route:', error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    return NextResponse.json({ error: 'Internal ServerError' }, { status: 500 });
   }
 }

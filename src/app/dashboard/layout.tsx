@@ -65,6 +65,16 @@ function DashboardApp({ children }: { children: React.ReactNode }) {
   }
   
   const isCreateProfilePage = pathname === '/dashboard/create-profile';
+  const profileComplete = user.interests && user.interests.length > 0;
+
+  if (user.role === 'patient' && !profileComplete && !isCreateProfilePage) {
+    router.replace('/dashboard/create-profile');
+    return (
+       <div className="flex h-screen w-full items-center justify-center">
+         <p>Redirecting to profile setup...</p>
+      </div>
+    );
+  }
   
   if (isCreateProfilePage) {
     return <main className="flex-1 p-4 sm:p-6 bg-secondary/30">{children}</main>;

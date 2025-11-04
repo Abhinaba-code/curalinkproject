@@ -7,13 +7,22 @@ export function PublicHeader() {
     <div className="container mx-auto flex h-20 items-center justify-between px-4">
       <Logo />
       <nav className="hidden md:flex items-center gap-6">
-        <Link href="/about" className="text-sm font-medium text-muted-foreground hover:text-primary">
+        <Link
+          href="/about"
+          className="text-sm font-medium text-muted-foreground hover:text-primary"
+        >
           About
         </Link>
-        <Link href="/faq" className="text-sm font-medium text-muted-foreground hover:text-primary">
+        <Link
+          href="/faq"
+          className="text-sm font-medium text-muted-foreground hover:text-primary"
+        >
           FAQ
         </Link>
-        <Link href="/contact" className="text-sm font-medium text-muted-foreground hover:text-primary">
+        <Link
+          href="/contact"
+          className="text-sm font-medium text-muted-foreground hover:text-primary"
+        >
           Contact
         </Link>
       </nav>

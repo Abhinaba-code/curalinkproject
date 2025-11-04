@@ -9,7 +9,14 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Bell, User, KeyRound, Trash2, ExternalLink } from 'lucide-react';
+import {
+  Bell,
+  User,
+  KeyRound,
+  Trash2,
+  ExternalLink,
+  Loader2,
+} from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import Link from 'next/link';
@@ -24,7 +31,128 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogClose,
+} from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/context/auth-provider';
+import { useState } from 'react';
+import { Input } from '@/components/ui/input';
+
+function ChangePasswordDialog() {
+  const { changePassword } = useAuth();
+  const { toast } = useToast();
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [isOpen, setIsOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const handlePasswordChange = async () => {
+    if (newPassword !== confirmPassword) {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: "New passwords don't match.",
+      });
+      return;
+    }
+    if (newPassword.length < 6) {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Password must be at least 6 characters long.',
+      });
+      return;
+    }
+    setLoading(true);
+    try {
+      await changePassword(currentPassword, newPassword);
+      toast({
+        title: 'Success',
+        description: 'Your password has been changed successfully.',
+      });
+      setIsOpen(false);
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+    } catch (error: any) {
+      toast({
+        variant: 'destructive',
+        title: 'Password Change Failed',
+        description: error.message,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button variant="outline" className="w-full justify-start">
+          Change Password
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>Change Password</DialogTitle>
+          <DialogDescription>
+            Enter your current password and a new password below.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-4 py-4">
+          <div className="space-y-2">
+            <Label htmlFor="current-password">Current Password</Label>
+            <Input
+              id="current-password"
+              type="password"
+              value={currentPassword}
+              onChange={(e) => setCurrentPassword(e.target.value)}
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="new-password">New Password</Label>
+            <Input
+              id="new-password"
+              type="password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="confirm-password">Confirm New Password</Label>
+            <Input
+              id="confirm-password"
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+            />
+          </div>
+        </div>
+        <DialogFooter>
+          <DialogClose asChild>
+            <Button variant="outline">Cancel</Button>
+          </DialogClose>
+          <Button onClick={handlePasswordChange} disabled={loading}>
+            {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Change Password
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
 
 export default function SettingsPage() {
   const { toast } = useToast();
@@ -79,9 +207,7 @@ export default function SettingsPage() {
             <CardDescription>
               Manage your login credentials and account status.
             </CardDescription>
-            <Button variant="outline" className="w-full justify-start">
-              Change Password
-            </Button>
+            <ChangePasswordDialog />
           </CardContent>
           <CardFooter className="border-t border-destructive/20 bg-destructive/5 pt-4">
             <AlertDialog>

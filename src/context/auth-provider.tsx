@@ -14,6 +14,7 @@ interface AuthContextType {
   login: (email: string, password: string, role: 'patient' | 'researcher') => Promise<void>;
   logout: () => void;
   updateUserProfile: (profileData: ProfileData) => Promise<void>;
+  changePassword: (currentPassword: string, newPassword: string) => Promise<void>;
   loading: boolean;
 }
 
@@ -165,7 +166,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
   };
 
-  const value = { user, signup, login, logout, updateUserProfile, loading };
+  const changePassword = async (currentPassword: string, newPassword: string) => {
+    return new Promise<void>((resolve, reject) => {
+      if (!user) {
+        return reject(new Error("No user is currently logged in."));
+      }
+
+      const users = getUsers();
+      const userIndex = users.findIndex(u => u.id === user.id);
+
+      if (userIndex === -1) {
+        return reject(new Error("Could not find user."));
+      }
+
+      const userFromDb = users[userIndex];
+      if (userFromDb.password !== currentPassword) {
+        return reject(new Error("The current password you entered is incorrect."));
+      }
+      
+      // Update password in the "database"
+      users[userIndex].password = newPassword;
+      setUsers(users);
+
+      resolve();
+    });
+  };
+
+  const value = { user, signup, login, logout, updateUserProfile, changePassword, loading };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

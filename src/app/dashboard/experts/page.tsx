@@ -151,7 +151,7 @@ export default function ExpertsPage() {
       };
       setLoading(true);
       const location = [city, country].filter(Boolean).join(', ');
-      const fullQuery = [searchTerm, location].filter(Boolean).join(' ');
+      const fullQuery = [searchQuery, location].filter(Boolean).join(' ');
       const fetchedExperts = await searchExperts(fullQuery || 'medicine', 9);
       setExperts(fetchedExperts);
       setLoading(false);
@@ -264,8 +264,8 @@ export default function ExpertsPage() {
         </div>
       ) : experts.length > 0 ? (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {experts.map((expert) => (
-            <ExpertCard key={expert.id} expert={expert} />
+          {experts.map((expert, index) => (
+            <ExpertCard key={`${expert.id}-${index}`} expert={expert} />
           ))}
         </div>
       ) : searchQuery && !loading ? (

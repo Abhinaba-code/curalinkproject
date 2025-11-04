@@ -47,7 +47,7 @@ function ExpertCard({ expert }: { expert: Expert }) {
 
 export default function ExpertsPage() {
     const [experts, setExperts] = useState<Expert[]>([]);
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
     const [name, setName] = useState('');
     const [researchField, setResearchField] = useState('cancer');
     const [location, setLocation] = useState('');
@@ -63,16 +63,13 @@ export default function ExpertsPage() {
         }
         fetchInitialData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [submittedQuery]);
 
     const handleSearch = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
         const query = { name, researchField, location };
         setSubmittedQuery(query);
-        const fetchedExperts = await searchExperts(query.name, query.researchField, query.location, 12);
-        setExperts(fetchedExperts);
-        setLoading(false);
     };
 
     const hasSearched = submittedQuery.name || submittedQuery.researchField || submittedQuery.location;

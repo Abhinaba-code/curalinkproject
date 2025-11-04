@@ -205,7 +205,7 @@ export async function searchExperts(
       queryParts.push(`affiliation-org-name:"${location}"`);
   }
 
-  const query = queryParts.join(' OR ');
+  const query = queryParts.join(' AND ');
   if (!query) return [];
 
   try {

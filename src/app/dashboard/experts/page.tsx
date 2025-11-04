@@ -139,7 +139,9 @@ export default function ExpertsPage() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [searchQuery, setSearchQuery] = useState('medicine');
-
+  const [city, setCity] = useState('');
+  const [country, setCountry] = useState('');
+  
   useEffect(() => {
     async function fetchExperts() {
       if (!searchQuery) {
@@ -148,7 +150,9 @@ export default function ExpertsPage() {
         return;
       };
       setLoading(true);
-      const fetchedExperts = await searchExperts(searchQuery, 9);
+      const location = [city, country].filter(Boolean).join(', ');
+      const fullQuery = [searchTerm, location].filter(Boolean).join(' ');
+      const fetchedExperts = await searchExperts(fullQuery || 'medicine', 9);
       setExperts(fetchedExperts);
       setLoading(false);
     }
@@ -157,12 +161,16 @@ export default function ExpertsPage() {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    setSearchQuery(searchTerm);
+    const location = [city, country].filter(Boolean).join(', ');
+    const fullQuery = [searchTerm, location].filter(Boolean).join(' ');
+    setSearchQuery(fullQuery);
   };
   
   const handleSpecialtySearch = (specialtyQuery: string) => {
     setSearchTerm(specialtyQuery);
-    setSearchQuery(specialtyQuery);
+    const location = [city, country].filter(Boolean).join(', ');
+    const fullQuery = [specialtyQuery, location].filter(Boolean).join(' ');
+    setSearchQuery(fullQuery);
   }
 
   return (
@@ -181,21 +189,41 @@ export default function ExpertsPage() {
       <Card>
         <CardHeader>
           <CardTitle>Manual Search</CardTitle>
-          <CardDescription>Search for experts by name or keyword.</CardDescription>
+          <CardDescription>Search for experts by keyword or location.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <form onSubmit={handleSearch} className="flex-1 max-w-lg relative">
-            <Input
-                placeholder="e.g. cancer, cardiology, John Smith..."
-                className="pr-10"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-            />
-            <Button type="submit" size="icon" variant="ghost" className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8" disabled={loading}>
-              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
-            </Button>
+          <form onSubmit={handleSearch} className="space-y-4">
+            <div className="flex-1 max-w-lg relative">
+              <Input
+                  placeholder="e.g. cancer, cardiology, John Smith..."
+                  className="pr-10"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+              />
+              <Button type="submit" size="icon" variant="ghost" className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8" disabled={loading}>
+                {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
+              </Button>
+            </div>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end">
+                <div className="sm:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                    <label htmlFor="city" className="text-sm font-medium text-muted-foreground">City</label>
+                    <Input id="city" placeholder="e.g. Boston" value={city} onChange={(e) => setCity(e.target.value)} />
+                    </div>
+                    <div>
+                    <label htmlFor="country" className="text-sm font-medium text-muted-foreground">Country</label>
+                    <Input id="country" placeholder="e.g. United States" value={country} onChange={(e) => setCountry(e.target.value)} />
+                    </div>
+                </div>
+                <Button type="submit" className="w-full sm:w-auto" disabled={loading}>
+                    <MapPin className="mr-2 h-4 w-4" />
+                    Search by Location
+                </Button>
+            </div>
+            
           </form>
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2 pt-4 border-t">
               <p className="text-sm font-medium text-muted-foreground">Popular fields:</p>
               {specialties.map(spec => (
                   <Button key={spec.name} variant="outline" size="sm" onClick={() => handleSpecialtySearch(spec.query)}>

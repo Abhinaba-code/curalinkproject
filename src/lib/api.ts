@@ -1,3 +1,4 @@
+
 import { ClinicalTrial, Publication, Expert } from './types';
 import { XMLParser } from 'fast-xml-parser';
 
@@ -26,7 +27,7 @@ const formatTrial = (study: any): ClinicalTrial => {
     phase: protocol.designModule.phases?.join(', ') || 'N/A',
     eligibility: eligibility.eligibilityCriteria || 'No eligibility criteria available.',
     location: protocol.contactsLocationsModule.locations?.[0]?.city || 'N/A',
-    contact: protocol.contactsLocationsModule.centralContacts?.[0?.name || 'N/A',
+    contact: protocol.contactsLocationsModule.centralContacts?.[0]?.name || 'N/A',
     tags: protocol.conditionsModule.conditions || [],
     url: `https://clinicaltrials.gov/study/${nctId}`,
   };
@@ -88,7 +89,7 @@ const formatPublication = (articleData: any): Publication => {
   const authors = article.AuthorList.Author;
   const authorNames = Array.isArray(authors)
     ? authors.map(author => `${author.ForeName} ${author.LastName}`)
-    : authors ? [`${authors.ForeName} ${author.LastName}`] : [];
+    : authors ? [`${authors.ForeName} ${authors.LastName}`] : [];
 
   return {
     id: pmid,

@@ -11,8 +11,10 @@ const formatNPIRecord = (record: any): any | null => {
   
     if (!location) return null;
   
-    const name = [basic.first_name, basic.last_name].filter(Boolean).join(' ');
+    const name = basic.organization_name || [basic.first_name, basic.last_name].filter(Boolean).join(' ');
     const specialty = taxonomies[0]?.desc || 'Not specified';
+
+    if (!name) return null;
   
     return {
       id: record.number.toString(),

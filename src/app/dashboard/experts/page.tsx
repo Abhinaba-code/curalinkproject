@@ -7,9 +7,17 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Building, ExternalLink, Loader2, Microscope, Search, Pin } from 'lucide-react';
+import { Microscope, ExternalLink, Loader2, Search, Pin } from 'lucide-react';
 import { searchExperts } from '@/lib/api';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
+const specialties = [
+    "Cardiology", "Dermatology", "Endocrinology", "Gastroenterology", 
+    "Neurology", "Oncology", "Orthopedics", "Pediatrics", 
+    "Psychiatry", "Pulmonology", "Radiology", "Urology"
+];
+
 
 function ExpertCard({ expert }: { expert: Expert }) {
     const initials = expert.name ? expert.name.split(' ').map(n => n[0]).join('') : '??';
@@ -103,8 +111,17 @@ export default function ExpertsPage() {
                     <CardContent className="pt-6 space-y-4">
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                             <div>
-                                <label htmlFor="specialty" className="text-sm font-medium text-muted-foreground">Specialty / Taxonomy</label>
-                                <Input id="specialty" placeholder="e.g. Cardiology" value={specialty} onChange={(e) => setSpecialty(e.target.value)} />
+                                <label htmlFor="specialty" className="text-sm font-medium text-muted-foreground">Category</label>
+                                <Select value={specialty} onValueChange={setSpecialty}>
+                                    <SelectTrigger id="specialty">
+                                        <SelectValue placeholder="Select a specialty" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {specialties.map(spec => (
+                                            <SelectItem key={spec} value={spec}>{spec}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
                             </div>
                              <div>
                                 <label htmlFor="city" className="text-sm font-medium text-muted-foreground">City</label>

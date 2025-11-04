@@ -69,21 +69,17 @@ export default function ExpertsPage() {
     const [experts, setExperts] = useState<Expert[]>([]);
     const [loading, setLoading] = useState(true);
     const [query, setQuery] = useState('');
-    const [submittedQuery, setSubmittedQuery] = useState('Cardiology');
-    const [initialLoad, setInitialLoad] = useState(true);
+    const [submittedQuery, setSubmittedQuery] = useState('Cardiology'); // Default search
     
     useEffect(() => {
-        async function fetchInitialData() {
+        async function fetchData() {
             setLoading(true);
             const fetchedExperts = await searchExperts(submittedQuery, 12);
             setExperts(fetchedExperts);
             setLoading(false);
-            if (initialLoad) {
-                setInitialLoad(false);
-            }
         }
 
-        fetchInitialData();
+        fetchData();
     }, [submittedQuery]);
 
     const handleSearch = async (e: React.FormEvent) => {
@@ -95,8 +91,6 @@ export default function ExpertsPage() {
         setQuery(category);
         setSubmittedQuery(category);
     }
-
-    const hasSearched = !initialLoad;
 
     return (
         <div className="space-y-6">
@@ -171,19 +165,11 @@ export default function ExpertsPage() {
                         <ExpertCard key={expert.id} expert={expert} />
                     ))}
                 </div>
-            ) : hasSearched ? (
+            ) : (
                  <Card className="flex items-center justify-center h-64 border-dashed col-span-full">
                     <div className="text-center">
                         <p className="text-lg font-medium">No Providers Found</p>
                         <p className="text-sm text-muted-foreground">Your search for "{submittedQuery}" did not return any results. Try different or broader criteria.</p>
-                    </div>
-                </Card>
-            ) : (
-                 <Card className="flex items-center justify-center h-64 border-dashed col-span-full">
-                    <div className="text-center">
-                         <Microscope className="mx-auto h-12 w-12 text-muted-foreground" />
-                        <p className="mt-4 text-lg font-medium">Search for Providers</p>
-                        <p className="text-sm text-muted-foreground">Use the filters above to find healthcare providers.</p>
                     </div>
                 </Card>
             )}

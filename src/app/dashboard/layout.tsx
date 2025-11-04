@@ -25,7 +25,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { useEffect } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { FavoritesSidebar } from '@/components/favorites-sidebar';
-import { FavoritesProvider } from '@/context/favorites-provider';
+import { FavoritesProvider, useFavorites } from '@/context/favorites-provider';
 
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -35,14 +35,11 @@ const navItems = [
   { href: '/dashboard/forums', label: 'Forums', icon: HeartPulse },
 ];
 
-export default function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+function DashboardApp({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
+  const { setShowFavorites } = useFavorites();
 
   useEffect(() => {
     if (!loading && !user) {
@@ -68,48 +65,59 @@ export default function DashboardLayout({
   }
 
   return (
+    <SidebarProvider>
+      <Sidebar collapsible="icon" className="bg-sidebar">
+        <SidebarHeader>
+          <Logo className="text-sidebar-foreground group-data-[collapsible=icon]:hidden" />
+        </SidebarHeader>
+        <SidebarContent>
+          <SidebarMenu>
+            {navItems.map((item) => (
+              <SidebarMenuItem key={item.href}>
+                <SidebarMenuButton
+                  href={item.href}
+                  asChild
+                  isActive={pathname === item.href}
+                  tooltip={{ children: item.label, className: 'bg-primary text-primary-foreground' }}
+                >
+                  <a href={item.href}>
+                    <item.icon />
+                    <span>{item.label}</span>
+                  </a>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ))}
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                onClick={() => setShowFavorites(true)}
+                tooltip={{ children: 'Favorites', className: 'bg-primary text-primary-foreground' }}
+              >
+                <Star />
+                <span>Favorites</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarContent>
+      </Sidebar>
+      <SidebarInset className="bg-background flex">
+        <div className="flex flex-col flex-1">
+          <AppHeader />
+          <main className="flex-1 p-4 sm:p-6">{children}</main>
+        </div>
+        <FavoritesSidebar />
+      </SidebarInset>
+    </SidebarProvider>
+  );
+}
+
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
     <FavoritesProvider>
-      <SidebarProvider>
-        <Sidebar collapsible="icon" className="bg-sidebar">
-          <SidebarHeader>
-            <Logo className="text-sidebar-foreground group-data-[collapsible=icon]:hidden" />
-          </SidebarHeader>
-          <SidebarContent>
-            <SidebarMenu>
-              {navItems.map((item) => (
-                <SidebarMenuItem key={item.href}>
-                  <SidebarMenuButton
-                    href={item.href}
-                    asChild
-                    isActive={pathname === item.href}
-                    tooltip={{ children: item.label, className: 'bg-primary text-primary-foreground' }}
-                  >
-                    <a href={item.href}>
-                      <item.icon />
-                      <span>{item.label}</span>
-                    </a>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-                 <SidebarMenuItem>
-                  <SidebarMenuButton
-                    tooltip={{ children: 'Favorites', className: 'bg-primary text-primary-foreground' }}
-                  >
-                    <Star />
-                    <span>Favorites</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarContent>
-        </Sidebar>
-        <SidebarInset className="bg-background flex">
-          <div className="flex flex-col flex-1">
-            <AppHeader />
-            <main className="flex-1 p-4 sm:p-6">{children}</main>
-          </div>
-          <FavoritesSidebar />
-        </SidebarInset>
-      </SidebarProvider>
+      <DashboardApp>{children}</DashboardApp>
     </FavoritesProvider>
   );
 }

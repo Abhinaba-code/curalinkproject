@@ -2,7 +2,6 @@ import { ClinicalTrial, Publication, Expert } from './types';
 
 const CLINICAL_TRIALS_API_BASE_URL = 'https://clinicaltrials.gov/api/v2';
 const PUBMED_API_BASE_URL = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils';
-const ORCID_API_BASE_URL = 'https://pub.orcid.org/v3.0';
 
 // A mapping from the API's status to the app's status
 const statusMapping: { [key: string]: ClinicalTrial['status'] } = {
@@ -125,7 +124,6 @@ export async function searchPublications(
 }
 
 const formatExpertFromPublication = (authorName: string, pub: Publication, query: string): Expert => {
-    const orcidId = `${authorName.replace(' ', '-')}`; // Simplistic slug
     return {
       id: `${authorName}-${pub.id}`, // Create a pseudo-unique ID
       name: authorName,
@@ -135,7 +133,7 @@ const formatExpertFromPublication = (authorName: string, pub: Publication, query
       avatarUrl: `https://picsum.photos/seed/${authorName}/200/200`, // Placeholder image
       researchAreas: [pub.title], // Use publication title as a research area
       clinicalTrialCount: 0,
-      url: `https://orcid.org/orcid-search/quick-search/?searchQuery=${encodeURIComponent(authorName)}`
+      url: `https://pubmed.ncbi.nlm.nih.gov/?term=${encodeURIComponent(authorName)}[Author]`,
     };
   };
 
@@ -175,6 +173,7 @@ export async function searchExperts(
     });
 
     const expertList = Array.from(expertsMap.values());
+    
     // The following block is very slow and has been removed for performance.
     // We can add it back in a more performant way later if needed.
     /*

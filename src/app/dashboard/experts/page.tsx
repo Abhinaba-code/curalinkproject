@@ -58,23 +58,23 @@ function ExpertCard({ expert }: { expert: Expert }) {
 export default function ExpertsPage() {
     const [experts, setExperts] = useState<Expert[]>([]);
     const [loading, setLoading] = useState(true);
-    const [query, setQuery] = useState('');
-    const [submittedQuery, setSubmittedQuery] = useState('');
+    const [searchTerm, setSearchTerm] = useState('');
+    const [currentQuery, setCurrentQuery] = useState<string | undefined>(undefined);
     
     useEffect(() => {
         async function fetchData() {
             setLoading(true);
-            const fetchedExperts = await searchExperts(submittedQuery, 12);
+            const fetchedExperts = await searchExperts(currentQuery, 12);
             setExperts(fetchedExperts);
             setLoading(false);
         }
 
         fetchData();
-    }, [submittedQuery]);
+    }, [currentQuery]);
 
     const handleSearch = async (e: React.FormEvent) => {
         e.preventDefault();
-        setSubmittedQuery(query);
+        setCurrentQuery(searchTerm);
     };
 
     return (
@@ -93,8 +93,8 @@ export default function ExpertsPage() {
                     <Input 
                         id="expert-search" 
                         placeholder="e.g. Dr. John Doe, Cardiology, Boston..." 
-                        value={query} 
-                        onChange={(e) => setQuery(e.target.value)} 
+                        value={searchTerm} 
+                        onChange={(e) => setSearchTerm(e.target.value)} 
                     />
                     <Button type="submit" disabled={loading}>
                         {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Search className="mr-2 h-4 w-4" />}
@@ -133,7 +133,7 @@ export default function ExpertsPage() {
                  <Card className="flex items-center justify-center h-64 border-dashed col-span-full">
                     <div className="text-center">
                         <p className="text-lg font-medium">No Providers Found</p>
-                        <p className="text-sm text-muted-foreground">Your search for "{submittedQuery}" did not return any results. Try different or broader criteria.</p>
+                        <p className="text-sm text-muted-foreground">Your search for "{currentQuery}" did not return any results. Try different or broader criteria.</p>
                     </div>
                 </Card>
             )}

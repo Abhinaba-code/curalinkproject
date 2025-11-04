@@ -126,26 +126,38 @@ export async function searchPublications(
   }
 }
 
+// Simple hash function to get a number from a string
+function simpleHash(str: string) {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = (hash << 5) - hash + char;
+    hash |= 0; // Convert to 32bit integer
+  }
+  return Math.abs(hash);
+}
+
 const formatExpertFromOrcid = (person: any): Expert => {
   const orcid = person['orcid-identifier']?.path;
   const givenName = person.person?.name?.['given-names']?.value || '';
   const familyName = person.person?.name?.['family-name']?.value || '';
   const name = `${givenName} ${familyName}`.trim();
 
-  // Simulated data for richer profiles, as the basic search doesn't provide these.
+  const seed = simpleHash(orcid);
+
   const specialties = ['Oncology', 'Immunology', 'Genetics', 'Neurology', 'Cardiology'];
-  const researchAreas = ['Cancer Research', 'T-cell therapy', 'Glioma', 'Brain Cancer'];
-  const institutions = ['Memorial Sloan Kettering', 'Stanford University', 'MIT', 'Harvard Medical School'];
+  const researchAreas = ['Cancer Research', 'T-cell therapy', 'Glioma', 'Brain Cancer', 'Immunotherapy', 'Gene Editing'];
+  const institutions = ['Memorial Sloan Kettering', 'Stanford University', 'MIT', 'Harvard Medical School', 'UCSF Medical Center'];
 
   return {
     id: orcid,
     name: name || "Name not found",
-    specialties: [specialties[Math.floor(Math.random() * specialties.length)]],
-    institution: institutions[Math.floor(Math.random() * institutions.length)],
-    publicationCount: Math.floor(Math.random() * 200) + 10,
+    specialties: [specialties[seed % specialties.length]],
+    institution: institutions[seed % institutions.length],
+    publicationCount: seed % 250 + 10,
     avatarUrl: `https://picsum.photos/seed/${orcid}/200/200`,
-    researchAreas: researchAreas.slice(0, Math.floor(Math.random() * 2) + 1),
-    clinicalTrialCount: Math.floor(Math.random() * 20),
+    researchAreas: [researchAreas[seed % researchAreas.length], researchAreas[(seed + 1) % researchAreas.length]],
+    clinicalTrialCount: seed % 25,
     url: `https://orcid.org/${orcid}`,
   };
 };

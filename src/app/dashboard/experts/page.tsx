@@ -55,14 +55,6 @@ function ExpertCard({ expert }: { expert: Expert }) {
             </div>
           </div>}
       </CardContent>
-      <CardFooter className="pt-4 flex justify-end gap-2 p-4">
-        <Button size="sm" variant="outline" asChild>
-          <a href={expert.url} target="_blank" rel="noopener noreferrer">
-            <ExternalLink className="mr-2 h-4 w-4" />
-            View ORCID
-          </a>
-        </Button>
-      </CardFooter>
     </Card>
   );
 }

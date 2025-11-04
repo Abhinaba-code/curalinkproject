@@ -26,7 +26,7 @@ function ExpertCard({ expert }: { expert: Expert }) {
   const fallback = expert.name
     .split(' ')
     .map(n => n[0])
-    .join('');
+    .join('') || 'E';
 
   return (
     <Card className="flex flex-col">
@@ -47,13 +47,13 @@ function ExpertCard({ expert }: { expert: Expert }) {
         </div>
       </CardHeader>
       <CardContent className="space-y-3 flex-grow">
-          <div className="flex items-start gap-2 text-sm">
+          {expert.researchAreas.length > 0 && <div className="flex items-start gap-2 text-sm">
             <Microscope className="h-4 w-4 mt-0.5 text-muted-foreground" />
             <div>
               <h4 className='font-semibold'>Research</h4>
               <p className='text-muted-foreground'>{expert.researchAreas.join(', ')}</p>
             </div>
-          </div>
+          </div>}
       </CardContent>
       <CardFooter className="pt-4 flex justify-end gap-2 p-4">
         <Button size="sm" variant="outline" asChild>
@@ -162,7 +162,7 @@ export default function ExpertsPage() {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     const location = [city, country].filter(Boolean).join(', ');
-    const fullQuery = searchTerm || 'health';
+    const fullQuery = searchTerm || '';
     const finalQuery = [fullQuery, location].filter(Boolean).join(' ');
     setSearchQuery(finalQuery);
   };
@@ -280,3 +280,5 @@ export default function ExpertsPage() {
     </div>
   )
 }
+
+    

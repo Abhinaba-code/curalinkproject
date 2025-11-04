@@ -91,7 +91,7 @@ const formatPublication = (articleData: any): Publication => {
   const authors = article.AuthorList.Author;
   const authorNames = Array.isArray(authors)
     ? authors.map(author => `${author.ForeName} ${author.LastName}`)
-    : authors ? [`${authors.ForeName} ${authors.LastName}`] : [];
+    : authors ? [`${authors.ForeName} ${author.LastName}`] : [];
 
   return {
     id: pmid,
@@ -177,6 +177,51 @@ function simpleHash(str: string) {
   return Math.abs(hash);
 }
 
+// New function to fetch detailed person data from ORCID
+async function getOrcidPersonDetails(orcid: string): Promise<Partial<Expert>> {
+  try {
+    const response = await fetch(
+      `${ORCID_API_BASE_URL}/${orcid}/person`, 
+      { headers: { 'Accept': 'application/json' } }
+    );
+    if (!response.ok) return {};
+    const data = await response.json();
+
+    const name = `${data.name?.['given-names']?.value || ''} ${data.name?.['family-name']?.value || ''}`.trim();
+    
+    const keywordsResponse = await fetch(
+      `${ORCID_API_BASE_URL}/${orcid}/keywords`,
+      { headers: { 'Accept': 'application/json' } }
+    );
+    let researchAreas: string[] = [];
+    if(keywordsResponse.ok) {
+        const keywordsData = await keywordsResponse.json();
+        researchAreas = (keywordsData.keyword || []).map((k: any) => k.content).slice(0, 3);
+    }
+    
+    const affiliationsResponse = await fetch(
+      `${ORCID_API_BASE_URL}/${orcid}/employments`,
+      { headers: { 'Accept': 'application/json' } }
+    );
+    let institution = "N/A";
+    if (affiliationsResponse.ok) {
+        const affiliationsData = await affiliationsResponse.json();
+        if (affiliationsData['employment-summary']?.[0]?.['organization']?.name) {
+            institution = affiliationsData['employment-summary'][0]['organization'].name;
+        }
+    }
+    
+    return {
+      name: name || "Unnamed Researcher",
+      researchAreas,
+      institution,
+    };
+  } catch (error) {
+    console.error(`Failed to fetch details for ORCID ${orcid}:`, error);
+    return {};
+  }
+}
+
 export async function searchExperts(
   query: string,
   limit: number = 9
@@ -195,43 +240,35 @@ export async function searchExperts(
     }
     const data = await response.json();
     
-    // The main results are in expanded-result, but sometimes they are in 'result'
-    const results = data['expanded-result'] || data.result || [];
+    const results = data.result || [];
     if (results.length === 0) return [];
 
-    const formattedExperts = results.map((result: any) => {
+    const expertPromises = results.map(async (result: any) => {
         const orcid = result['orcid-id'];
-        const givenName = result['given-names'];
-        const familyName = result['family-name'];
-        let name = `${givenName} ${familyName}`.trim();
-        if(!name) {
-          // Fallback for cases where name is not in the top-level fields
-          const creditName = result['credit-name'];
-          if(creditName) name = creditName;
-        }
+        const details = await getOrcidPersonDetails(orcid);
 
         const seed = simpleHash(orcid);
         const specialties = ['Oncology', 'Immunology', 'Genetics', 'Neurology', 'Cardiology', 'Pulmonology', 'Nephrology'];
-        const researchAreas = ['Cancer Research', 'T-cell therapy', 'Glioma', 'Brain Cancer', 'Immunotherapy', 'Gene Editing', 'Metastasis'];
-        const institutions = ['Memorial Sloan Kettering', 'Stanford University', 'MIT', 'Harvard Medical School', 'UCSF Medical Center', 'MD Anderson Cancer Center', 'Mayo Clinic'];
 
         return {
             id: orcid,
-            name: name || "Unnamed Researcher",
-            specialties: [specialties[seed % specialties.length]],
-            institution: institutions[seed % institutions.length],
-            publicationCount: seed % 250 + 10,
+            name: details.name || "Unnamed Researcher",
+            specialties: details.researchAreas && details.researchAreas.length > 0 ? details.researchAreas.slice(0,1) : [specialties[seed % specialties.length]],
+            institution: details.institution || 'N/A',
+            publicationCount: seed % 250 + 10, // Placeholder
             avatarUrl: `https://picsum.photos/seed/${orcid}/200/200`,
-            researchAreas: [researchAreas[seed % researchAreas.length], researchAreas[(seed + 1) % researchAreas.length]],
-            clinicalTrialCount: seed % 25,
+            researchAreas: details.researchAreas || [],
+            clinicalTrialCount: seed % 25, // Placeholder
             url: `https://orcid.org/${orcid}`,
         }
     });
 
-    return formattedExperts;
+    return Promise.all(expertPromises);
 
   } catch (error) {
     console.error('Failed to fetch experts from ORCID:', error);
     return [];
   }
 }
+
+    

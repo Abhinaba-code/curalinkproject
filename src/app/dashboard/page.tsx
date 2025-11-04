@@ -109,7 +109,7 @@ export default function DashboardPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <h1 className="font-headline text-3xl font-bold">
-          Welcome back, {user?.name}!
+          Welcome back, {user?.name || 'User'}!
         </h1>
         <Button>
           <PlusCircle className="mr-2 h-4 w-4" />

@@ -12,12 +12,14 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { summarizeMedicalPublication } from '@/ai/flows/ai-summarize-medical-publications';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { useFavorites } from '@/context/favorites-provider';
+import { useToast } from '@/hooks/use-toast';
 
 function PublicationCard({ pub }: { pub: Publication }) {
     const [summary, setSummary] = useState('');
     const [isLoadingSummary, setIsLoadingSummary] = useState(false);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const { isFavorite, toggleFavorite } = useFavorites();
+    const { toast } = useToast();
     const favorite = isFavorite(pub.id);
 
     const handleSummarize = async () => {
@@ -33,6 +35,37 @@ function PublicationCard({ pub }: { pub: Publication }) {
             setSummary('Sorry, we were unable to generate a summary for this publication.');
         } finally {
             setIsLoadingSummary(false);
+        }
+    };
+
+    const handleShare = async () => {
+        const shareData = {
+          title: pub.title,
+          text: `Check out this publication: ${pub.title}`,
+          url: pub.url,
+        };
+    
+        if (navigator.share) {
+          try {
+            await navigator.share(shareData);
+          } catch (error) {
+            console.error('Error sharing:', error);
+          }
+        } else {
+          try {
+            await navigator.clipboard.writeText(pub.url);
+            toast({
+              title: 'Link Copied!',
+              description: 'The publication link has been copied to your clipboard.',
+            });
+          } catch (error) {
+            console.error('Error copying to clipboard:', error);
+            toast({
+              variant: 'destructive',
+              title: 'Copy Failed',
+              description: 'Could not copy the link to your clipboard.',
+            });
+          }
         }
     };
 
@@ -63,7 +96,7 @@ function PublicationCard({ pub }: { pub: Publication }) {
                         <Button variant="ghost" size="icon" onClick={() => toggleFavorite(pub, 'publication')}>
                              <Star className={`h-5 w-5 ${favorite ? 'text-yellow-400 fill-yellow-400' : 'text-muted-foreground'}`} />
                         </Button>
-                        <Button variant="ghost" size="icon">
+                        <Button variant="ghost" size="icon" onClick={handleShare}>
                             <Share2 className="h-4 w-4" />
                         </Button>
                     </div>

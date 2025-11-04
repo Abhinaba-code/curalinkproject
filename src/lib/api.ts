@@ -1,3 +1,4 @@
+
 import { ClinicalTrial, Publication } from './types';
 
 const CLINICAL_TRIALS_API_BASE_URL = 'https://clinicaltrials.gov/api/v2';
@@ -75,9 +76,10 @@ export async function searchPublications(
     // Step 1: Search for publication IDs
     const searchResponse = await fetch(
       `${PUBMED_API_BASE_URL}/esearch.fcgi?db=pubmed&term=${query}&retmax=${pageSize}&retmode=json`
-    );
+    ).catch(e => { throw new Error('PubMed search request failed.'); });
+
     if (!searchResponse.ok) {
-      throw new Error(`HTTP error! status: ${searchResponse.status}`);
+      throw new Error(`PubMed search API error! status: ${searchResponse.status}`);
     }
     const searchData = await searchResponse.json();
     
@@ -96,9 +98,10 @@ export async function searchPublications(
     // Step 2: Fetch summaries for the found IDs
     const summaryResponse = await fetch(
       `${PUBMED_API_BASE_URL}/esummary.fcgi?db=pubmed&id=${ids.join(',')}&retmode=json`
-    );
+    ).catch(e => { throw new Error('PubMed summary request failed.'); });
+
     if (!summaryResponse.ok) {
-      throw new Error(`HTTP error! status: ${summaryResponse.status}`);
+      throw new Error(`PubMed summary API error! status: ${summaryResponse.status}`);
     }
     const summaryData = await summaryResponse.json();
     

@@ -15,6 +15,7 @@ import { useAuth } from '@/context/auth-provider';
 import Link from 'next/link';
 import { useState } from 'react';
 import { Logo } from '@/components/logo';
+import { ArrowLeft } from 'lucide-react';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -29,7 +30,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-background to-teal-50/50 p-4">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-background to-blue-50/50 p-4">
       <Card className="w-full max-w-md shadow-2xl bg-card/80 backdrop-blur-lg">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
@@ -75,6 +76,12 @@ export default function LoginPage() {
               Sign up
             </Link>
           </p>
+           <Button variant="link" asChild className="text-muted-foreground">
+            <Link href="/">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to Home
+            </Link>
+          </Button>
         </CardFooter>
       </Card>
     </div>

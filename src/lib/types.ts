@@ -1,3 +1,4 @@
+
 export type User = {
   id: string;
   email: string;
@@ -31,9 +32,13 @@ export type Publication = {
 };
 
 export type Expert = {
-  id: string; // ORCID iD
+  id: string; // NPI number
   name: string;
-  affiliation: string | null;
+  specialty: string;
+  address: string;
+  city: string;
+  state: string;
+  zip: string;
   url: string;
   avatarUrl: string;
 };

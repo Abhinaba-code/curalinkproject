@@ -4,7 +4,7 @@ import { XMLParser } from 'fast-xml-parser';
 
 const CLINICAL_TRIALS_API_BASE_URL = 'https://clinicaltrials.gov/api/v2';
 const PUBMED_API_BASE_URL = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils';
-const ORCID_API_BASE_URL = 'https://pub.orcid.org/v3.0';
+const NPI_REGISTRY_API_BASE_URL = 'https://npiregistry.cms.hhs.gov/api/';
 
 
 // A mapping from the API's status to the app's status
@@ -166,77 +166,78 @@ export async function searchPublications(
 }
 
 
-const formatExpertFromOrcid = (result: any): Expert | null => {
-  const orcidId = result['orcid-id'];
-  if (!orcidId) return null;
+const formatNPIRecord = (record: any): Expert | null => {
+  if (!record || !record.number) return null;
 
-  const name = result['given-names'] && result['family-name'] ? `${result['given-names']} ${result['family-name']}` : 'Name not available';
-  const affiliation = result['institution-name'] ? (Array.isArray(result['institution-name']) ? result['institution-name'][0] : result['institution-name']) : null;
-  
+  const { basic, addresses = [], taxonomies = [] } = record;
+  const location = addresses.find(addr => addr.address_purpose === 'LOCATION');
+
+  if (!location) return null;
+
+  const name = [basic.first_name, basic.last_name].filter(Boolean).join(' ');
+  const specialty = taxonomies[0]?.desc || 'Not specified';
+
   return {
-      id: orcidId,
-      name: name,
-      affiliation: affiliation,
-      url: `https://orcid.org/${orcidId}`,
-      avatarUrl: `https://picsum.photos/seed/${orcidId}/200/200`,
+    id: record.number.toString(),
+    name: name,
+    specialty: specialty,
+    address: location.address_1,
+    city: location.city,
+    state: location.state,
+    zip: location.postal_code,
+    url: `https://npiregistry.cms.hhs.gov/provider-view/${record.number}`,
+    avatarUrl: `https://picsum.photos/seed/${record.number}/200/200`,
   };
-};
+}
 
 export async function searchExperts(
-  name: string,
-  researchField: string,
-  location: string, // This will be treated as affiliation
+  specialty: string,
+  city: string,
+  state: string,
   pageSize: number = 12
 ): Promise<Expert[]> {
-  const queryParts = [];
-  if (name) {
-      // Basic name parsing, works for "First Last"
-      const nameParts = name.split(' ');
-      if (nameParts.length > 1) {
-          queryParts.push(`(given-names:${nameParts[0]} AND family-name:${nameParts.slice(1).join(' ')})`);
-      } else {
-          queryParts.push(`(given-names:${name} OR family-name:${name})`);
-      }
-  }
-  if (researchField) {
-      queryParts.push(`keyword:${researchField}`);
-  }
-  if (location) {
-      queryParts.push(`affiliation-org-name:"${location}"`);
-  }
+  const params = new URLSearchParams({
+    version: '2.1',
+    limit: pageSize.toString(),
+  });
 
-  let query = queryParts.join(' AND ');
-  if (!query) {
-    query = 'health'; // Default search if no other criteria are provided
+  if (specialty) {
+    params.set('taxonomy_description', specialty);
   }
-
+  if (city) {
+    params.set('city', city);
+  }
+  if (state) {
+    params.set('state', state);
+  }
+  
+  // If no search terms, use a default to get some results
+  if (!specialty && !city && !state) {
+    params.set('taxonomy_description', 'Cardiology');
+    params.set('city', 'New York');
+    params.set('state', 'NY');
+  }
 
   try {
-      const url = `${ORCID_API_BASE_URL}/search?q=${encodeURIComponent(query)}&rows=${pageSize}`;
-      const response = await fetch(url, {
-          headers: {
-              'Accept': 'application/json',
-          },
-      });
+    const url = `${NPI_REGISTRY_API_BASE_URL}?${params.toString()}`;
+    const response = await fetch(url);
 
-      if (!response.ok) {
-          throw new Error(`ORCID API error! status: ${response.status}`);
-      }
+    if (!response.ok) {
+      throw new Error(`NPI Registry API error! status: ${response.status}`);
+    }
 
-      const data = await response.json();
+    const data = await response.json();
+    
+    if (data.result_count === 0 || !data.results) {
+      return [];
+    }
 
-      if (!data['result'] || data['result'].length === 0) {
-          return [];
-      }
-
-      const experts: Expert[] = data.result
-        .map((res: any) => formatExpertFromOrcid(res))
-        .filter((expert: Expert | null): expert is Expert => expert !== null);
-      
-      return experts;
+    return data.results
+      .map(formatNPIRecord)
+      .filter((expert: Expert | null): expert is Expert => expert !== null);
 
   } catch (error) {
-      console.error('Failed to fetch experts from ORCID:', error);
-      return [];
+    console.error('Failed to fetch experts from NPI Registry:', error);
+    return [];
   }
 }

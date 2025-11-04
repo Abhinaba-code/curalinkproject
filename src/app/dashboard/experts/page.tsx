@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -6,7 +7,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Building, ExternalLink, Loader2, Microscope, Search } from 'lucide-react';
+import { Building, ExternalLink, Loader2, Microscope, Search, Pin } from 'lucide-react';
 import { searchExperts } from '@/lib/api';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -22,22 +23,25 @@ function ExpertCard({ expert }: { expert: Expert }) {
                 </Avatar>
                 <div>
                     <CardTitle>{expert.name || 'Name not available'}</CardTitle>
-                    {expert.affiliation && (
+                    {expert.specialty && (
                          <CardDescription className="flex items-center gap-2 mt-1">
-                            <Building className="h-4 w-4" />
-                            {expert.affiliation}
+                            <Microscope className="h-4 w-4" />
+                            {expert.specialty}
                         </CardDescription>
                     )}
                 </div>
             </CardHeader>
             <CardContent>
-                 <p className="text-sm text-muted-foreground">ORCID: {expert.id}</p>
+                 <p className="text-sm text-muted-foreground flex items-center gap-2">
+                    <Pin className="h-4 w-4" />
+                    {expert.address}, {expert.city}, {expert.state} {expert.zip}
+                 </p>
             </CardContent>
             <CardFooter>
                 <Button variant="outline" asChild size="sm">
                     <a href={expert.url} target="_blank" rel="noopener noreferrer">
                         <ExternalLink className="mr-2 h-4 w-4" />
-                        View on ORCID
+                        View on NPI Registry
                     </a>
                 </Button>
             </CardFooter>
@@ -45,33 +49,28 @@ function ExpertCard({ expert }: { expert: Expert }) {
     );
 }
 
-const initialSearchTerms = ['cardiology', 'genetics', 'oncology', 'pediatrics', 'neurology', 'immunology', 'public health'];
-
-
 export default function ExpertsPage() {
     const [experts, setExperts] = useState<Expert[]>([]);
     const [loading, setLoading] = useState(true);
-    const [name, setName] = useState('');
-    const [researchField, setResearchField] = useState('');
-    const [location, setLocation] = useState('');
+    const [specialty, setSpecialty] = useState('');
+    const [city, setCity] = useState('');
+    const [state, setState] = useState('');
 
     const [submittedQuery, setSubmittedQuery] = useState({ 
-        name: '', 
-        researchField: '', 
-        location: '' 
+        specialty: '', 
+        city: '', 
+        state: '' 
     });
 
     useEffect(() => {
-        const randomTerm = initialSearchTerms[Math.floor(Math.random() * initialSearchTerms.length)];
-        setResearchField(randomTerm);
-        setSubmittedQuery({ name: '', researchField: randomTerm, location: '' });
+        // Set initial default search to show some results
+        setSubmittedQuery({ specialty: 'Cardiology', city: 'New York', state: 'NY' });
     }, []);
 
     useEffect(() => {
         async function fetchInitialData() {
-            if (!submittedQuery.researchField && !submittedQuery.name && !submittedQuery.location) return;
             setLoading(true);
-            const fetchedExperts = await searchExperts(submittedQuery.name, submittedQuery.researchField, submittedQuery.location, 12);
+            const fetchedExperts = await searchExperts(submittedQuery.specialty, submittedQuery.city, submittedQuery.state, 12);
             setExperts(fetchedExperts);
             setLoading(false);
         }
@@ -82,11 +81,11 @@ export default function ExpertsPage() {
     const handleSearch = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
-        const query = { name, researchField, location };
+        const query = { specialty, city, state };
         setSubmittedQuery(query);
     };
 
-    const hasSearchedOrIsDefault = submittedQuery.name || submittedQuery.researchField || submittedQuery.location;
+    const hasSearched = submittedQuery.specialty || submittedQuery.city || submittedQuery.state;
 
     return (
         <div className="space-y-6">
@@ -95,7 +94,7 @@ export default function ExpertsPage() {
                     Connect with Experts
                 </h1>
                 <p className="text-muted-foreground">
-                    Find collaborators and specialists in your field via ORCID.
+                    Find healthcare providers in the US via the NPI Registry.
                 </p>
             </div>
 
@@ -104,21 +103,21 @@ export default function ExpertsPage() {
                     <CardContent className="pt-6 space-y-4">
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                             <div>
-                                <label htmlFor="name" className="text-sm font-medium text-muted-foreground">Name</label>
-                                <Input id="name" placeholder="e.g. John Doe" value={name} onChange={(e) => setName(e.target.value)} />
+                                <label htmlFor="specialty" className="text-sm font-medium text-muted-foreground">Specialty / Taxonomy</label>
+                                <Input id="specialty" placeholder="e.g. Cardiology" value={specialty} onChange={(e) => setSpecialty(e.target.value)} />
                             </div>
                              <div>
-                                <label htmlFor="research" className="text-sm font-medium text-muted-foreground">Research Field / Keyword</label>
-                                <Input id="research" placeholder="e.g. immunology" value={researchField} onChange={(e) => setResearchField(e.target.value)} />
+                                <label htmlFor="city" className="text-sm font-medium text-muted-foreground">City</label>
+                                <Input id="city" placeholder="e.g. New York" value={city} onChange={(e) => setCity(e.target.value)} />
                             </div>
                              <div>
-                                <label htmlFor="location" className="text-sm font-medium text-muted-foreground">Affiliation / Institution</label>
-                                <Input id="location" placeholder="e.g. Boston University" value={location} onChange={(e) => setLocation(e.target.value)} />
+                                <label htmlFor="state" className="text-sm font-medium text-muted-foreground">State (2-letter code)</label>
+                                <Input id="state" placeholder="e.g. NY" value={state} onChange={(e) => setState(e.target.value)} maxLength={2}/>
                             </div>
                         </div>
                         <Button type="submit" className="w-full sm:w-auto" disabled={loading}>
                             {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Search className="mr-2 h-4 w-4" />}
-                            Search Experts
+                            Search Providers
                         </Button>
                     </CardContent>
                 </form>
@@ -136,7 +135,7 @@ export default function ExpertsPage() {
                                 </div>
                             </CardHeader>
                              <CardContent>
-                                <Skeleton className="h-4 w-24" />
+                                <Skeleton className="h-4 w-full" />
                             </CardContent>
                             <CardFooter>
                                 <Skeleton className="h-8 w-36" />
@@ -146,23 +145,23 @@ export default function ExpertsPage() {
                 </div>
             ) : experts.length > 0 ? (
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                    {experts.map((expert, index) => (
-                        <ExpertCard key={`${expert.id}-${index}`} expert={expert} />
+                    {experts.map((expert) => (
+                        <ExpertCard key={expert.id} expert={expert} />
                     ))}
                 </div>
-            ) : hasSearchedOrIsDefault ? (
+            ) : hasSearched ? (
                  <Card className="flex items-center justify-center h-64 border-dashed col-span-full">
                     <div className="text-center">
-                        <p className="text-lg font-medium">No Experts Found</p>
-                        <p className="text-sm text-muted-foreground">Your search for "{submittedQuery.researchField}" did not return any results. Try different keywords.</p>
+                        <p className="text-lg font-medium">No Providers Found</p>
+                        <p className="text-sm text-muted-foreground">Your search did not return any results. Try different or broader criteria.</p>
                     </div>
                 </Card>
             ) : (
                  <Card className="flex items-center justify-center h-64 border-dashed col-span-full">
                     <div className="text-center">
                          <Microscope className="mx-auto h-12 w-12 text-muted-foreground" />
-                        <p className="mt-4 text-lg font-medium">Search for Experts</p>
-                        <p className="text-sm text-muted-foreground">Use the filters above to find researchers on ORCID.</p>
+                        <p className="mt-4 text-lg font-medium">Search for Providers</p>
+                        <p className="text-sm text-muted-foreground">Use the filters above to find healthcare providers.</p>
                     </div>
                 </Card>
             )}

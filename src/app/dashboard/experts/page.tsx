@@ -63,16 +63,16 @@ export default function ExpertsPage() {
     
     useEffect(() => {
         let isMounted = true;
-        async function fetchData() {
+        async function fetchData(query: string) {
             setLoading(true);
-            const fetchedExperts = await searchExperts(currentQuery);
+            const fetchedExperts = await searchExperts(query);
             if (isMounted) {
                 setExperts(fetchedExperts);
                 setLoading(false);
             }
         }
 
-        fetchData();
+        fetchData(currentQuery);
 
         return () => {
             isMounted = false;

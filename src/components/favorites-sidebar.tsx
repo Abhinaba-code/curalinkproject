@@ -14,7 +14,7 @@ import {
   Users,
   Star,
   ExternalLink,
-  X,
+  Trash2,
 } from 'lucide-react';
 import { ScrollArea } from './ui/scroll-area';
 import Link from 'next/link';
@@ -44,9 +44,9 @@ export function FavoritesSidebar() {
           size="icon"
           onClick={() => toggleFavorite(item, type)}
           aria-label={`Remove ${item.title || item.name} from favorites`}
-          className="absolute top-1 right-1 z-10 h-6 w-6 text-muted-foreground opacity-0 transition-opacity hover:text-foreground group-hover:opacity-100"
+          className="absolute top-1 right-1 z-10 h-6 w-6 text-muted-foreground opacity-0 transition-opacity hover:text-destructive group-hover:opacity-100"
         >
-          <X className="h-4 w-4" />
+          <Trash2 className="h-4 w-4" />
         </Button>
         
         <Link

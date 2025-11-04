@@ -138,7 +138,7 @@ export default function ExpertsPage() {
   const [experts, setExperts] = useState<Expert[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [searchQuery, setSearchQuery] = useState('medicine');
+  const [searchQuery, setSearchQuery] = useState('health');
   const [city, setCity] = useState('');
   const [country, setCountry] = useState('');
   
@@ -152,7 +152,7 @@ export default function ExpertsPage() {
       setLoading(true);
       const location = [city, country].filter(Boolean).join(', ');
       const fullQuery = [searchQuery, location].filter(Boolean).join(' ');
-      const fetchedExperts = await searchExperts(fullQuery || 'medicine', 9);
+      const fetchedExperts = await searchExperts(fullQuery, 9);
       setExperts(fetchedExperts);
       setLoading(false);
     }
@@ -162,8 +162,9 @@ export default function ExpertsPage() {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     const location = [city, country].filter(Boolean).join(', ');
-    const fullQuery = [searchTerm, location].filter(Boolean).join(' ');
-    setSearchQuery(fullQuery);
+    const fullQuery = searchTerm || 'health';
+    const finalQuery = [fullQuery, location].filter(Boolean).join(' ');
+    setSearchQuery(finalQuery);
   };
   
   const handleSpecialtySearch = (specialtyQuery: string) => {

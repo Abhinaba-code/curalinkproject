@@ -91,7 +91,7 @@ const formatPublication = (articleData: any): Publication => {
   const authors = article.AuthorList.Author;
   const authorNames = Array.isArray(authors)
     ? authors.map(author => `${author.ForeName} ${author.LastName}`)
-    : [`${authors.ForeName} ${authors.LastName}`];
+    : authors ? [`${authors.ForeName} ${authors.LastName}`] : [];
 
   return {
     id: pmid,
@@ -177,37 +177,6 @@ function simpleHash(str: string) {
   return Math.abs(hash);
 }
 
-const formatExpertFromOrcid = (person: any): Expert => {
-  const orcid = person['orcid-identifier']?.path;
-  
-  // The ORCID search API response is inconsistent. Name can be in person.name or title.
-  const givenName = person.person?.name?.['given-names']?.value || '';
-  const familyName = person.person?.name?.['family-name']?.value || '';
-  let name = `${givenName} ${familyName}`.trim();
-
-  if (!name && person.title) {
-    name = person.title;
-  }
-
-  const seed = simpleHash(orcid);
-
-  const specialties = ['Oncology', 'Immunology', 'Genetics', 'Neurology', 'Cardiology', 'Pulmonology', 'Nephrology'];
-  const researchAreas = ['Cancer Research', 'T-cell therapy', 'Glioma', 'Brain Cancer', 'Immunotherapy', 'Gene Editing', 'Metastasis'];
-  const institutions = ['Memorial Sloan Kettering', 'Stanford University', 'MIT', 'Harvard Medical School', 'UCSF Medical Center', 'MD Anderson Cancer Center', 'Mayo Clinic'];
-
-  return {
-    id: orcid,
-    name: name || "Name not found",
-    specialties: [specialties[seed % specialties.length]],
-    institution: institutions[seed % institutions.length],
-    publicationCount: seed % 250 + 10,
-    avatarUrl: `https://picsum.photos/seed/${orcid}/200/200`,
-    researchAreas: [researchAreas[seed % researchAreas.length], researchAreas[(seed + 1) % researchAreas.length]],
-    clinicalTrialCount: seed % 25,
-    url: `https://orcid.org/${orcid}`,
-  };
-};
-
 export async function searchExperts(
   query: string,
   limit: number = 9
@@ -241,11 +210,10 @@ export async function searchExperts(
           if(creditName) name = creditName;
         }
 
-
         const seed = simpleHash(orcid);
-        const specialties = ['Oncology', 'Immunology', 'Genetics', 'Neurology', 'Cardiology'];
-        const researchAreas = ['Cancer Research', 'T-cell therapy', 'Glioma', 'Brain Cancer', 'Immunotherapy', 'Gene Editing'];
-        const institutions = ['Memorial Sloan Kettering', 'Stanford University', 'MIT', 'Harvard Medical School', 'UCSF Medical Center'];
+        const specialties = ['Oncology', 'Immunology', 'Genetics', 'Neurology', 'Cardiology', 'Pulmonology', 'Nephrology'];
+        const researchAreas = ['Cancer Research', 'T-cell therapy', 'Glioma', 'Brain Cancer', 'Immunotherapy', 'Gene Editing', 'Metastasis'];
+        const institutions = ['Memorial Sloan Kettering', 'Stanford University', 'MIT', 'Harvard Medical School', 'UCSF Medical Center', 'MD Anderson Cancer Center', 'Mayo Clinic'];
 
         return {
             id: orcid,

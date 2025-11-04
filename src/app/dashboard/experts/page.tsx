@@ -8,8 +8,16 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
-import { Mail, Plus, Loader2, Search } from "lucide-react"
+import { Mail, Plus, Loader2, Search, Heart, Activity, Brain } from "lucide-react"
 import { Skeleton } from '@/components/ui/skeleton';
+
+const specialties = [
+    { name: "Cardiology", icon: Heart, query: "heart disease" },
+    { name: "Nephrology", icon: Activity, query: "kidney disease" },
+    { name: "Pulmonology", icon: Brain, query: "lung disease" },
+    { name: "Neurology", icon: Brain, query: "neuroscience" },
+    { name: "Oncology", icon: Activity, query: "cancer" },
+];
 
 function ExpertCard({ expert }: { expert: Expert }) {
   const fallback = expert.name
@@ -18,7 +26,7 @@ function ExpertCard({ expert }: { expert: Expert }) {
     .join('');
 
   return (
-    <Card key={expert.id} className="text-center flex flex-col">
+    <Card className="text-center flex flex-col">
       <CardHeader className="items-center">
         <Avatar className="h-24 w-24 border-4 border-primary/20">
           <AvatarImage src={expert.avatarUrl} alt={expert.name} />
@@ -74,6 +82,11 @@ export default function ExpertsPage() {
     e.preventDefault();
     setSearchQuery(searchTerm);
   };
+  
+  const handleSpecialtySearch = (specialtyQuery: string) => {
+    setSearchTerm(specialtyQuery);
+    setSearchQuery(specialtyQuery);
+  }
 
   return (
     <div className="space-y-6">
@@ -86,10 +99,10 @@ export default function ExpertsPage() {
         </p>
       </div>
 
-       <div className="flex items-center gap-4">
+       <div className="space-y-4">
         <form onSubmit={handleSearch} className="flex-1 max-w-lg relative">
           <Input
-              placeholder="e.g. John Smith"
+              placeholder="e.g. cardiology, immunology, John Smith..."
               className="pr-10"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -98,6 +111,15 @@ export default function ExpertsPage() {
             {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
           </Button>
         </form>
+        <div className="flex flex-wrap items-center gap-2">
+            <p className="text-sm font-medium text-muted-foreground">Popular fields:</p>
+            {specialties.map(spec => (
+                <Button key={spec.name} variant="outline" size="sm" onClick={() => handleSpecialtySearch(spec.query)}>
+                    <spec.icon className="mr-2 h-4 w-4" />
+                    {spec.name}
+                </Button>
+            ))}
+        </div>
       </div>
       
       {loading ? (

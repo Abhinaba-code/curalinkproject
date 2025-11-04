@@ -1,4 +1,3 @@
-
 import { ClinicalTrial, Publication, Expert } from './types';
 
 const CLINICAL_TRIALS_API_BASE_URL = 'https://clinicaltrials.gov/api/v2';
@@ -120,15 +119,15 @@ export async function searchPublications(
   }
 }
 
-const formatExpertFromPublication = (authorName: string, pubId: string): Expert => {
+const formatExpertFromPublication = (authorName: string, pub: Publication, query: string): Expert => {
     return {
-      id: `${authorName}-${pubId}`, // Create a pseudo-unique ID
+      id: `${authorName}-${pub.id}`, // Create a pseudo-unique ID
       name: authorName,
-      specialties: [], // Not provided by this API
+      specialties: [query], // Use the query as a specialty
       institution: 'N/A', // Not reliably provided for authors
       publicationCount: 1, // Can't easily calculate total, so we start with 1
       avatarUrl: `https://picsum.photos/seed/${authorName}/200/200`, // Placeholder image
-      researchAreas: [], // Not provided by this API
+      researchAreas: [pub.title], // Use publication title as a research area
     };
   };
 
@@ -141,7 +140,7 @@ export async function searchExperts(
     return [];
   }
   try {
-    const publications = await searchPublications(`${query}[Author]`, limit);
+    const publications = await searchPublications(query, limit);
     if (!publications || publications.length === 0) {
       return [];
     }
@@ -153,12 +152,16 @@ export async function searchExperts(
         if (expertsMap.has(authorName)) {
           const expert = expertsMap.get(authorName)!;
           expert.publicationCount += 1;
-        } else {
-          // Only add if the author name is somewhat similar to the query
-          if (authorName.toLowerCase().includes(query.toLowerCase())) {
-             const newExpert = formatExpertFromPublication(authorName, pub.id);
-             expertsMap.set(authorName, newExpert);
+          if(!expert.researchAreas.includes(pub.title)) {
+            expert.researchAreas.push(pub.title);
           }
+          if(!expert.specialties.includes(query)){
+            expert.specialties.push(query);
+          }
+
+        } else {
+          const newExpert = formatExpertFromPublication(authorName, pub, query);
+          expertsMap.set(authorName, newExpert);
         }
       });
     });

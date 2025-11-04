@@ -47,7 +47,7 @@ export async function GET(request: Request) {
     apiParams.set('city', query);
     apiParams.set('state', query);
   } else {
-    // Default to a common search to show initial results
+    // Default to a common search to show initial results if no query is provided
     apiParams.set('state', 'NY');
   }
 

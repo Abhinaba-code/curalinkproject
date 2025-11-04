@@ -15,6 +15,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from '@/components/ui/dialog';
 import TrialCard from '../trials/trial-card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useForum } from '@/context/forum-provider';
 
 
 const PAGE_SIZE = 12;
@@ -72,6 +73,7 @@ function ExpertProfileDialog({ expert, children }: { expert: Expert, children: R
 function ExpertCard({ expert }: { expert: Expert }) {
     const { isFavorite, toggleFavorite } = useFavorites();
     const { isFollowing, toggleFollow } = useFollow();
+    const { sendNudgeNotification } = useForum();
     const { toast } = useToast();
     const initials = expert.name ? expert.name.split(' ').map(n => n[0]).join('') : '??';
     const favorite = isFavorite(expert.id);
@@ -82,9 +84,10 @@ function ExpertCard({ expert }: { expert: Expert }) {
     };
 
     const handleNudge = () => {
+        sendNudgeNotification(expert);
         toast({
             title: "Nudge Sent!",
-            description: `A notification has been sent to ${expert.name} to join the platform.`,
+            description: `A notification has been sent to researchers about ${expert.name}.`,
         });
     };
 

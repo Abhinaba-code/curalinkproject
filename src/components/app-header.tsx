@@ -3,7 +3,7 @@
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { UserNav } from '@/components/user-nav';
 import { Input } from './ui/input';
-import { Search, Star, Bell, MessageSquare, CornerDownRight } from 'lucide-react';
+import { Search, Star, Bell, MessageSquare, CornerDownRight, Users } from 'lucide-react';
 import { Logo } from './logo';
 import { Button } from './ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
@@ -12,16 +12,36 @@ import Link from 'next/link';
 import { useAuth } from '@/context/auth-provider';
 
 function NotificationItem({ notif }: { notif: Notification }) {
-    const Icon = notif.type === 'new_post' ? MessageSquare : CornerDownRight;
-    const text = notif.type === 'new_post' 
-        ? `New Post: "${notif.postTitle}"`
-        : `New Reply on: "${notif.postTitle}"`;
-    const subtext = `By ${notif.authorName}`;
+    let Icon, text, subtext, link;
+    
+    switch (notif.type) {
+        case 'new_post':
+            Icon = MessageSquare;
+            text = `New Post: "${notif.postTitle}"`;
+            subtext = `By ${notif.authorName}`;
+            link = '/dashboard/forums';
+            break;
+        case 'new_reply':
+            Icon = CornerDownRight;
+            text = `New Reply on: "${notif.postTitle}"`;
+            subtext = `By ${notif.authorName}`;
+            link = '/dashboard/forums';
+            break;
+        case 'nudge':
+            Icon = Users;
+            text = `${notif.authorName} nudged an expert to join!`;
+            subtext = `Expert: ${notif.postTitle}`;
+            link = '/dashboard/experts';
+            break;
+        default:
+            return null;
+    }
+
 
     return (
         <Link
             key={notif.id}
-            href="/dashboard/forums"
+            href={link}
             className="flex items-start gap-3 rounded-lg p-2 hover:bg-accent"
         >
             <div className="mt-1">

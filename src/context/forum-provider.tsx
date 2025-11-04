@@ -2,6 +2,8 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useAuth } from './auth-provider';
+import type { Expert } from '@/lib/types';
+
 
 export interface ForumPostAuthor {
   id: string;
@@ -32,7 +34,7 @@ export interface Notification {
   postTitle: string;
   authorName: string;
   read: boolean;
-  type: 'new_post' | 'new_reply';
+  type: 'new_post' | 'new_reply' | 'nudge';
   recipientId: string;
 }
 
@@ -74,6 +76,7 @@ interface ForumContextType {
   notifications: Notification[];
   addPost: (post: Omit<ForumPost, 'id' | 'upvotes' | 'replies'>) => void;
   addReply: (postId: string, content: string) => void;
+  sendNudgeNotification: (expert: Expert) => void;
   markNotificationsAsRead: () => void;
   unreadCount: number;
 }
@@ -86,7 +89,7 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
   const [allNotifications, setAllNotifications] = useState<Notification[]>([]);
   
   // Derived state: notifications for the current user
-  const notifications = user ? allNotifications.filter(n => n.recipientId === user.id || n.recipientId === 'all_researchers') : [];
+  const notifications = user ? allNotifications.filter(n => n.recipientId === user.id || (user.role === 'researcher' && n.recipientId === 'all_researchers')).sort((a, b) => parseInt(b.id.split('-')[1]) - parseInt(a.id.split('-')[1])) : [];
   const unreadCount = notifications.filter(n => !n.read).length;
 
 
@@ -184,13 +187,31 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
     setPosts(updatedPosts);
     localStorage.setItem('cura-posts', JSON.stringify(updatedPosts));
   };
+
+  const sendNudgeNotification = (expert: Expert) => {
+    if (!user) return;
+
+    const newNotification: Notification = {
+        id: `notif-${Date.now()}`,
+        postId: expert.id, // Use expert ID as postId for nudges
+        postTitle: expert.name, // Use expert name as title
+        authorName: user.name || 'Anonymous',
+        read: false,
+        type: 'nudge',
+        recipientId: 'all_researchers',
+    };
+
+    const updatedNotifs = [newNotification, ...allNotifications];
+    setAllNotifications(updatedNotifs);
+    localStorage.setItem('cura-notifications', JSON.stringify(updatedNotifs));
+  }
   
   const markNotificationsAsRead = () => {
     if (!user || unreadCount === 0) return;
     
     const updatedNotifications = allNotifications.map(n => {
         const isRecipient = n.recipientId === user.id || (user.role === 'researcher' && n.recipientId === 'all_researchers');
-        if (isRecipient) {
+        if (isRecipient && !n.read) {
             return {...n, read: true};
         }
         return n;
@@ -200,7 +221,7 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem('cura-notifications', JSON.stringify(updatedNotifications));
   }
 
-  const value = { posts, notifications, addPost, addReply, unreadCount, markNotificationsAsRead };
+  const value = { posts, notifications, addPost, addReply, sendNudgeNotification, unreadCount, markNotificationsAsRead };
 
   return (
     <ForumContext.Provider value={value}>

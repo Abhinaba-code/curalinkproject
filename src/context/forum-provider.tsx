@@ -129,6 +129,10 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
       id: `post-${Date.now()}`,
       upvotes: 0,
       replies: [],
+      author: {
+          ...postData.author,
+          name: postData.author.name || 'Anonymous'
+      }
     };
 
     const updatedPosts = [newPost, ...posts];

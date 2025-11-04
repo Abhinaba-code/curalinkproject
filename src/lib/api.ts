@@ -70,7 +70,7 @@ const formatPublication = (id: string, data: any): Publication => {
     doi: doi,
     // PubMed e-summary does not provide an abstract. A more complex call would be needed.
     abstract: 'No abstract available from this API endpoint. Full text link might be available.', 
-    url: doi ? `https://doi.org/${doi}` : `https://pubmed.ncbi.nlm.nih.gov/${id}`,
+    url: `https://pubmed.ncbi.nlm.nih.gov/${id}`,
   };
 };
 

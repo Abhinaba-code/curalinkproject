@@ -154,9 +154,9 @@ export default function Home() {
             <div className="grid md:grid-cols-2 gap-12 items-center">
               <div>
                 <Info className="h-12 w-12 text-primary mb-4" />
-                <h2 className="font-headline text-4xl font-bold">About CuraLink</h2>
+                <h2 className="font-headline text-4xl font-bold">About This Project</h2>
                 <p className="mt-4 text-lg text-muted-foreground">
-                  CuraLink was founded on the principle that the path to medical breakthroughs is paved with collaboration. We believe in empowering patients with information and connecting them with the researchers who are working tirelessly to find cures. Our mission is to break down the barriers in healthcare, making research more accessible, transparent, and efficient for everyone involved.
+                  CuraLink is a demonstration project built by Abhinaba Roy Pradhan to showcase the power of modern web technologies in the healthcare space. It was founded on the principle that the path to medical breakthroughs is paved with collaboration. We believe in empowering patients with information and connecting them with the researchers who are working tirelessly to find cures. Our mission is to break down the barriers in healthcare, making research more accessible, transparent, and efficient for everyone involved.
                 </p>
               </div>
               <div className="h-64 bg-background rounded-lg flex items-center justify-center">

@@ -8,11 +8,14 @@ import type { ClinicalTrial } from '@/lib/types';
 import { Bot, Loader2, Share2, Star, ExternalLink } from 'lucide-react';
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { useFavorites } from '@/context/favorites-provider';
 
 export default function TrialCard({ trial }: { trial: ClinicalTrial }) {
   const [summary, setSummary] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const { isFavorite, toggleFavorite } = useFavorites();
+  const favorite = isFavorite(trial.id);
 
   const handleSummarize = async () => {
     setIsLoading(true);
@@ -65,8 +68,8 @@ export default function TrialCard({ trial }: { trial: ClinicalTrial }) {
             </Button>
           </div>
           <div className="flex gap-1">
-            <Button variant="ghost" size="icon">
-              <Star className="h-4 w-4" />
+            <Button variant="ghost" size="icon" onClick={() => toggleFavorite(trial, 'trial')}>
+              <Star className={`h-5 w-5 ${favorite ? 'text-yellow-400 fill-yellow-400' : 'text-muted-foreground'}`} />
             </Button>
             <Button variant="ghost" size="icon">
               <Share2 className="h-4 w-4" />

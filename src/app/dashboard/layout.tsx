@@ -16,7 +16,7 @@ import {
   LayoutDashboard,
   Users,
   FileText,
-  Settings,
+  Star,
 } from 'lucide-react';
 import { Logo } from '@/components/logo';
 import { AppHeader } from '@/components/app-header';
@@ -24,6 +24,8 @@ import { useAuth } from '@/context/auth-provider';
 import { useRouter, usePathname } from 'next/navigation';
 import { useEffect } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { FavoritesSidebar } from '@/components/favorites-sidebar';
+import { FavoritesProvider } from '@/context/favorites-provider';
 
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -66,35 +68,48 @@ export default function DashboardLayout({
   }
 
   return (
-    <SidebarProvider>
-      <Sidebar collapsible="icon" className="bg-sidebar">
-        <SidebarHeader>
-          <Logo className="text-sidebar-foreground group-data-[collapsible=icon]:hidden" />
-        </SidebarHeader>
-        <SidebarContent>
-          <SidebarMenu>
-            {navItems.map((item) => (
-              <SidebarMenuItem key={item.href}>
-                <SidebarMenuButton
-                  href={item.href}
-                  asChild
-                  isActive={pathname === item.href}
-                  tooltip={{ children: item.label, className: 'bg-primary text-primary-foreground' }}
-                >
-                  <a href={item.href}>
-                    <item.icon />
-                    <span>{item.label}</span>
-                  </a>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            ))}
-          </SidebarMenu>
-        </SidebarContent>
-      </Sidebar>
-      <SidebarInset className="bg-background">
-        <AppHeader />
-        <main className="flex-1 p-4 sm:p-6">{children}</main>
-      </SidebarInset>
-    </SidebarProvider>
+    <FavoritesProvider>
+      <SidebarProvider>
+        <Sidebar collapsible="icon" className="bg-sidebar">
+          <SidebarHeader>
+            <Logo className="text-sidebar-foreground group-data-[collapsible=icon]:hidden" />
+          </SidebarHeader>
+          <SidebarContent>
+            <SidebarMenu>
+              {navItems.map((item) => (
+                <SidebarMenuItem key={item.href}>
+                  <SidebarMenuButton
+                    href={item.href}
+                    asChild
+                    isActive={pathname === item.href}
+                    tooltip={{ children: item.label, className: 'bg-primary text-primary-foreground' }}
+                  >
+                    <a href={item.href}>
+                      <item.icon />
+                      <span>{item.label}</span>
+                    </a>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+                 <SidebarMenuItem>
+                  <SidebarMenuButton
+                    tooltip={{ children: 'Favorites', className: 'bg-primary text-primary-foreground' }}
+                  >
+                    <Star />
+                    <span>Favorites</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarContent>
+        </Sidebar>
+        <SidebarInset className="bg-background flex">
+          <div className="flex flex-col flex-1">
+            <AppHeader />
+            <main className="flex-1 p-4 sm:p-6">{children}</main>
+          </div>
+          <FavoritesSidebar />
+        </SidebarInset>
+      </SidebarProvider>
+    </FavoritesProvider>
   );
 }

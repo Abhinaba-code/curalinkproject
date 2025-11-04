@@ -11,11 +11,14 @@ import { Bot, Loader2, Search, Share2, Star, ExternalLink, MapPin } from 'lucide
 import { Skeleton } from '@/components/ui/skeleton';
 import { summarizeMedicalPublication } from '@/ai/flows/ai-summarize-medical-publications';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { useFavorites } from '@/context/favorites-provider';
 
 function PublicationCard({ pub }: { pub: Publication }) {
     const [summary, setSummary] = useState('');
     const [isLoadingSummary, setIsLoadingSummary] = useState(false);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const { isFavorite, toggleFavorite } = useFavorites();
+    const favorite = isFavorite(pub.id);
 
     const handleSummarize = async () => {
         setIsLoadingSummary(true);
@@ -57,8 +60,8 @@ function PublicationCard({ pub }: { pub: Publication }) {
                         </Button>
                     </div>
                     <div className="flex gap-1">
-                        <Button variant="ghost" size="icon">
-                            <Star className="h-4 w-4" />
+                        <Button variant="ghost" size="icon" onClick={() => toggleFavorite(pub, 'publication')}>
+                             <Star className={`h-5 w-5 ${favorite ? 'text-yellow-400 fill-yellow-400' : 'text-muted-foreground'}`} />
                         </Button>
                         <Button variant="ghost" size="icon">
                             <Share2 className="h-4 w-4" />

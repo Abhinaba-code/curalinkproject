@@ -1,8 +1,9 @@
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { UserNav } from '@/components/user-nav';
 import { Input } from './ui/input';
-import { Search } from 'lucide-react';
+import { Search, Star } from 'lucide-react';
 import { Logo } from './logo';
+import { Button } from './ui/button';
 
 export function AppHeader() {
   return (
@@ -24,6 +25,9 @@ export function AppHeader() {
             />
           </div>
         </form>
+        <Button variant="outline" size="icon">
+            <Star className="h-4 w-4" />
+        </Button>
         <UserNav />
       </div>
     </header>

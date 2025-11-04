@@ -205,8 +205,11 @@ export async function searchExperts(
       queryParts.push(`affiliation-org-name:"${location}"`);
   }
 
-  const query = queryParts.join(' AND ');
-  if (!query) return [];
+  let query = queryParts.join(' AND ');
+  if (!query) {
+    query = 'health'; // Default search if no other criteria are provided
+  }
+
 
   try {
       const url = `${ORCID_API_BASE_URL}/search?q=${encodeURIComponent(query)}&rows=${pageSize}`;

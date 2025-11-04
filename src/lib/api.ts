@@ -128,15 +128,15 @@ export async function searchPublications(
 const formatExpertFromOrcid = (person: any): Expert => {
   const orcid = person['orcid-identifier']?.path;
   // This is a simplified name parser, ORCID can have more complex name structures
-  const givenName = person['given-names']?.value || '';
-  const familyName = person['family-name']?.value || '';
+  const givenName = person['person']?.['name']?.['given-names']?.value || '';
+  const familyName = person['person']?.['name']?.['family-name']?.value || '';
   const name = `${givenName} ${familyName}`.trim();
   
   return {
     id: orcid,
     name: name,
     specialties: [],
-    institution: 'N/A', // Not available in basic search
+    institution: 'Institution not available',
     publicationCount: 0, // Not available in basic search
     avatarUrl: `https://picsum.photos/seed/${orcid}/200/200`, // Placeholder image
     researchAreas: [],
@@ -156,7 +156,7 @@ export async function searchExperts(
     const formattedQuery = encodeURIComponent(query);
     
     const response = await fetch(
-      `${ORCID_API_BASE_URL}/search?q=${formattedQuery}`,
+      `${ORCID_API_BASE_URL}/expanded-search/?q=${formattedQuery}&rows=${limit}`,
       { headers: { 'Accept': 'application/json' } }
     );
     if (!response.ok) {
@@ -164,10 +164,27 @@ export async function searchExperts(
     }
     const data = await response.json();
     
-    const results = data.result || [];
+    const results = data['expanded-result'] || [];
 
     // Filter out results that don't have an ORCID ID, as they can't be used as a key.
-    return results.filter((person: any) => person['orcid-identifier']?.path).map(formatExpertFromOrcid);
+    return results.filter((person: any) => person['orcid-id']).map((person: any) => {
+      const orcid = person['orcid-id'];
+      const givenName = person['given-names'] || '';
+      const familyName = person['family-names'] || '';
+      const name = `${givenName} ${familyName}`.trim();
+      
+      return {
+        id: orcid,
+        name: name,
+        specialties: [],
+        institution: 'Institution not available',
+        publicationCount: 0,
+        avatarUrl: `https://picsum.photos/seed/${orcid}/200/200`,
+        researchAreas: [],
+        clinicalTrialCount: 0,
+        url: `https://orcid.org/${orcid}`,
+      };
+    });
   } catch (error) {
     console.error('Failed to fetch experts from ORCID:', error);
     return [];

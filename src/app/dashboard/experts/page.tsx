@@ -43,10 +43,6 @@ function ExpertCard({ expert }: { expert: Expert }) {
         </div>
       </CardContent>
       <CardFooter className="pt-4 flex justify-center gap-2 p-6">
-        <Button size="sm">
-          <Plus className="mr-2 h-4 w-4" />
-          Follow
-        </Button>
         <Button size="sm" variant="outline" asChild>
           <a href={expert.url} target="_blank" rel="noopener noreferrer">
             <ExternalLink className="mr-2 h-4 w-4" />
@@ -209,12 +205,10 @@ export default function ExpertsPage() {
                         <Skeleton className="h-4 w-1/2" />
                         <div className="flex flex-wrap justify-center gap-2 pt-2">
                            <Skeleton className="h-5 w-20" />
-                           <Skeleton className="h-5 w-24" />
                         </div>
                     </CardContent>
                      <CardFooter className="pt-4 flex justify-center gap-2 p-6">
-                        <Skeleton className="h-9 w-24" />
-                        <Skeleton className="h-9 w-24" />
+                        <Skeleton className="h-9 w-28" />
                     </CardFooter>
                 </Card>
             ))}

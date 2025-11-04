@@ -12,7 +12,7 @@ import { useFavorites } from '@/context/favorites-provider';
 import { useFollow } from '@/context/follow-provider';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose, DialogTrigger } from '@/components/ui/dialog';
 import TrialCard from '../trials/trial-card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useForum } from '@/context/forum-provider';
@@ -245,16 +245,7 @@ function ExpertCard({ expert }: { expert: Expert }) {
                         {nudged ? <Check className="mr-2 h-4 w-4" /> : <Bell className="mr-2 h-4 w-4" />}
                         {nudged ? 'Nudged' : 'Nudge to Join'}
                     </Button>
-                     <Button variant="outline" size="sm" disabled={meetingRequested}>
-                        {meetingRequested ? (
-                            <>
-                                <Check className="mr-2 h-4 w-4" />
-                                Requested
-                            </>
-                        ) : (
-                           <RequestMeetingDialog expert={expert} onRequested={() => setMeetingRequested(true)} />
-                        )}
-                    </Button>
+                    <RequestMeetingDialog expert={expert} onRequested={() => setMeetingRequested(true)} />
                 </div>
             </CardFooter>
         </Card>
@@ -476,5 +467,3 @@ export default function ExpertsPage() {
         </div>
     );
 }
-
-    

@@ -48,7 +48,9 @@ function PersonalizedFeed() {
         setLoading(false);
       }
     }
-    getFeed();
+    if (user) {
+        getFeed();
+    }
   }, [user]);
 
   if (loading) {

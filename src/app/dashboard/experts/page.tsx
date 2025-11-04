@@ -65,7 +65,7 @@ export default function ExpertsPage() {
         let isMounted = true;
         async function fetchData() {
             setLoading(true);
-            const fetchedExperts = await searchExperts(currentQuery, 12);
+            const fetchedExperts = await searchExperts(currentQuery);
             if (isMounted) {
                 setExperts(fetchedExperts);
                 setLoading(false);

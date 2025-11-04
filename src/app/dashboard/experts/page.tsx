@@ -5,7 +5,7 @@ import type { Expert } from '@/lib/types';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Microscope, ExternalLink, Loader2, Search, Pin, User, Calendar, Mail, Phone, Plus } from 'lucide-react';
+import { Microscope, ExternalLink, Loader2, Search, Pin, User, Calendar, Mail, Phone, Plus, Star, Bell } from 'lucide-react';
 import { searchExperts } from '@/lib/api';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useFavorites } from '@/context/favorites-provider';
@@ -70,6 +70,7 @@ function ExpertCard({ expert }: { expert: Expert }) {
     const { isFavorite, toggleFavorite } = useFavorites();
     const { toast } = useToast();
     const initials = expert.name ? expert.name.split(' ').map(n => n[0]).join('') : '??';
+    const favorite = isFavorite(expert.id);
     const isFollowing = isFavorite(expert.id);
 
     const handleFollow = () => {
@@ -92,19 +93,26 @@ function ExpertCard({ expert }: { expert: Expert }) {
 
     return (
         <Card className="flex flex-col">
-            <CardHeader className="flex flex-row items-center gap-4">
-                <Avatar className="h-16 w-16">
-                    <AvatarImage src={expert.avatarUrl} alt={expert.name} />
-                    <AvatarFallback>{initials}</AvatarFallback>
-                </Avatar>
-                <div>
-                    <CardTitle>{expert.name || 'Name not available'}</CardTitle>
-                    {expert.specialty && (
-                         <CardDescription className="flex items-center gap-2 mt-1">
-                            <Microscope className="h-4 w-4" />
-                            {expert.specialty}
-                        </CardDescription>
-                    )}
+            <CardHeader>
+                <div className="flex items-start justify-between gap-4">
+                    <div className="flex items-center gap-4">
+                        <Avatar className="h-16 w-16">
+                            <AvatarImage src={expert.avatarUrl} alt={expert.name} />
+                            <AvatarFallback>{initials}</AvatarFallback>
+                        </Avatar>
+                        <div>
+                            <CardTitle>{expert.name || 'Name not available'}</CardTitle>
+                            {expert.specialty && (
+                                <CardDescription className="flex items-center gap-2 mt-1">
+                                    <Microscope className="h-4 w-4" />
+                                    {expert.specialty}
+                                </CardDescription>
+                            )}
+                        </div>
+                    </div>
+                    <Button variant="ghost" size="icon" onClick={() => toggleFavorite(expert, 'expert')}>
+                        <Star className={`h-5 w-5 ${favorite ? 'text-yellow-400 fill-yellow-400' : 'text-muted-foreground'}`} />
+                    </Button>
                 </div>
             </CardHeader>
             <CardContent className="flex-grow">
@@ -127,6 +135,7 @@ function ExpertCard({ expert }: { expert: Expert }) {
                         <Button variant="outline" size="sm" className="w-full"><User className="mr-2 h-4 w-4" />View Profile</Button>
                     </ExpertProfileDialog>
                     <Button variant="outline" size="sm" onClick={handleNudge}>
+                        <Bell className="mr-2 h-4 w-4" />
                         Nudge to Join
                     </Button>
                     <Button variant="outline" size="sm" onClick={handleRequestMeeting}>
@@ -312,5 +321,3 @@ export default function ExpertsPage() {
         </div>
     );
 }
-
-    

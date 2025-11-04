@@ -12,10 +12,16 @@ const formatNPIRecord = (record: any): any | null => {
   
     if (!location) return null;
   
-    const name = basic.organization_name || [basic.first_name, basic.last_name].filter(Boolean).join(' ');
+    // Correctly determine the name. For individuals, first_name and last_name are reliable.
+    // For organizations, organization_name is correct.
+    const isPerson = !!(basic.first_name || basic.last_name);
+    const name = isPerson 
+        ? [basic.first_name, basic.last_name].filter(Boolean).join(' ')
+        : basic.organization_name;
+
     const specialty = taxonomies[0]?.desc || 'Not specified';
 
-    if (!name) return null;
+    if (!name || name.trim() === '') return null;
   
     return {
       id: record.number.toString(),
@@ -61,7 +67,10 @@ export async function GET(request: Request) {
     if (['Cardiology', 'Oncology', 'Neurology', 'Pediatrics', 'Dermatology', 'Orthopedics', 'Radiology'].includes(query)) {
         apiParams.set('taxonomy_description', query);
     } else {
-        apiParams.set('organization_name', `*${query}*`); // Use wildcards for broader search
+        // Search by both first name and last name for individuals, and organization name for orgs
+        apiParams.set('first_name', `*${query}*`);
+        apiParams.set('last_name', `*${query}*`);
+        apiParams.set('organization_name', `*${query}*`);
     }
   } else {
     // If no query, return a default set of results (e.g., from a specific state).

@@ -49,7 +49,7 @@ export default function ExpertsPage() {
     const [experts, setExperts] = useState<Expert[]>([]);
     const [loading, setLoading] = useState(true);
     const [name, setName] = useState('');
-    const [researchField, setResearchField] = useState('cancer');
+    const [researchField, setResearchField] = useState('');
     const [location, setLocation] = useState('');
 
     const [submittedQuery, setSubmittedQuery] = useState({ name: '', researchField: 'cancer', location: '' });
@@ -72,7 +72,7 @@ export default function ExpertsPage() {
         setSubmittedQuery(query);
     };
 
-    const hasSearched = submittedQuery.name || submittedQuery.researchField || submittedQuery.location;
+    const hasSearchedOrIsDefault = submittedQuery.name || submittedQuery.researchField || submittedQuery.location;
 
     return (
         <div className="space-y-6">
@@ -136,7 +136,7 @@ export default function ExpertsPage() {
                         <ExpertCard key={`${expert.id}-${index}`} expert={expert} />
                     ))}
                 </div>
-            ) : hasSearched ? (
+            ) : hasSearchedOrIsDefault ? (
                  <Card className="flex items-center justify-center h-64 border-dashed col-span-full">
                     <div className="text-center">
                         <p className="text-lg font-medium">No Experts Found</p>

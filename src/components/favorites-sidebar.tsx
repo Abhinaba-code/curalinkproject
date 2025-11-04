@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { ScrollArea } from './ui/scroll-area';
 import Link from 'next/link';
+import { Button } from './ui/button';
 
 export function FavoritesSidebar() {
   const { favorites, toggleFavorite, showFavorites, setShowFavorites } = useFavorites();
@@ -38,17 +39,19 @@ export function FavoritesSidebar() {
         key={item.id}
         className="group relative rounded-lg border p-3 text-sm transition-colors hover:bg-muted/50"
       >
-        <button
+        <Button
+          variant="ghost"
+          size="icon"
           onClick={() => toggleFavorite(item, type)}
           aria-label={`Remove ${item.title || item.name} from favorites`}
-          className="absolute top-1 right-1 z-10 p-1 text-muted-foreground opacity-0 transition-opacity hover:text-foreground group-hover:opacity-100"
+          className="absolute top-1 right-1 z-10 h-6 w-6 text-muted-foreground opacity-0 transition-opacity hover:text-foreground group-hover:opacity-100"
         >
           <X className="h-4 w-4" />
-        </button>
+        </Button>
         
         <Link
             href={internalLink || '#'}
-            className="font-semibold truncate pr-4 block hover:underline"
+            className="font-semibold truncate pr-6 block hover:underline"
         >
             {item.title || item.name}
         </Link>

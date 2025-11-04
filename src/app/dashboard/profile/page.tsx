@@ -13,7 +13,6 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import { Calendar, MapPin, Stethoscope, User, Edit, X } from 'lucide-react';
-import { Chatbot } from '@/components/chatbot';
 import { format } from 'date-fns';
 import { useFollow } from '@/context/follow-provider';
 import type { Expert } from '@/lib/types';
@@ -72,7 +71,6 @@ export default function ProfilePage() {
 
   return (
     <div className="space-y-6">
-        <Chatbot />
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="font-headline text-3xl font-bold">My Profile</h1>

@@ -27,6 +27,7 @@ import { useEffect } from 'react';
 import { FavoritesProvider } from '@/context/favorites-provider';
 import { ForumProvider } from '@/context/forum-provider';
 import { FollowProvider } from '@/context/follow-provider';
+import { Chatbot } from '@/components/chatbot';
 
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -77,6 +78,7 @@ function DashboardApp({ children }: { children: React.ReactNode }) {
 
   return (
     <SidebarProvider>
+      <Chatbot />
       <Sidebar collapsible="icon" className="bg-sidebar">
         <SidebarHeader>
           <Logo className="text-sidebar-foreground group-data-[collapsible=icon]:hidden" />

@@ -4,8 +4,6 @@ import { XMLParser } from 'fast-xml-parser';
 
 const CLINICAL_TRIALS_API_BASE_URL = 'https://clinicaltrials.gov/api/v2';
 const PUBMED_API_BASE_URL = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils';
-const NPI_REGISTRY_API_BASE_URL = 'https://npiregistry.cms.hhs.gov/api/';
-
 
 // A mapping from the API's status to the app's status
 const statusMapping: { [key: string]: ClinicalTrial['status'] } = {
@@ -165,31 +163,6 @@ export async function searchPublications(
   }
 }
 
-
-const formatNPIRecord = (record: any): Expert | null => {
-  if (!record || !record.number) return null;
-
-  const { basic, addresses = [], taxonomies = [] } = record;
-  const location = addresses.find(addr => addr.address_purpose === 'LOCATION');
-
-  if (!location) return null;
-
-  const name = [basic.first_name, basic.last_name].filter(Boolean).join(' ');
-  const specialty = taxonomies[0]?.desc || 'Not specified';
-
-  return {
-    id: record.number.toString(),
-    name: name,
-    specialty: specialty,
-    address: location.address_1,
-    city: location.city,
-    state: location.state,
-    zip: location.postal_code,
-    url: `https://npiregistry.cms.hhs.gov/provider-view/${record.number}`,
-    avatarUrl: `https://picsum.photos/seed/${record.number}/200/200`,
-  };
-}
-
 export async function searchExperts(
   specialty: string,
   city: string,
@@ -197,12 +170,11 @@ export async function searchExperts(
   pageSize: number = 12
 ): Promise<Expert[]> {
   const params = new URLSearchParams({
-    version: '2.1',
     limit: pageSize.toString(),
   });
 
   if (specialty) {
-    params.set('taxonomy_description', specialty);
+    params.set('specialty', specialty);
   }
   if (city) {
     params.set('city', city);
@@ -210,34 +182,21 @@ export async function searchExperts(
   if (state) {
     params.set('state', state);
   }
-  
-  // If no search terms, use a default to get some results
-  if (!specialty && !city && !state) {
-    params.set('taxonomy_description', 'Cardiology');
-    params.set('city', 'New York');
-    params.set('state', 'NY');
-  }
 
   try {
-    const url = `${NPI_REGISTRY_API_BASE_URL}?${params.toString()}`;
-    const response = await fetch(url, { cache: 'no-store' });
+    const url = `/api/npi?${params.toString()}`;
+    const response = await fetch(url);
 
     if (!response.ok) {
-      throw new Error(`NPI Registry API error! status: ${response.status}`);
+        const errorData = await response.json();
+        throw new Error(errorData.error || `NPI Registry API error! status: ${response.status}`);
     }
 
     const data = await response.json();
-    
-    if (data.result_count === 0 || !data.results) {
-      return [];
-    }
-
-    return data.results
-      .map(formatNPIRecord)
-      .filter((expert: Expert | null): expert is Expert => expert !== null);
+    return data.results;
 
   } catch (error) {
-    console.error('Failed to fetch experts from NPI Registry:', error);
+    console.error('Failed to fetch experts:', error);
     return [];
   }
 }

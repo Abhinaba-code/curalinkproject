@@ -1,5 +1,6 @@
 
 import { ClinicalTrial, Publication, Expert } from './types';
+import { XMLParser } from 'fast-xml-parser';
 
 const CLINICAL_TRIALS_API_BASE_URL = 'https://clinicaltrials.gov/api/v2';
 const PUBMED_API_BASE_URL = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils';
@@ -69,22 +70,40 @@ export async function searchClinicalTrials(
 }
 
 // A utility function to format a single publication from the API response
-const formatPublication = (id: string, data: any): Publication => {
-  const article = data.result[id];
-  const doi = article.elocationid?.replace('doi: ', '') || '';
+const formatPublication = (articleData: any): Publication => {
+  const pmid = articleData.MedlineCitation.PMID;
+  const article = articleData.MedlineCitation.Article;
+
+  let abstract = 'No abstract available.';
+  if (article.Abstract?.AbstractText) {
+    if (Array.isArray(article.Abstract.AbstractText)) {
+      abstract = article.Abstract.AbstractText.map((part: any) => part['#text'] || part).join(' ');
+    } else if (typeof article.Abstract.AbstractText === 'object') {
+       abstract = article.Abstract.AbstractText['#text'];
+    }
+    else {
+      abstract = article.Abstract.AbstractText;
+    }
+  }
+  
+  const doi = article.ELocationID?.find((id: any) => id.EIdType === 'doi')?.['#text'] || '';
+
+  const authors = article.AuthorList.Author;
+  const authorNames = Array.isArray(authors)
+    ? authors.map(author => `${author.ForeName} ${author.LastName}`)
+    : [`${authors.ForeName} ${authors.LastName}`];
+
   return {
-    id: id,
-    title: article.title || 'No title available.',
-    authors: article.authors?.map((a: { name: string }) => a.name) || [],
-    journal: article.source || 'N/A',
-    year: new Date(article.pubdate).getFullYear() || 'N/A',
+    id: pmid,
+    title: article.ArticleTitle || 'No title available.',
+    authors: authorNames,
+    journal: article.Journal.Title || 'N/A',
+    year: new Date(article.Journal.JournalIssue.PubDate.Year, article.Journal.JournalIssue.PubDate.Month ? parseInt(article.Journal.JournalIssue.PubDate.Month, 10) - 1 : 0).getFullYear() || 'N/A',
     doi: doi,
-    // PubMed e-summary does not provide an abstract. A more complex call would be needed.
-    abstract: 'No abstract available from this API endpoint. Full text link might be available.', 
-    url: `https://pubmed.ncbi.nlm.nih.gov/${id}`,
+    abstract: abstract, 
+    url: `https://pubmed.ncbi.nlm.nih.gov/${pmid}`,
   };
 };
-
 
 // Function to fetch and format publications from PubMed
 export async function searchPublications(
@@ -103,33 +122,43 @@ export async function searchPublications(
     }
     const searchData = await searchResponse.json();
     
-    if (!searchData.esearchresult || !searchData.esearchresult.idlist) {
+    if (!searchData.esearchresult || !searchData.esearchresult.idlist || searchData.esearchresult.idlist.length === 0) {
         return [];
     }
 
     const ids = searchData.esearchresult.idlist;
 
-    if (ids.length === 0) {
-      return [];
-    }
-
-    // Step 2: Fetch summaries for the found IDs
-    const summaryResponse = await fetch(
-      `${PUBMED_API_BASE_URL}/esummary.fcgi?db=pubmed&id=${ids.join(',')}&retmode=json`
+    // Step 2: Fetch full details for the found IDs using efetch
+    const fetchResponse = await fetch(
+      `${PUBMED_API_BASE_URL}/efetch.fcgi?db=pubmed&id=${ids.join(',')}&retmode=xml`
     );
 
-    if (!summaryResponse.ok) {
-      throw new Error(`PubMed summary API error! status: ${summaryResponse.status}`);
+    if (!fetchResponse.ok) {
+      throw new Error(`PubMed fetch API error! status: ${fetchResponse.status}`);
     }
-    const summaryData = await summaryResponse.json();
-    
-    if (!summaryData.result) {
-      console.error('PubMed summary API returned no result for IDs:', ids);
+    const xmlData = await fetchResponse.text();
+
+    const parser = new XMLParser({
+      ignoreAttributes: false,
+      attributeNamePrefix: '',
+      textNodeName: '#text',
+      parseAttributeValue: true,
+      isArray: (name, jpath) => {
+        return ['Author', 'AbstractText', 'ELocationID'].includes(name);
+      }
+    });
+    const jsonData = parser.parse(xmlData);
+
+    if (!jsonData.PubmedArticleSet?.PubmedArticle) {
       return [];
     }
 
+    const articles = Array.isArray(jsonData.PubmedArticleSet.PubmedArticle)
+      ? jsonData.PubmedArticleSet.PubmedArticle
+      : [jsonData.PubmedArticleSet.PubmedArticle];
+
     // Step 3: Format the data
-    return ids.map((id: string) => formatPublication(id, summaryData));
+    return articles.map(formatPublication);
   } catch (error) {
     console.error('Failed to fetch publications:', error);
     return []; // Return an empty array on error
@@ -205,8 +234,14 @@ export async function searchExperts(
         const orcid = result['orcid-id'];
         const givenName = result['given-names'];
         const familyName = result['family-name'];
-        const name = `${givenName} ${familyName}`.trim();
-        
+        let name = `${givenName} ${familyName}`.trim();
+        if(!name) {
+          // Fallback for cases where name is not in the top-level fields
+          const creditName = result['credit-name'];
+          if(creditName) name = creditName;
+        }
+
+
         const seed = simpleHash(orcid);
         const specialties = ['Oncology', 'Immunology', 'Genetics', 'Neurology', 'Cardiology'];
         const researchAreas = ['Cancer Research', 'T-cell therapy', 'Glioma', 'Brain Cancer', 'Immunotherapy', 'Gene Editing'];

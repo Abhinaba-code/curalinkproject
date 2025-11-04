@@ -153,9 +153,7 @@ export async function searchExperts(
     return [];
   }
   try {
-    // Correctly format the query for ORCID. For keywords, it's often `keyword:<query>`
-    // For general text search, we can just pass the query. Let's try a more robust keyword search.
-    const formattedQuery = `keyword:${encodeURIComponent(query)} OR other-names.value:${encodeURIComponent(query)} OR given-and-family-names:${encodeURIComponent(query)}`;
+    const formattedQuery = encodeURIComponent(query);
     
     const response = await fetch(
       `${ORCID_API_BASE_URL}/search?q=${formattedQuery}&rows=${limit}`,

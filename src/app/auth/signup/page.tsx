@@ -119,9 +119,10 @@ export default function SignupPage() {
               Log in
             </Link>
           </p>
-          <div className="text-center text-sm">
-            <Link href={`/auth/signup?role=${otherRole}`} className="text-primary hover:underline transition-colors">
-              Are you a {otherRole}? Sign up as a <span className="capitalize font-semibold">{otherRole}</span>
+          <div className="text-center text-sm text-muted-foreground">
+            Are you a {otherRole}?{' '}
+            <Link href={`/auth/signup?role=${otherRole}`} className="font-semibold text-primary hover:underline transition-colors">
+               Sign up as a <span className="capitalize">{otherRole}</span>
             </Link>
           </div>
           <Button variant="link" asChild className="text-muted-foreground mt-4">

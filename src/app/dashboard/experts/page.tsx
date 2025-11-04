@@ -117,21 +117,23 @@ function ExpertCard({ expert }: { expert: Expert }) {
                     View on NPI Registry
                  </a>
             </CardContent>
-            <CardFooter className="flex flex-wrap gap-2">
-                 <Button variant={isFollowing ? 'secondary' : 'default'} onClick={handleFollow} size="sm">
-                    <Plus className="mr-2 h-4 w-4" />
-                    {isFollowing ? 'Unfollow' : 'Follow'}
-                </Button>
-                <ExpertProfileDialog expert={expert}>
-                    <Button variant="outline" size="sm"><User className="mr-2 h-4 w-4" />View Profile</Button>
-                </ExpertProfileDialog>
-                <Button variant="outline" size="sm" onClick={handleNudge}>
-                    Nudge to Join
-                </Button>
-                <Button variant="outline" size="sm" onClick={handleRequestMeeting}>
-                    <Calendar className="mr-2 h-4 w-4" />
-                    Request Meeting
-                </Button>
+            <CardFooter>
+                 <div className="grid grid-cols-2 gap-2 w-full">
+                    <Button variant={isFollowing ? 'secondary' : 'default'} onClick={handleFollow} size="sm">
+                        <Plus className="mr-2 h-4 w-4" />
+                        {isFollowing ? 'Unfollow' : 'Follow'}
+                    </Button>
+                    <ExpertProfileDialog expert={expert}>
+                        <Button variant="outline" size="sm" className="w-full"><User className="mr-2 h-4 w-4" />View Profile</Button>
+                    </ExpertProfileDialog>
+                    <Button variant="outline" size="sm" onClick={handleNudge}>
+                        Nudge to Join
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={handleRequestMeeting}>
+                        <Calendar className="mr-2 h-4 w-4" />
+                        Request Meeting
+                    </Button>
+                </div>
             </CardFooter>
         </Card>
     );

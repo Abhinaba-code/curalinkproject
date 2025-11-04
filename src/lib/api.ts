@@ -2,6 +2,7 @@ import { ClinicalTrial, Publication, Expert } from './types';
 
 const CLINICAL_TRIALS_API_BASE_URL = 'https://clinicaltrials.gov/api/v2';
 const PUBMED_API_BASE_URL = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils';
+const ORCID_API_BASE_URL = 'https://pub.orcid.org/v3.0';
 
 // A mapping from the API's status to the app's status
 const statusMapping: { [key: string]: ClinicalTrial['status'] } = {
@@ -15,9 +16,10 @@ const formatTrial = (study: any): ClinicalTrial => {
   const protocol = study.protocolSection;
   const status = protocol.statusModule.overallStatus;
   const eligibility = protocol.eligibilityModule;
+  const nctId = protocol.identificationModule.nctId;
 
   return {
-    id: protocol.identificationModule.nctId,
+    id: nctId,
     title: protocol.identificationModule.briefTitle,
     description: protocol.descriptionModule.briefSummary || 'No description available.',
     status: statusMapping[status] || status,
@@ -26,6 +28,7 @@ const formatTrial = (study: any): ClinicalTrial => {
     location: protocol.contactsLocationsModule.locations?.[0]?.city || 'N/A',
     contact: protocol.contactsLocationsModule.centralContacts?.[0]?.name || 'N/A',
     tags: protocol.conditionsModule.conditions || [],
+    url: `https://clinicaltrials.gov/study/${nctId}`,
   };
 };
 
@@ -56,15 +59,17 @@ export async function searchClinicalTrials(
 // A utility function to format a single publication from the API response
 const formatPublication = (id: string, data: any): Publication => {
   const article = data.result[id];
+  const doi = article.elocationid?.replace('doi: ', '') || '';
   return {
     id: id,
     title: article.title || 'No title available.',
     authors: article.authors?.map((a: { name: string }) => a.name) || [],
     journal: article.source || 'N/A',
     year: new Date(article.pubdate).getFullYear() || 'N/A',
-    doi: article.elocationid?.replace('doi: ', '') || '',
+    doi: doi,
     // PubMed e-summary does not provide an abstract. A more complex call would be needed.
     abstract: 'No abstract available from this API endpoint. Full text link might be available.', 
+    url: doi ? `https://doi.org/${doi}` : `https://pubmed.ncbi.nlm.nih.gov/${id}`,
   };
 };
 
@@ -120,6 +125,7 @@ export async function searchPublications(
 }
 
 const formatExpertFromPublication = (authorName: string, pub: Publication, query: string): Expert => {
+    const orcidId = `${authorName.replace(' ', '-')}`; // Simplistic slug
     return {
       id: `${authorName}-${pub.id}`, // Create a pseudo-unique ID
       name: authorName,
@@ -129,6 +135,7 @@ const formatExpertFromPublication = (authorName: string, pub: Publication, query
       avatarUrl: `https://picsum.photos/seed/${authorName}/200/200`, // Placeholder image
       researchAreas: [pub.title], // Use publication title as a research area
       clinicalTrialCount: 0,
+      url: `https://orcid.org/orcid-search/quick-search/?searchQuery=${encodeURIComponent(authorName)}`
     };
   };
 
@@ -168,8 +175,9 @@ export async function searchExperts(
     });
 
     const expertList = Array.from(expertsMap.values());
-
-    // Enrich with clinical trials data
+    // The following block is very slow and has been removed for performance.
+    // We can add it back in a more performant way later if needed.
+    /*
     for (const expert of expertList) {
         try {
             const trialsResponse = await fetch(
@@ -183,7 +191,7 @@ export async function searchExperts(
             console.error(`Failed to fetch clinical trials for ${expert.name}:`, error);
         }
     }
-
+    */
 
     // Return the most published authors from the result set, up to the limit
     const sortedExperts = expertList.sort((a, b) => b.publicationCount - a.publicationCount);

@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
-import { Mail, Plus, Loader2, Search, Heart, Activity, Brain, FlaskConical } from "lucide-react"
+import { Mail, Plus, Loader2, Search, Heart, Activity, Brain, FlaskConical, ExternalLink } from "lucide-react"
 import { Skeleton } from '@/components/ui/skeleton';
 
 const specialties = [
@@ -49,9 +49,11 @@ function ExpertCard({ expert }: { expert: Expert }) {
           <Plus className="mr-2 h-4 w-4" />
           Follow
         </Button>
-        <Button size="sm" variant="outline">
-          <Mail className="mr-2 h-4 w-4" />
-          Contact
+        <Button size="sm" variant="outline" asChild>
+          <a href={expert.url} target="_blank" rel="noopener noreferrer">
+            <ExternalLink className="mr-2 h-4 w-4" />
+            View Source
+          </a>
         </Button>
       </div>
     </Card>

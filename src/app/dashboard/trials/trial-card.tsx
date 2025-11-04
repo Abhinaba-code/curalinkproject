@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import type { ClinicalTrial } from '@/lib/types';
-import { Bot, Loader2, Share2, Star } from 'lucide-react';
+import { Bot, Loader2, Share2, Star, ExternalLink } from 'lucide-react';
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 
@@ -51,11 +51,19 @@ export default function TrialCard({ trial }: { trial: ClinicalTrial }) {
             ))}
           </div>
         </CardContent>
-        <CardFooter className="flex justify-between">
-          <Button variant="ghost" size="sm" onClick={handleSummarize}>
-            <Bot className="mr-2 h-4 w-4" />
-            AI Summary
-          </Button>
+        <CardFooter className="flex justify-between items-center">
+          <div className="flex gap-1">
+            <Button variant="ghost" size="sm" onClick={handleSummarize}>
+              <Bot className="mr-2 h-4 w-4" />
+              AI Summary
+            </Button>
+            <Button variant="ghost" size="sm" asChild>
+                <a href={trial.url} target="_blank" rel="noopener noreferrer">
+                    <ExternalLink className="mr-2 h-4 w-4" />
+                    Source
+                </a>
+            </Button>
+          </div>
           <div className="flex gap-1">
             <Button variant="ghost" size="icon">
               <Star className="h-4 w-4" />

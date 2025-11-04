@@ -16,6 +16,7 @@ export type ClinicalTrial = {
   location: string;
   contact: string;
   tags: string[];
+  url: string;
 };
 
 export type Publication = {
@@ -26,6 +27,7 @@ export type Publication = {
   abstract: string;
   doi: string;
   year: number | string;
+  url: string;
 };
 
 export type Expert = {
@@ -37,4 +39,5 @@ export type Expert = {
   avatarUrl: string;
   researchAreas: string[];
   clinicalTrialCount: number;
+  url: string;
 };

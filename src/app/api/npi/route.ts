@@ -45,10 +45,9 @@ export async function GET(request: Request) {
     apiParams.set('last_name', query);
     apiParams.set('organization_name', query);
     apiParams.set('city', query);
+    apiParams.set('state', query);
   } else {
     // Default to a common search to show initial results
-    apiParams.set('taxonomy_description', 'Cardiology');
-    apiParams.set('city', 'New York');
     apiParams.set('state', 'NY');
   }
 

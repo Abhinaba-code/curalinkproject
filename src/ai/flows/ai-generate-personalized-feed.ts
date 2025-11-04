@@ -20,7 +20,7 @@ const FeedItemSchema = z.object({
     type: z.enum(['trial', 'publication', 'expert']),
     title: z.string(),
     summary: z.string(),
-    link: z.string().url(),
+    link: z.string(),
 });
 
 const GeneratePersonalizedFeedOutputSchema = z.object({
@@ -50,7 +50,7 @@ const prompt = ai.definePrompt({
   - A renowned neuro-oncologist who specializes in Glioblastoma research.
   
   Generate 3-5 items for the user's feed.
-  Make the links relevant to the type of content. For example, trial links should point to /dashboard/trials.
+  Make the links relevant to the type of content. For example, trial links should point to /dashboard/trials, publication links to /dashboard/publications, and expert links to /dashboard/experts.
   `,
   prompt: `Generate a personalized feed for a user with the following interests: {{{interests}}}.`,
 });

@@ -82,7 +82,7 @@ export function FavoritesSidebar() {
 
   return (
     <Sheet open={showFavorites} onOpenChange={setShowFavorites}>
-      <SheetContent className="w-[400px] sm:w-[500px] flex flex-col">
+      <SheetContent className="w-[400px] sm:w-[600px] flex flex-col" side="right">
         <SheetHeader>
           <SheetTitle className="flex items-center gap-2">
             <Star className="h-5 w-5 text-yellow-400" />

@@ -88,19 +88,19 @@ export function UserNav() {
         <DropdownMenuSeparator />
          <DropdownMenuGroup>
           <DropdownMenuItem asChild>
-            <Link href="/about">
+            <Link href="/dashboard/about">
               <Info className="mr-2 h-4 w-4" />
               <span>About</span>
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
-            <Link href="/help">
+            <Link href="/dashboard/help">
               <HelpCircle className="mr-2 h-4 w-4" />
               <span>Help</span>
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
-            <Link href="/contact">
+            <Link href="/dashboard/contact">
               <Mail className="mr-2 h-4 w-4" />
               <span>Contact</span>
             </Link>

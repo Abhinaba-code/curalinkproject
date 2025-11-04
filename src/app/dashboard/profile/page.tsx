@@ -30,10 +30,11 @@ function ProfileDetail({ icon, label, value }: { icon: React.ReactNode, label: s
 }
 
 export default function ProfilePage() {
-  const { user, loading } = useAuth();
+  const { user } = useAuth();
 
-  if (loading || !user) {
-    return null; // Or a loading skeleton
+  // The layout now guarantees the user object is present.
+  if (!user) {
+    return null; 
   }
 
   const userInitials = user.name

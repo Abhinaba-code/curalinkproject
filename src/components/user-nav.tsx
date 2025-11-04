@@ -27,6 +27,7 @@ import {
 export function UserNav() {
   const { user, logout } = useAuth();
 
+  // The layout now guarantees the user object is present, so this check is for safety.
   if (!user) {
     return null;
   }

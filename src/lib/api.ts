@@ -1,8 +1,9 @@
 
-import { ClinicalTrial, Publication } from './types';
+import { ClinicalTrial, Publication, Expert } from './types';
 
 const CLINICAL_TRIALS_API_BASE_URL = 'https://clinicaltrials.gov/api/v2';
 const PUBMED_API_BASE_URL = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils';
+const SEMANTIC_SCHOLAR_API_BASE_URL = 'https://api.semanticscholar.org/graph/v1';
 
 
 // A mapping from the API's status to the app's status
@@ -114,5 +115,43 @@ export async function searchPublications(
   } catch (error) {
     console.error('Failed to fetch publications:', error);
     return []; // Return an empty array on error
+  }
+}
+
+// A utility function to format a single expert from the Semantic Scholar API response
+const formatExpert = (author: any): Expert => {
+  return {
+    id: author.authorId,
+    name: author.name,
+    specialties: author.fieldsOfStudy?.slice(0, 3) || ['N/A'],
+    institution: author.affiliations?.[0] || 'N/A',
+    publicationCount: author.paperCount || 0,
+    avatarUrl: `https://picsum.photos/seed/${author.authorId}/200/200`, // Placeholder image
+    researchAreas: author.fieldsOfStudy || [],
+  };
+};
+
+
+// Function to fetch and format experts from Semantic Scholar
+export async function searchExperts(
+  query: string,
+  limit: number = 12
+): Promise<Expert[]> {
+  if (!query) return [];
+  try {
+    const response = await fetch(
+      `${SEMANTIC_SCHOLAR_API_BASE_URL}/author/search?query=${encodeURIComponent(
+        query
+      )}&fields=name,affiliations,paperCount,fieldsOfStudy&limit=${limit}`
+    );
+    if (!response.ok) {
+      throw new Error(`Semantic Scholar API error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    if (!data.data) return [];
+    return data.data.map(formatExpert);
+  } catch (error) {
+    console.error('Failed to fetch experts:', error);
+    return [];
   }
 }

@@ -42,12 +42,22 @@ function DashboardApp({ children }: { children: React.ReactNode }) {
   const { setShowFavorites } = useFavorites();
 
   useEffect(() => {
-    if (!loading && !user) {
-      router.replace('/auth/login');
-    }
-  }, [user, loading, router]);
+    if (loading) return;
 
-  if (loading) {
+    if (!user) {
+      router.replace('/auth/login');
+      return;
+    }
+
+    const isCreateProfilePage = pathname === '/dashboard/create-profile';
+    const profileComplete = user.interests && user.interests.length > 0;
+
+    if (user.role === 'patient' && !profileComplete && !isCreateProfilePage) {
+      router.replace('/dashboard/create-profile');
+    }
+  }, [user, loading, router, pathname]);
+
+  if (loading || !user) {
     return (
        <div className="flex h-screen w-full items-center justify-center bg-background">
          <div className="flex flex-col items-center gap-4">
@@ -58,17 +68,10 @@ function DashboardApp({ children }: { children: React.ReactNode }) {
     );
   }
 
-  // After loading, if there's still no user, the useEffect above will have already started the redirect.
-  // We can return null or a minimal loader to avoid rendering anything else.
-  if (!user) {
-    return null;
-  }
-  
   const isCreateProfilePage = pathname === '/dashboard/create-profile';
   const profileComplete = user.interests && user.interests.length > 0;
 
   if (user.role === 'patient' && !profileComplete && !isCreateProfilePage) {
-    router.replace('/dashboard/create-profile');
     return (
        <div className="flex h-screen w-full items-center justify-center">
          <p>Redirecting to profile setup...</p>

@@ -32,6 +32,7 @@ const formatNPIRecord = (record: any): any | null => {
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const specialty = searchParams.get('specialty');
+  const name = searchParams.get('name');
   const limit = searchParams.get('limit') || '12';
 
   const apiParams = new URLSearchParams({
@@ -43,9 +44,21 @@ export async function GET(request: Request) {
 
   if (specialty) {
     apiParams.set('taxonomy_description', specialty);
-  } else {
-    // If no specialty, use a default to get some results
+  } else if (!name) { 
+    // If no specialty or name, use a default to get some results
     apiParams.set('taxonomy_description', 'Cardiology');
+  }
+
+  if (name) {
+    // The NPI registry doesn't have a single 'name' field, so we split it
+    const nameParts = name.split(' ');
+    if (nameParts.length > 1) {
+      apiParams.set('first_name', nameParts[0]);
+      apiParams.set('last_name', nameParts.slice(1).join(' '));
+    } else {
+      // If only one word, search it as organization name or last name
+      apiParams.set('organization_name', name);
+    }
   }
 
   try {

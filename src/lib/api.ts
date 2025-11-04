@@ -3,8 +3,6 @@ import { ClinicalTrial, Publication, Expert } from './types';
 import { XMLParser } from 'fast-xml-parser';
 
 const CLINICAL_TRIALS_API_BASE_URL = 'https://clinicaltrials.gov/api/v2';
-const PUBMED_API_BASE_URL = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils';
-const NPI_REGISTRY_API_BASE_URL = 'https://npiregistry.cms.hhs.gov/api/';
 
 // A mapping from the API's status to the app's status
 const statusMapping: { [key: string]: ClinicalTrial['status'] } = {
@@ -106,7 +104,8 @@ export async function searchPublications(
 }
 
 export async function searchExperts(
-  specialty: string,
+  specialty?: string,
+  name?: string,
   pageSize: number = 12
 ): Promise<Expert[]> {
   const params = new URLSearchParams({
@@ -115,6 +114,9 @@ export async function searchExperts(
 
   if (specialty) {
     params.set('specialty', specialty);
+  }
+  if (name) {
+    params.set('name', name);
   }
 
   try {

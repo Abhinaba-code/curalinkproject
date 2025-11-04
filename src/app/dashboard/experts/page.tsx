@@ -11,6 +11,7 @@ import { searchExperts } from '@/lib/api';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useFavorites } from '@/context/favorites-provider';
+import { Input } from '@/components/ui/input';
 
 
 const specialties = [
@@ -68,30 +69,31 @@ export default function ExpertsPage() {
     const [experts, setExperts] = useState<Expert[]>([]);
     const [loading, setLoading] = useState(true);
     const [specialty, setSpecialty] = useState('');
-    const [submittedSpecialty, setSubmittedSpecialty] = useState('');
+    const [name, setName] = useState('');
+    const [submittedQuery, setSubmittedQuery] = useState({ specialty: '', name: '' });
     
     useEffect(() => {
         const randomSpecialty = randomSpecialties[Math.floor(Math.random() * randomSpecialties.length)];
-        setSubmittedSpecialty(randomSpecialty);
+        setSubmittedQuery({ specialty: randomSpecialty, name: '' });
     }, []);
 
     useEffect(() => {
         async function fetchInitialData() {
             setLoading(true);
-            const fetchedExperts = await searchExperts(submittedSpecialty, 12);
+            const fetchedExperts = await searchExperts(submittedQuery.specialty, submittedQuery.name, 12);
             setExperts(fetchedExperts);
             setLoading(false);
         }
 
         fetchInitialData();
-    }, [submittedSpecialty]);
+    }, [submittedQuery]);
 
     const handleSearch = async (e: React.FormEvent) => {
         e.preventDefault();
-        setSubmittedSpecialty(specialty);
+        setSubmittedQuery({ specialty, name });
     };
 
-    const hasSearched = submittedSpecialty;
+    const hasSearched = submittedQuery.specialty || submittedQuery.name;
 
     return (
         <div className="space-y-6">
@@ -108,18 +110,24 @@ export default function ExpertsPage() {
                 <form onSubmit={handleSearch}>
                     <CardContent className="pt-6 space-y-4">
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                            <div className="sm:col-span-2">
-                                <label htmlFor="specialty" className="text-sm font-medium text-muted-foreground">Category</label>
-                                <Select value={specialty} onValueChange={(value) => setSpecialty(value)}>
-                                    <SelectTrigger id="specialty">
-                                        <SelectValue placeholder="Select a specialty" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {specialties.map(spec => (
-                                            <SelectItem key={spec} value={spec}>{spec}</SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
+                             <div className="sm:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label htmlFor="name" className="text-sm font-medium text-muted-foreground">Name</label>
+                                    <Input id="name" placeholder="e.g. Dr. John Doe" value={name} onChange={(e) => setName(e.target.value)} />
+                                </div>
+                                <div>
+                                    <label htmlFor="specialty" className="text-sm font-medium text-muted-foreground">Specialty</label>
+                                    <Select value={specialty} onValueChange={(value) => setSpecialty(value)}>
+                                        <SelectTrigger id="specialty">
+                                            <SelectValue placeholder="Select a specialty" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {specialties.map(spec => (
+                                                <SelectItem key={spec} value={spec}>{spec}</SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
                             </div>
                              <div className="flex items-end">
                                 <Button type="submit" className="w-full" disabled={loading}>

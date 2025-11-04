@@ -91,7 +91,7 @@ function PublicationCard({ pub }: { pub: Publication }) {
 export default function PublicationsPage() {
     const [publications, setPublications] = useState<Publication[]>([]);
     const [loading, setLoading] = useState(true);
-    const [searchTerm, setSearchTerm] = useState('health');
+    const [searchTerm, setSearchTerm] = useState('');
     const [searchQuery, setSearchQuery] = useState('health');
 
 

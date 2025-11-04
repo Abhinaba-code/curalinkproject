@@ -22,7 +22,7 @@ import { Card, CardContent } from '@/components/ui/card';
 export default function TrialsPage() {
   const [trials, setTrials] = useState<ClinicalTrial[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('cancer');
+  const [searchTerm, setSearchTerm] = useState('');
   const [searchQuery, setSearchQuery] = useState('cancer');
   const [lat, setLat] = useState('');
   const [lon, setLon] = useState('');

@@ -51,12 +51,16 @@ function ExpertCard({ expert }: { expert: Expert }) {
 
 export default function ExpertsPage() {
   const [experts, setExperts] = useState<Expert[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('cancer research');
-  const [searchQuery, setSearchQuery] = useState('cancer research');
+  const [loading, setLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     async function fetchExperts() {
+      if (!searchQuery) {
+        setExperts([]);
+        return;
+      };
       setLoading(true);
       const fetchedExperts = await searchExperts(searchQuery);
       setExperts(fetchedExperts);
@@ -67,7 +71,7 @@ export default function ExpertsPage() {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    setSearchQuery(searchTerm || 'cancer research');
+    setSearchQuery(searchTerm);
   };
 
   return (
@@ -84,7 +88,7 @@ export default function ExpertsPage() {
        <div className="flex items-center gap-4">
         <form onSubmit={handleSearch} className="flex-1 max-w-lg relative">
           <Input
-              placeholder="Search by name, specialty, or institution..."
+              placeholder="e.g. John Doe, cancer research..."
               className="pr-10"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}

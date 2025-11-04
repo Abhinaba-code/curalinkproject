@@ -20,15 +20,19 @@ import { Card, CardContent } from '@/components/ui/card';
 
 export default function TrialsPage() {
   const [trials, setTrials] = useState<ClinicalTrial[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('cancer');
-  const [searchQuery, setSearchQuery] = useState('cancer');
+  const [loading, setLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
   const [lat, setLat] = useState('');
   const [lon, setLon] = useState('');
   const [radius, setRadius] = useState('50'); // Default 50 miles
 
   useEffect(() => {
     async function fetchTrials() {
+      if (!searchQuery) {
+        setTrials([]);
+        return;
+      };
       setLoading(true);
       const geo = lat && lon && radius ? { lat, lon, radius } : undefined;
       const fetchedTrials = await searchClinicalTrials(searchQuery, 9, geo);
@@ -40,7 +44,7 @@ export default function TrialsPage() {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    setSearchQuery(searchTerm || 'cancer');
+    setSearchQuery(searchTerm);
   };
   
   const handleGeoSearch = () => {
@@ -63,7 +67,7 @@ export default function TrialsPage() {
         <div className="flex items-center gap-4">
           <form onSubmit={handleSearch} className="flex-1 max-w-lg relative">
             <Input 
-              placeholder="Search by condition, keyword..." 
+              placeholder="e.g. lung cancer, diabetes..." 
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pr-10"
@@ -139,7 +143,7 @@ export default function TrialsPage() {
         <Card className="flex items-center justify-center h-64 border-dashed col-span-full">
             <div className="text-center">
                 <p className="text-lg font-medium">No Trials Found</p>
-                <p className="text-sm text-muted-foreground">Try adjusting your search terms or location.</p>
+                <p className="text-sm text-muted-foreground">Enter a search term to begin, or adjust your filters.</p>
             </div>
         </Card>
       )}

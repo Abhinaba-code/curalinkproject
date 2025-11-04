@@ -81,13 +81,17 @@ function PublicationCard({ pub }: { pub: Publication }) {
 
 export default function PublicationsPage() {
     const [publications, setPublications] = useState<Publication[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [searchTerm, setSearchTerm] = useState('cancer therapy');
-    const [searchQuery, setSearchQuery] = useState('cancer therapy');
+    const [loading, setLoading] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [searchQuery, setSearchQuery] = useState('');
 
 
     useEffect(() => {
         async function fetchPublications() {
+            if (!searchQuery) {
+                setPublications([]);
+                return;
+            };
             setLoading(true);
             const fetchedPublications = await searchPublications(searchQuery);
             setPublications(fetchedPublications);
@@ -98,7 +102,7 @@ export default function PublicationsPage() {
 
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
-        setSearchQuery(searchTerm || 'cancer therapy');
+        setSearchQuery(searchTerm);
     };
 
     return (
@@ -115,7 +119,7 @@ export default function PublicationsPage() {
             <div className="flex items-center gap-4">
                 <form onSubmit={handleSearch} className="flex-1 max-w-lg relative">
                     <Input
-                        placeholder="Search by title, author, or keyword..."
+                        placeholder="e.g. cancer therapy, immunology..."
                         className="pr-10"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}

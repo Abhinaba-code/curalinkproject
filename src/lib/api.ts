@@ -80,127 +80,27 @@ export async function searchClinicalTrials(
   }
 }
 
-const extractTextFromNode = (node: any): string => {
-    if (typeof node === 'string') {
-      return node;
-    }
-    if (typeof node === 'object' && node !== null) {
-      if ('#text' in node) {
-        // Handle cases like { '#text': 'Some text', i: 'italic part' }
-        let text = node['#text'];
-        for (const key in node) {
-          if (key !== '#text' && typeof node[key] === 'string') {
-            text += ` ${node[key]}`;
-          }
-        }
-        return text;
-      }
-      // Handle cases with nested tags like { sub: "2" } or arrays
-      return Object.values(node).flat().map(extractTextFromNode).join('');
-    }
-    return '';
-};
-
-
-// A utility function to format a single publication from the API response
-const formatPublication = (articleData: any): Publication => {
-  const pmidNode = articleData.MedlineCitation.PMID;
-  const pmid = typeof pmidNode === 'object' ? pmidNode['#text'] : pmidNode;
-  const article = articleData.MedlineCitation.Article;
-
-  let abstract = 'No abstract available.';
-  if (article.Abstract?.AbstractText) {
-    if (Array.isArray(article.Abstract.AbstractText)) {
-      abstract = article.Abstract.AbstractText.map(extractTextFromNode).join(' ');
-    } else {
-      abstract = extractTextFromNode(article.Abstract.AbstractText);
-    }
-  }
-  
-  const doi = article.ELocationID?.find((id: any) => id.EIdType === 'doi')?.['#text'] || '';
-
-  const authors = article.AuthorList?.Author;
-  const authorNames = Array.isArray(authors)
-    ? authors.map(author => `${author.ForeName} ${author.LastName}`)
-    : authors ? [`${authors.ForeName} ${authors.LastName}`] : [];
-
-  const title = extractTextFromNode(article.ArticleTitle) || 'No title available.';
-
-  return {
-    id: pmid.toString(),
-    title: title,
-    authors: authorNames,
-    journal: article.Journal.Title || 'N/A',
-    year: new Date(article.Journal.JournalIssue.PubDate.Year, article.Journal.JournalIssue.PubDate.Month ? parseInt(article.Journal.JournalIssue.PubDate.Month, 10) - 1 : 0).getFullYear() || 'N/A',
-    doi: doi,
-    abstract: abstract, 
-    url: `https://pubmed.ncbi.nlm.nih.gov/${pmid}`,
-  };
-};
-
-// Function to fetch and format publications from PubMed
+// Function to fetch and format publications from PubMed via our proxy
 export async function searchPublications(
   query: string,
   pageSize: number = 10
 ): Promise<Publication[]> {
   if (!query) return [];
   try {
-    // Step 1: Search for publication IDs
-    const searchResponse = await fetch(
-      `${PUBMED_API_BASE_URL}/esearch.fcgi?db=pubmed&term=${encodeURIComponent(query)}&retmax=${pageSize}&retmode=json`
-    );
-
-    if (!searchResponse.ok) {
-      throw new Error(`PubMed search API error! status: ${searchResponse.status}`);
-    }
-    const searchData = await searchResponse.json();
-    
-    if (!searchData.esearchresult || !searchData.esearchresult.idlist || searchData.esearchresult.idlist.length === 0) {
-        return [];
-    }
-
-    const ids = searchData.esearchresult.idlist;
-
-    // Step 2: Fetch full details for the found IDs using efetch
-    const fetchResponse = await fetch(
-      `${PUBMED_API_BASE_URL}/efetch.fcgi?db=pubmed&id=${ids.join(',')}&retmode=xml`
-    );
-
-    if (!fetchResponse.ok) {
-      throw new Error(`PubMed fetch API error! status: ${fetchResponse.status}`);
-    }
-    const xmlData = await fetchResponse.text();
-
-    const parser = new XMLParser({
-      ignoreAttributes: false,
-      attributeNamePrefix: '',
-      textNodeName: '#text',
-      parseAttributeValue: true,
-      isArray: (name, jpath) => {
-        return ['Author', 'AbstractText', 'ELocationID'].includes(name);
-      },
-      tagValueProcessor: (tagName, tagValue) => {
-        // This prevents the parser from converting numbers into actual number types
-        if (tagName === 'PMID' || tagName === 'Year') {
-          return tagValue;
-        }
-        return;
-      },
+    const params = new URLSearchParams({
+      query: query,
+      pageSize: pageSize.toString(),
     });
-    const jsonData = parser.parse(xmlData);
-
-    if (!jsonData.PubmedArticleSet?.PubmedArticle) {
-      return [];
+    const response = await fetch(`/api/publications?${params.toString()}`);
+    
+    if (!response.ok) {
+      throw new Error(`Proxy API error! status: ${response.status}`);
     }
 
-    const articles = Array.isArray(jsonData.PubmedArticleSet.PubmedArticle)
-      ? jsonData.PubmedArticleSet.PubmedArticle
-      : [jsonData.PubmedArticleSet.PubmedArticle];
-
-    // Step 3: Format the data
-    return articles.map(formatPublication).filter(p => p.id);
+    const data = await response.json();
+    return data.results;
   } catch (error) {
-    console.error('Failed to fetch publications:', error);
+    console.error('Failed to fetch publications via proxy:', error);
     return []; // Return an empty array on error
   }
 }

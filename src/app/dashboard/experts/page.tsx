@@ -96,7 +96,7 @@ export default function ExpertsPage() {
         setSubmittedQuery(category);
     }
 
-    const hasSearched = !initialLoad && query === submittedQuery;
+    const hasSearched = !initialLoad;
 
     return (
         <div className="space-y-6">

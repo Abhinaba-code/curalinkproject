@@ -52,13 +52,14 @@ export async function searchClinicalTrials(
 
 // A utility function to format a single publication from the API response
 const formatPublication = (id: string, data: any): Publication => {
+  const article = data.result[id];
   return {
     id: id,
-    title: data.title || 'No title available.',
-    authors: data.authors?.map((a: { name: string }) => a.name) || [],
-    journal: data.source || 'N/A',
-    year: new Date(data.pubdate).getFullYear() || 'N/A',
-    doi: data.elocationid?.replace('doi: ', '') || '',
+    title: article.title || 'No title available.',
+    authors: article.authors?.map((a: { name: string }) => a.name) || [],
+    journal: article.source || 'N/A',
+    year: new Date(article.pubdate).getFullYear() || 'N/A',
+    doi: article.elocationid?.replace('doi: ', '') || '',
     // PubMed e-summary does not provide an abstract. A more complex call would be needed.
     abstract: 'No abstract available from this API endpoint. Full text link might be available.', 
   };
@@ -80,15 +81,15 @@ export async function searchPublications(
     }
     const searchData = await searchResponse.json();
     
-    // The API can return a response without a `result` field.
-    if (!searchData.result) {
-        console.error('PubMed API returned no result for query:', query, searchData);
+    // The API can return a response without a `esearchresult` field.
+    if (!searchData.esearchresult || !searchData.esearchresult.idlist) {
+        console.warn('PubMed API returned no result for query:', query);
         return [];
     }
 
-    const ids = searchData.result.idlist;
+    const ids = searchData.esearchresult.idlist;
 
-    if (!ids || ids.length === 0) {
+    if (ids.length === 0) {
       return [];
     }
 
@@ -101,8 +102,14 @@ export async function searchPublications(
     }
     const summaryData = await summaryResponse.json();
     
+    // Check if the summary data is valid
+    if (!summaryData.result) {
+      console.error('PubMed summary API returned no result for IDs:', ids);
+      return [];
+    }
+
     // Step 3: Format the data
-    return ids.map((id: string) => formatPublication(id, summaryData.result[id]));
+    return ids.map((id: string) => formatPublication(id, summaryData));
   } catch (error) {
     console.error('Failed to fetch publications:', error);
     return []; // Return an empty array on error

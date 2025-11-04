@@ -43,7 +43,7 @@ function PublicationCard({ pub }: { pub: Publication }) {
                     <p className="text-sm text-muted-foreground line-clamp-2">{pub.abstract}</p>
                 </CardContent>
                 <CardFooter className="flex justify-between items-center">
-                    <Button variant="ghost" size="sm" onClick={handleSummarize}>
+                    <Button variant="ghost" size="sm" onClick={handleSummarize} disabled={isLoadingSummary}>
                         <Bot className="mr-2 h-4 w-4" />
                         AI Summary
                     </Button>
@@ -82,7 +82,7 @@ function PublicationCard({ pub }: { pub: Publication }) {
 export default function PublicationsPage() {
     const [publications, setPublications] = useState<Publication[]>([]);
     const [loading, setLoading] = useState(true);
-    const [searchTerm, setSearchTerm] = useState('');
+    const [searchTerm, setSearchTerm] = useState('cancer therapy');
     const [searchQuery, setSearchQuery] = useState('cancer therapy');
 
 
@@ -120,7 +120,7 @@ export default function PublicationsPage() {
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
-                    <Button type="submit" size="icon" variant="ghost" className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8">
+                    <Button type="submit" size="icon" variant="ghost" className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8" disabled={loading}>
                       {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
                     </Button>
                 </form>
@@ -151,11 +151,20 @@ export default function PublicationsPage() {
                     ))}
                 </div>
             ) : (
-                <div className="grid gap-6">
-                    {publications.map((pub) => (
-                        <PublicationCard key={pub.id} pub={pub} />
-                    ))}
-                </div>
+                 publications.length > 0 ? (
+                    <div className="grid gap-6">
+                        {publications.map((pub) => (
+                            <PublicationCard key={pub.id} pub={pub} />
+                        ))}
+                    </div>
+                ) : (
+                    <Card className="flex items-center justify-center h-64 border-dashed">
+                        <div className="text-center">
+                            <p className="text-lg font-medium">No Publications Found</p>
+                            <p className="text-sm text-muted-foreground">Try adjusting your search terms.</p>
+                        </div>
+                    </Card>
+                )
             )}
         </div>
     )

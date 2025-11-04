@@ -99,9 +99,10 @@ export default function LoginPage() {
               Sign Up
             </Link>
           </p>
-          <div className="text-center text-sm">
-            <Link href={`/auth/login?role=${otherRole}`} className="text-muted-foreground hover:text-primary transition-colors">
-              Are you a {otherRole}? Sign in as a <span className="capitalize font-semibold">{otherRole}</span>
+          <div className="text-center text-sm text-muted-foreground">
+            Are you a {otherRole}?{' '}
+            <Link href={`/auth/login?role=${otherRole}`} className="font-semibold text-primary hover:underline transition-colors">
+               Sign in as a <span className="capitalize">{otherRole}</span>
             </Link>
           </div>
            <Button variant="link" asChild className="text-muted-foreground mt-4">

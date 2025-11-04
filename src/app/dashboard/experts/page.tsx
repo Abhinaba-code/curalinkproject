@@ -85,12 +85,14 @@ function ExpertCard({ expert }: { expert: Expert }) {
     };
 
     const handleNudge = () => {
-        sendNudgeNotification(expert);
-        setNudged(true);
-        toast({
-            title: "Nudge Sent!",
-            description: `A notification has been sent to researchers about ${expert.name}.`,
-        });
+        if (!nudged) {
+            sendNudgeNotification(expert);
+            toast({
+                title: "Nudge Sent!",
+                description: `A notification has been sent to researchers about ${expert.name}.`,
+            });
+        }
+        setNudged(!nudged);
     };
 
     const handleRequestMeeting = () => {
@@ -143,7 +145,7 @@ function ExpertCard({ expert }: { expert: Expert }) {
                     <ExpertProfileDialog expert={expert}>
                         <Button variant="outline" size="sm" className="w-full"><User className="mr-2 h-4 w-4" />View Profile</Button>
                     </ExpertProfileDialog>
-                    <Button variant="outline" size="sm" onClick={handleNudge} disabled={nudged}>
+                    <Button variant="outline" size="sm" onClick={handleNudge}>
                         {nudged ? <Check className="mr-2 h-4 w-4" /> : <Bell className="mr-2 h-4 w-4" />}
                         {nudged ? 'Nudged' : 'Nudge to Join'}
                     </Button>
@@ -372,5 +374,3 @@ export default function ExpertsPage() {
         </div>
     );
 }
-
-    

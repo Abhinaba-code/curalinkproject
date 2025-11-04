@@ -3,16 +3,46 @@
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { UserNav } from '@/components/user-nav';
 import { Input } from './ui/input';
-import { Search, Star, Bell, MessageSquare } from 'lucide-react';
+import { Search, Star, Bell, MessageSquare, CornerDownRight } from 'lucide-react';
 import { Logo } from './logo';
 import { Button } from './ui/button';
 import { useFavorites } from '@/context/favorites-provider';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
-import { useForum } from '@/context/forum-provider';
+import { useForum, type Notification } from '@/context/forum-provider';
 import Link from 'next/link';
+import { useAuth } from '@/context/auth-provider';
+
+function NotificationItem({ notif }: { notif: Notification }) {
+    const Icon = notif.type === 'new_post' ? MessageSquare : CornerDownRight;
+    const text = notif.type === 'new_post' 
+        ? `New Post: "${notif.postTitle}"`
+        : `New Reply on: "${notif.postTitle}"`;
+    const subtext = `By ${notif.authorName}`;
+
+    return (
+        <Link
+            key={notif.id}
+            href="/dashboard/forums"
+            className="flex items-start gap-3 rounded-lg p-2 hover:bg-accent"
+        >
+            <div className="mt-1">
+                <Icon className="h-4 w-4 text-primary" />
+            </div>
+            <div className="grid gap-1">
+                <p className="text-sm font-medium leading-none">
+                    {text}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                    {subtext}
+                </p>
+            </div>
+        </Link>
+    );
+}
 
 export function AppHeader() {
   const { setShowFavorites } = useFavorites();
+  const { user } = useAuth();
   const { notifications, markNotificationsAsRead, unreadCount } = useForum();
 
   return (
@@ -52,29 +82,13 @@ export function AppHeader() {
                 <div className="p-4">
                     <h4 className="font-medium leading-none">Notifications</h4>
                     <p className="text-sm text-muted-foreground">
-                        New posts from patients.
+                        {user?.role === 'researcher' ? 'New posts from patients.' : 'Replies from researchers.'}
                     </p>
                 </div>
                 <div className="grid gap-2 p-2">
                     {notifications.length > 0 ? (
                         notifications.map((notif) => (
-                        <Link
-                            key={notif.id}
-                            href="/dashboard/forums"
-                            className="flex items-start gap-3 rounded-lg p-2 hover:bg-accent"
-                        >
-                            <div className="mt-1">
-                                <MessageSquare className="h-4 w-4 text-primary" />
-                            </div>
-                            <div className="grid gap-1">
-                                <p className="text-sm font-medium leading-none">
-                                    New Post: "{notif.postTitle}"
-                                </p>
-                                <p className="text-sm text-muted-foreground">
-                                    By {notif.authorName} in the forums.
-                                </p>
-                            </div>
-                        </Link>
+                           <NotificationItem key={notif.id} notif={notif} />
                         ))
                     ) : (
                         <div className="text-center text-sm text-muted-foreground p-4">

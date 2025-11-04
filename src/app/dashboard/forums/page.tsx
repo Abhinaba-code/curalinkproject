@@ -15,6 +15,7 @@ import {
   ArrowUpCircle,
   Share2,
   PlusCircle,
+  CornerDownRight,
 } from 'lucide-react';
 import { useState } from 'react';
 import {
@@ -29,11 +30,49 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { useForum, type ForumPost } from '@/context/forum-provider';
+import { useForum, type ForumPost, type PostReply } from '@/context/forum-provider';
 import { useAuth } from '@/context/auth-provider';
 import { useToast } from '@/hooks/use-toast';
 
+function ReplyCard({ reply }: { reply: PostReply }) {
+  return (
+    <div className="flex items-start gap-3 pl-8 mt-4 border-l-2 border-primary/20">
+      <Avatar className="h-8 w-8">
+        <AvatarImage src={reply.author.avatarUrl} alt={reply.author.name} />
+        <AvatarFallback>
+          {reply.author.name.split(' ').map(n => n[0]).join('')}
+        </AvatarFallback>
+      </Avatar>
+      <div className="flex-1">
+        <div className="flex items-center gap-2">
+            <p className="font-semibold text-sm">{reply.author.name}</p>
+            <p className="text-xs text-muted-foreground">{reply.author.role}</p>
+        </div>
+        <p className="text-sm text-muted-foreground whitespace-pre-wrap">{reply.content}</p>
+      </div>
+    </div>
+  );
+}
+
+
 function PostCard({ post }: { post: ForumPost }) {
+  const { addReply } = useForum();
+  const { user } = useAuth();
+  const [replyContent, setReplyContent] = useState('');
+  const [showReplyInput, setShowReplyInput] = useState(false);
+  const { toast } = useToast();
+
+  const handleAddReply = () => {
+    if (!replyContent.trim() || !user) return;
+    addReply(post.id, replyContent);
+    setReplyContent('');
+    setShowReplyInput(false);
+    toast({
+        title: 'Reply Posted!',
+        description: 'Your reply has been added to the post.'
+    });
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -63,21 +102,40 @@ function PostCard({ post }: { post: ForumPost }) {
             </div>
           ))}
         </div>
-      </CardContent>
-      <CardFooter className="flex justify-between items-center">
-        <div className="flex items-center gap-4 text-muted-foreground">
-          <Button variant="ghost" size="sm" className="flex items-center gap-2">
-            <ArrowUpCircle className="h-5 w-5" />
-            <span>{post.upvotes}</span>
-          </Button>
-          <Button variant="ghost" size="sm" className="flex items-center gap-2">
-            <MessageSquare className="h-5 w-5" />
-            <span>{post.comments} Comments</span>
-          </Button>
+        <div className="mt-6 space-y-4">
+            {post.replies?.map(reply => (
+                <ReplyCard key={reply.id} reply={reply} />
+            ))}
         </div>
-        <Button variant="ghost" size="icon">
-          <Share2 className="h-5 w-5" />
-        </Button>
+
+      </CardContent>
+      <CardFooter className="flex-col items-start gap-4">
+        <div className="flex justify-between items-center w-full">
+            <div className="flex items-center gap-4 text-muted-foreground">
+            <Button variant="ghost" size="sm" className="flex items-center gap-2">
+                <ArrowUpCircle className="h-5 w-5" />
+                <span>{post.upvotes}</span>
+            </Button>
+            <Button variant="ghost" size="sm" className="flex items-center gap-2" onClick={() => setShowReplyInput(!showReplyInput)}>
+                <MessageSquare className="h-5 w-5" />
+                <span>{post.replies?.length || 0} Comments</span>
+            </Button>
+            </div>
+            <Button variant="ghost" size="icon">
+            <Share2 className="h-5 w-5" />
+            </Button>
+        </div>
+        {showReplyInput && user?.role === 'researcher' && (
+            <div className="w-full pl-10 flex gap-2">
+                <Textarea 
+                    placeholder={`Replying to ${post.author.name}...`}
+                    value={replyContent}
+                    onChange={(e) => setReplyContent(e.target.value)}
+                    className="min-h-[60px]"
+                />
+                <Button onClick={handleAddReply}>Reply</Button>
+            </div>
+        )}
       </CardFooter>
     </Card>
   );
@@ -103,7 +161,7 @@ export default function ForumsPage() {
       return;
     }
 
-    const newPost: Omit<ForumPost, 'id' | 'upvotes' | 'comments'> = {
+    addPost({
       author: {
         name: user.name || 'Anonymous',
         avatarUrl: user.avatarUrl,
@@ -112,9 +170,7 @@ export default function ForumsPage() {
       title,
       content,
       tags: tags.split(',').map(tag => tag.trim()).filter(Boolean),
-    };
-
-    addPost(newPost);
+    });
     
     toast({
       title: 'Post Created!',
@@ -141,10 +197,12 @@ export default function ForumsPage() {
               Connect with patients, caregivers, and researchers.
             </p>
           </div>
-          <Button onClick={() => setIsNewPostOpen(true)}>
-            <PlusCircle className="mr-2 h-4 w-4" />
-            Create New Post
-          </Button>
+          {user?.role === 'patient' && (
+            <Button onClick={() => setIsNewPostOpen(true)}>
+                <PlusCircle className="mr-2 h-4 w-4" />
+                Create New Post
+            </Button>
+          )}
         </div>
 
         <div className="space-y-6">
@@ -158,7 +216,7 @@ export default function ForumsPage() {
           <DialogHeader>
             <DialogTitle>Create a New Post</DialogTitle>
             <DialogDescription>
-              Share your story, ask a question, or start a discussion.
+              Share your story, ask a question, or start a discussion. Researchers will be notified.
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">

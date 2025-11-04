@@ -70,6 +70,7 @@ export default function ExpertsPage() {
     const [loading, setLoading] = useState(true);
     const [query, setQuery] = useState('');
     const [submittedQuery, setSubmittedQuery] = useState('Cardiology');
+    const [initialLoad, setInitialLoad] = useState(true);
     
     useEffect(() => {
         async function fetchInitialData() {
@@ -77,6 +78,9 @@ export default function ExpertsPage() {
             const fetchedExperts = await searchExperts(submittedQuery, 12);
             setExperts(fetchedExperts);
             setLoading(false);
+            if (initialLoad) {
+                setInitialLoad(false);
+            }
         }
 
         fetchInitialData();
@@ -92,7 +96,7 @@ export default function ExpertsPage() {
         setSubmittedQuery(category);
     }
 
-    const hasSearched = !!submittedQuery;
+    const hasSearched = !initialLoad && query === submittedQuery;
 
     return (
         <div className="space-y-6">

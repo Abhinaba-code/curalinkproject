@@ -25,6 +25,7 @@ import { CalendarIcon, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
+import Link from 'next/link';
 
 export default function CreateProfilePage() {
   const { user, updateUserProfile } = useAuth();
@@ -167,10 +168,13 @@ export default function CreateProfilePage() {
               </p>
             </div>
           </CardContent>
-          <CardFooter>
+          <CardFooter className="flex gap-2">
             <Button type="submit" disabled={loading}>
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Save Profile
+            </Button>
+            <Button variant="outline" asChild>
+                <Link href="/dashboard/profile">Cancel</Link>
             </Button>
           </CardFooter>
         </form>

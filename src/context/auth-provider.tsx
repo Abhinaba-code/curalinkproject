@@ -26,17 +26,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
 
   useEffect(() => {
-    try {
-      const storedUser = localStorage.getItem(CURRENT_USER_KEY);
-      if (storedUser) {
-        setUser(JSON.parse(storedUser));
+    // This effect runs only once on mount to initialize the user state.
+    let isMounted = true;
+    const initializeAuth = () => {
+      try {
+        const storedUser = localStorage.getItem(CURRENT_USER_KEY);
+        if (storedUser) {
+          if (isMounted) setUser(JSON.parse(storedUser));
+        }
+      } catch (error) {
+        console.error('Failed to parse user from localStorage', error);
+        localStorage.removeItem(CURRENT_USER_KEY);
+      } finally {
+        if (isMounted) setLoading(false);
       }
-    } catch (error) {
-      console.error('Failed to parse user from localStorage', error);
-      localStorage.removeItem(CURRENT_USER_KEY);
-    } finally {
-      setLoading(false);
-    }
+    };
+    
+    initializeAuth();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const getUsers = (): StoredUser[] => {

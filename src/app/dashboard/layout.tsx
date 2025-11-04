@@ -17,6 +17,7 @@ import {
   Users,
   FileText,
   Star,
+  Loader2,
 } from 'lucide-react';
 import { Logo } from '@/components/logo';
 import { AppHeader } from '@/components/app-header';
@@ -47,21 +48,21 @@ function DashboardApp({ children }: { children: React.ReactNode }) {
     }
   }, [user, loading, router]);
 
-  if (loading || !user) {
+  if (loading) {
     return (
-       <div className="flex h-screen w-full">
-        <div className="hidden md:flex flex-col w-64 border-r p-4 gap-4">
-          <Skeleton className="h-8 w-32" />
-          <Skeleton className="h-8 w-full" />
-          <Skeleton className="h-8 w-full" />
-          <Skeleton className="h-8 w-full" />
-        </div>
-        <div className="flex-1 p-4">
-            <Skeleton className="h-12 w-full mb-4" />
-            <Skeleton className="h-64 w-full" />
-        </div>
+       <div className="flex h-screen w-full items-center justify-center bg-background">
+         <div className="flex flex-col items-center gap-4">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <p className="text-muted-foreground">Loading your dashboard...</p>
+         </div>
       </div>
     );
+  }
+
+  // After loading, if there's still no user, the useEffect above will have already started the redirect.
+  // We can return null or a minimal loader to avoid rendering anything else.
+  if (!user) {
+    return null;
   }
   
   const isCreateProfilePage = pathname === '/dashboard/create-profile';

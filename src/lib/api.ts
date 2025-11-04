@@ -48,6 +48,7 @@ export async function searchClinicalTrials(
         queryParts.push(`query.cond=${encodeURIComponent(query)}`);
     }
     if (location) {
+        // ClinicalTrials.gov API uses 'query.locn' for location-based searches which can include city, state, country.
         queryParts.push(`query.locn=${encodeURIComponent(location)}`);
     }
     
@@ -138,6 +139,7 @@ export async function searchPublications(
 // Simple hash function to get a number from a string
 function simpleHash(str: string) {
   let hash = 0;
+  if (!str) return hash;
   for (let i = 0; i < str.length; i++) {
     const char = str.charCodeAt(i);
     hash = (hash << 5) - hash + char;
@@ -148,15 +150,21 @@ function simpleHash(str: string) {
 
 const formatExpertFromOrcid = (person: any): Expert => {
   const orcid = person['orcid-identifier']?.path;
+  
+  // The ORCID search API response is inconsistent. Name can be in person.name or title.
   const givenName = person.person?.name?.['given-names']?.value || '';
   const familyName = person.person?.name?.['family-name']?.value || '';
-  const name = `${givenName} ${familyName}`.trim();
+  let name = `${givenName} ${familyName}`.trim();
+
+  if (!name && person.title) {
+    name = person.title;
+  }
 
   const seed = simpleHash(orcid);
 
-  const specialties = ['Oncology', 'Immunology', 'Genetics', 'Neurology', 'Cardiology'];
-  const researchAreas = ['Cancer Research', 'T-cell therapy', 'Glioma', 'Brain Cancer', 'Immunotherapy', 'Gene Editing'];
-  const institutions = ['Memorial Sloan Kettering', 'Stanford University', 'MIT', 'Harvard Medical School', 'UCSF Medical Center'];
+  const specialties = ['Oncology', 'Immunology', 'Genetics', 'Neurology', 'Cardiology', 'Pulmonology', 'Nephrology'];
+  const researchAreas = ['Cancer Research', 'T-cell therapy', 'Glioma', 'Brain Cancer', 'Immunotherapy', 'Gene Editing', 'Metastasis'];
+  const institutions = ['Memorial Sloan Kettering', 'Stanford University', 'MIT', 'Harvard Medical School', 'UCSF Medical Center', 'MD Anderson Cancer Center', 'Mayo Clinic'];
 
   return {
     id: orcid,
@@ -189,10 +197,35 @@ export async function searchExperts(
     }
     const data = await response.json();
     
-    const results = data.result || [];
+    // The main results are in expanded-result, but sometimes they are in 'result'
+    const results = data['expanded-result'] || data.result || [];
     if (results.length === 0) return [];
-    
-    return results.map(formatExpertFromOrcid);
+
+    const formattedExperts = results.map((result: any) => {
+        const orcid = result['orcid-id'];
+        const givenName = result['given-names'];
+        const familyName = result['family-name'];
+        const name = `${givenName} ${familyName}`.trim();
+        
+        const seed = simpleHash(orcid);
+        const specialties = ['Oncology', 'Immunology', 'Genetics', 'Neurology', 'Cardiology'];
+        const researchAreas = ['Cancer Research', 'T-cell therapy', 'Glioma', 'Brain Cancer', 'Immunotherapy', 'Gene Editing'];
+        const institutions = ['Memorial Sloan Kettering', 'Stanford University', 'MIT', 'Harvard Medical School', 'UCSF Medical Center'];
+
+        return {
+            id: orcid,
+            name: name || "Unnamed Researcher",
+            specialties: [specialties[seed % specialties.length]],
+            institution: institutions[seed % institutions.length],
+            publicationCount: seed % 250 + 10,
+            avatarUrl: `https://picsum.photos/seed/${orcid}/200/200`,
+            researchAreas: [researchAreas[seed % researchAreas.length], researchAreas[(seed + 1) % researchAreas.length]],
+            clinicalTrialCount: seed % 25,
+            url: `https://orcid.org/${orcid}`,
+        }
+    });
+
+    return formattedExperts;
 
   } catch (error) {
     console.error('Failed to fetch experts from ORCID:', error);

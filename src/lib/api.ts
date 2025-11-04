@@ -4,6 +4,7 @@ import { XMLParser } from 'fast-xml-parser';
 
 const CLINICAL_TRIALS_API_BASE_URL = 'https://clinicaltrials.gov/api/v2';
 const PUBMED_API_BASE_URL = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils';
+const NPI_REGISTRY_API_BASE_URL = 'https://npiregistry.cms.hhs.gov/api/';
 
 // A mapping from the API's status to the app's status
 const statusMapping: { [key: string]: ClinicalTrial['status'] } = {
@@ -67,6 +68,28 @@ export async function searchClinicalTrials(
   }
 }
 
+const extractTextFromNode = (node: any): string => {
+    if (typeof node === 'string') {
+      return node;
+    }
+    if (typeof node === 'object' && node !== null) {
+      if ('#text' in node) {
+        // Handle cases like { '#text': 'Some text', i: 'italic part' }
+        let text = node['#text'];
+        for (const key in node) {
+          if (key !== '#text' && typeof node[key] === 'string') {
+            text += ` ${node[key]}`;
+          }
+        }
+        return text;
+      }
+      // Handle cases with nested tags like { sub: "2" } or arrays
+      return Object.values(node).flat().map(extractTextFromNode).join('');
+    }
+    return '';
+};
+
+
 // A utility function to format a single publication from the API response
 const formatPublication = (articleData: any): Publication => {
   const pmidNode = articleData.MedlineCitation.PMID;
@@ -76,12 +99,9 @@ const formatPublication = (articleData: any): Publication => {
   let abstract = 'No abstract available.';
   if (article.Abstract?.AbstractText) {
     if (Array.isArray(article.Abstract.AbstractText)) {
-      abstract = article.Abstract.AbstractText.map((part: any) => part['#text'] || part).join(' ');
-    } else if (typeof article.Abstract.AbstractText === 'object') {
-       abstract = article.Abstract.AbstractText['#text'];
-    }
-    else {
-      abstract = article.Abstract.AbstractText;
+      abstract = article.Abstract.AbstractText.map(extractTextFromNode).join(' ');
+    } else {
+      abstract = extractTextFromNode(article.Abstract.AbstractText);
     }
   }
   
@@ -92,9 +112,11 @@ const formatPublication = (articleData: any): Publication => {
     ? authors.map(author => `${author.ForeName} ${author.LastName}`)
     : authors ? [`${authors.ForeName} ${authors.LastName}`] : [];
 
+  const title = extractTextFromNode(article.ArticleTitle) || 'No title available.';
+
   return {
     id: pmid.toString(),
-    title: article.ArticleTitle || 'No title available.',
+    title: title,
     authors: authorNames,
     journal: article.Journal.Title || 'N/A',
     year: new Date(article.Journal.JournalIssue.PubDate.Year, article.Journal.JournalIssue.PubDate.Month ? parseInt(article.Journal.JournalIssue.PubDate.Month, 10) - 1 : 0).getFullYear() || 'N/A',
@@ -144,7 +166,14 @@ export async function searchPublications(
       parseAttributeValue: true,
       isArray: (name, jpath) => {
         return ['Author', 'AbstractText', 'ELocationID'].includes(name);
-      }
+      },
+      tagValueProcessor: (tagName, tagValue) => {
+        // This prevents the parser from converting numbers into actual number types
+        if (tagName === 'PMID' || tagName === 'Year') {
+          return tagValue;
+        }
+        return;
+      },
     });
     const jsonData = parser.parse(xmlData);
 

@@ -138,9 +138,9 @@ const formatExpertFromOrcid = (person: any): Expert => {
   
   return {
     id: orcid,
-    name: name,
+    name: name || "Name not found",
     specialties: specialties,
-    institution: person['affiliation-summary']?.[0]?.['institution-name'] || 'Boston General Hospital',
+    institution: person['institution-name']?.[0] || 'Boston General Hospital',
     publicationCount: 0, 
     avatarUrl: `https://picsum.photos/seed/${orcid}/200/200`, 
     researchAreas: researchAreas,
@@ -159,7 +159,7 @@ export async function searchExperts(
   try {
     // Basic query to get a list of people
     const response = await fetch(
-      `${ORCID_API_BASE_URL}/search?q=${encodeURIComponent(query)}&rows=${limit}`,
+      `${ORCID_API_BASE_URL}/search?q=text:${encodeURIComponent(query)}&rows=${limit}`,
       { headers: { 'Accept': 'application/json' } }
     );
 
@@ -171,40 +171,6 @@ export async function searchExperts(
     const results = data.result || [];
     
     if (results.length === 0) return [];
-    
-    // Simulate richer data for UI purposes
-    const mockExperts: Expert[] = [
-      {
-        id: '0000-0002-1825-0097',
-        name: 'Dr. Sarah Johnson',
-        specialties: ['Neuro-Oncology'],
-        institution: 'Boston, United States',
-        publicationCount: 120,
-        avatarUrl: `https://picsum.photos/seed/0000-0002-1825-0097/200/200`,
-        researchAreas: ['Brain Cancer', 'Glioma'],
-        clinicalTrialCount: 5,
-        url: 'https://orcid.org/0000-0002-1825-0097'
-      },
-      {
-        id: '0000-0001-5109-3700',
-        name: 'Dr. Michael Lee',
-        specialties: ['Cardiology'],
-        institution: 'Stanford, United States',
-        publicationCount: 250,
-        avatarUrl: `https://picsum.photos/seed/0000-0001-5109-3700/200/200`,
-        researchAreas: ['Atherosclerosis', 'Heart Failure'],
-        clinicalTrialCount: 12,
-        url: 'https://orcid.org/0000-0001-5109-3700'
-      }
-    ];
-
-    // Return the mock data if the query matches a keyword
-    if (query.toLowerCase().includes('cancer') || query.toLowerCase().includes('neuro')) {
-       return [mockExperts[0]];
-    }
-    if (query.toLowerCase().includes('cardio') || query.toLowerCase().includes('heart')) {
-       return [mockExperts[1]];
-    }
     
     // Fallback to basic ORCID search if no mock data matches
     return results.map(formatExpertFromOrcid).slice(0, limit);

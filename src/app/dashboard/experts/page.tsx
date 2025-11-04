@@ -1,17 +1,19 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import type { Expert } from '@/lib/types';
+import type { Expert, ClinicalTrial } from '@/lib/types';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Microscope, ExternalLink, Loader2, Search, Pin, User, Calendar, Mail, Phone, Plus, Star, Bell } from 'lucide-react';
-import { searchExperts } from '@/lib/api';
+import { searchExperts, searchClinicalTrials } from '@/lib/api';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useFavorites } from '@/context/favorites-provider';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from '@/components/ui/dialog';
+import TrialCard from '../trials/trial-card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 
 const PAGE_SIZE = 12;
@@ -150,9 +152,10 @@ function ExpertCard({ expert }: { expert: Expert }) {
 
 export default function ExpertsPage() {
     const [experts, setExperts] = useState<Expert[]>([]);
+    const [trials, setTrials] = useState<ClinicalTrial[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
-    const [currentQuery, setCurrentQuery] = useState('');
+    const [currentQuery, setCurrentQuery] = useState('Cardiology');
     const [currentPage, setCurrentPage] = useState(1);
     const [totalResults, setTotalResults] = useState(0);
 
@@ -163,16 +166,23 @@ export default function ExpertsPage() {
         async function fetchData(query: string, page: number) {
             setLoading(true);
             try {
-                const { results, totalCount } = await searchExperts(query, page, PAGE_SIZE);
+                // Fetch both experts and trials
+                const [expertData, trialData] = await Promise.all([
+                    searchExperts(query, page, PAGE_SIZE),
+                    searchClinicalTrials(query, 6) // Fetch 6 trials
+                ]);
+                
                 if (isMounted) {
-                    setExperts(results);
-                    setTotalResults(totalCount);
+                    setExperts(expertData.results);
+                    setTotalResults(expertData.totalCount);
+                    setTrials(trialData);
                 }
             } catch (error) {
-                console.error("Failed to fetch experts", error);
+                console.error("Failed to fetch data", error);
                 if(isMounted) {
                     setExperts([]);
                     setTotalResults(0);
+                    setTrials([]);
                 }
             }
             finally {
@@ -182,12 +192,7 @@ export default function ExpertsPage() {
             }
         }
         
-        const initialQuery = currentQuery || "Cardiology";
-        if (isMounted && currentQuery !== initialQuery) {
-            setCurrentQuery(initialQuery);
-        }
-
-        fetchData(initialQuery, currentPage);
+        fetchData(currentQuery, currentPage);
 
         return () => {
             isMounted = false;
@@ -197,7 +202,7 @@ export default function ExpertsPage() {
     const handleSearch = (e?: React.FormEvent) => {
         e?.preventDefault();
         setCurrentPage(1);
-        setCurrentQuery(searchTerm);
+        setCurrentQuery(searchTerm || 'Cardiology');
     };
 
     const handleCategoryClick = (category: string) => {
@@ -216,17 +221,17 @@ export default function ExpertsPage() {
         <div className="space-y-6">
             <div>
                 <h1 className="font-headline text-3xl font-bold">
-                    Connect with Health Experts
+                    Connect with Health Experts & Research
                 </h1>
                 <p className="text-muted-foreground">
-                    Find healthcare providers in the US via the NPI Registry. Search by name, specialty, or location.
+                    Find providers and clinical trials. Search by specialty, name, or location.
                 </p>
             </div>
             
             <Card>
                 <CardHeader>
                     <CardTitle>Filter by Specialty</CardTitle>
-                    <CardDescription>Select a category to find experts in that field.</CardDescription>
+                    <CardDescription>Select a category to find experts and trials in that field.</CardDescription>
                 </CardHeader>
                 <CardContent className="flex flex-wrap gap-2">
                     {CATEGORIES.map(category => (
@@ -255,69 +260,108 @@ export default function ExpertsPage() {
                     </Button>
                 </div>
             </form>
-
-            {loading ? (
-                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                    {Array.from({ length: 6 }).map((_, i) => (
-                        <Card key={i}>
-                            <CardHeader className="flex flex-row items-center gap-4">
-                                <Skeleton className="h-16 w-16 rounded-full" />
-                                <div className="space-y-2">
-                                    <Skeleton className="h-6 w-32" />
-                                    <Skeleton className="h-4 w-48" />
-                                </div>
-                            </CardHeader>
-                             <CardContent>
-                                <Skeleton className="h-4 w-full" />
-                            </CardContent>
-                            <CardFooter>
-                                <Skeleton className="h-8 w-36" />
-                            </CardFooter>
-                        </Card>
-                    ))}
-                </div>
-            ) : experts.length > 0 ? (
-                <>
-                    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                        {experts.map((expert) => (
-                            <ExpertCard key={expert.id} expert={expert} />
-                        ))}
-                    </div>
-                    {totalPages > 1 && (
-                        <div className="flex items-center justify-center space-x-2 pt-4">
-                            <Button
-                                variant="outline"
-                                onClick={() => handlePageChange(currentPage - 1)}
-                                disabled={currentPage === 1}
-                            >
-                                Previous
-                            </Button>
-                            <span className="text-sm text-muted-foreground">
-                                Page {currentPage} of {totalPages}
-                            </span>
-                            <Button
-                                variant="outline"
-                                onClick={() => handlePageChange(currentPage + 1)}
-                                disabled={currentPage === totalPages}
-                            >
-                                Next
-                            </Button>
+            
+            <Tabs defaultValue="experts" className="w-full">
+                <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger value="experts">Health Experts ({totalResults})</TabsTrigger>
+                    <TabsTrigger value="trials">Clinical Trials ({trials.length})</TabsTrigger>
+                </TabsList>
+                <TabsContent value="experts">
+                    {loading ? (
+                         <div className="grid gap-6 pt-4 md:grid-cols-2 lg:grid-cols-3">
+                            {Array.from({ length: 6 }).map((_, i) => (
+                                <Card key={i}>
+                                    <CardHeader className="flex flex-row items-center gap-4">
+                                        <Skeleton className="h-16 w-16 rounded-full" />
+                                        <div className="space-y-2">
+                                            <Skeleton className="h-6 w-32" />
+                                            <Skeleton className="h-4 w-48" />
+                                        </div>
+                                    </CardHeader>
+                                     <CardContent>
+                                        <Skeleton className="h-4 w-full" />
+                                    </CardContent>
+                                    <CardFooter>
+                                        <Skeleton className="h-8 w-36" />
+                                    </CardFooter>
+                                </Card>
+                            ))}
                         </div>
+                    ) : experts.length > 0 ? (
+                        <>
+                            <div className="grid gap-6 pt-4 md:grid-cols-2 lg:grid-cols-3">
+                                {experts.map((expert) => (
+                                    <ExpertCard key={expert.id} expert={expert} />
+                                ))}
+                            </div>
+                            {totalPages > 1 && (
+                                <div className="flex items-center justify-center space-x-2 pt-4">
+                                    <Button
+                                        variant="outline"
+                                        onClick={() => handlePageChange(currentPage - 1)}
+                                        disabled={currentPage === 1}
+                                    >
+                                        Previous
+                                    </Button>
+                                    <span className="text-sm text-muted-foreground">
+                                        Page {currentPage} of {totalPages}
+                                    </span>
+                                    <Button
+                                        variant="outline"
+                                        onClick={() => handlePageChange(currentPage + 1)}
+                                        disabled={currentPage === totalPages}
+                                    >
+                                        Next
+                                    </Button>
+                                </div>
+                            )}
+                        </>
+                    ) : (
+                         <Card className="mt-4 flex items-center justify-center h-64 border-dashed col-span-full">
+                            <div className="text-center">
+                                <p className="text-lg font-medium">No Providers Found</p>
+                                <p className="text-sm text-muted-foreground">
+                                    {currentQuery 
+                                        ? `Your search for "${currentQuery}" did not return any results.`
+                                        : "Select a category or enter a search term."
+                                    }
+                                </p>
+                            </div>
+                        </Card>
                     )}
-                </>
-            ) : (
-                 <Card className="flex items-center justify-center h-64 border-dashed col-span-full">
-                    <div className="text-center">
-                        <p className="text-lg font-medium">No Providers Found</p>
-                        <p className="text-sm text-muted-foreground">
-                            {currentQuery 
-                                ? `Your search for "${currentQuery}" did not return any results. Try a different category or search term.`
-                                : "Select a category or enter a search term to find health experts."
-                            }
-                        </p>
-                    </div>
-                </Card>
-            )}
+                </TabsContent>
+                <TabsContent value="trials">
+                     {loading ? (
+                        <div className="grid gap-6 pt-4 md:grid-cols-2 lg:grid-cols-3">
+                            {Array.from({ length: 6 }).map((_, i) => (
+                                <div key={i} className="space-y-4 rounded-lg border p-6">
+                                    <Skeleton className="h-6 w-3/4" />
+                                    <Skeleton className="h-4 w-1/2" />
+                                    <div className="space-y-2 pt-4">
+                                        <Skeleton className="h-4 w-full" />
+                                        <Skeleton className="h-4 w-5/6" />
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    ) : trials.length > 0 ? (
+                        <div className="grid gap-6 pt-4 md:grid-cols-2 lg:grid-cols-3">
+                            {trials.map((trial) => (
+                                <TrialCard key={trial.id} trial={trial} />
+                            ))}
+                        </div>
+                    ) : (
+                        <Card className="mt-4 flex items-center justify-center h-64 border-dashed col-span-full">
+                            <div className="text-center">
+                                <p className="text-lg font-medium">No Trials Found</p>
+                                <p className="text-sm text-muted-foreground">
+                                    Your search for "{currentQuery}" did not return any trials.
+                                </p>
+                            </div>
+                        </Card>
+                    )}
+                </TabsContent>
+            </Tabs>
         </div>
     );
 }

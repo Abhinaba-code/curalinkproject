@@ -90,15 +90,16 @@ function PublicationCard({ pub }: { pub: Publication }) {
 
 export default function PublicationsPage() {
     const [publications, setPublications] = useState<Publication[]>([]);
-    const [loading, setLoading] = useState(false);
-    const [searchTerm, setSearchTerm] = useState('');
-    const [searchQuery, setSearchQuery] = useState('');
+    const [loading, setLoading] = useState(true);
+    const [searchTerm, setSearchTerm] = useState('health');
+    const [searchQuery, setSearchQuery] = useState('health');
 
 
     useEffect(() => {
         async function fetchPublications() {
             if (!searchQuery) {
                 setPublications([]);
+                 setLoading(false);
                 return;
             };
             setLoading(true);

@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -20,9 +21,9 @@ import { Card, CardContent } from '@/components/ui/card';
 
 export default function TrialsPage() {
   const [trials, setTrials] = useState<ClinicalTrial[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('cancer');
+  const [searchQuery, setSearchQuery] = useState('cancer');
   const [lat, setLat] = useState('');
   const [lon, setLon] = useState('');
   const [radius, setRadius] = useState('50'); // Default 50 miles
@@ -31,6 +32,7 @@ export default function TrialsPage() {
     async function fetchTrials() {
       if (!searchQuery) {
         setTrials([]);
+        setLoading(false);
         return;
       };
       setLoading(true);

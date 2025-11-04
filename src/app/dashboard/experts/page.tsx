@@ -136,14 +136,15 @@ function AiRecommendations() {
 
 export default function ExpertsPage() {
   const [experts, setExperts] = useState<Expert[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('medicine');
+  const [searchQuery, setSearchQuery] = useState('medicine');
 
   useEffect(() => {
     async function fetchExperts() {
       if (!searchQuery) {
         setExperts([]);
+        setLoading(false);
         return;
       };
       setLoading(true);

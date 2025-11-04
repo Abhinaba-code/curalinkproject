@@ -32,6 +32,7 @@ function ExpertCard({ expert }: { expert: Expert }) {
           {expert.specialties.map(specialty => (
             <Badge key={specialty} variant="secondary">{specialty}</Badge>
           ))}
+           {expert.publicationCount > 0 && <Badge variant="outline">Publications: {expert.publicationCount}</Badge>}
         </div>
       </CardContent>
       <div className="pt-4 flex justify-center gap-2 p-6">
@@ -88,7 +89,7 @@ export default function ExpertsPage() {
        <div className="flex items-center gap-4">
         <form onSubmit={handleSearch} className="flex-1 max-w-lg relative">
           <Input
-              placeholder="e.g. John Doe, cancer research..."
+              placeholder="e.g. John Smith"
               className="pr-10"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -131,7 +132,7 @@ export default function ExpertsPage() {
         <Card className="flex items-center justify-center h-64 border-dashed">
             <div className="text-center">
                 <p className="text-lg font-medium">No Experts Found</p>
-                <p className="text-sm text-muted-foreground">Try adjusting your search terms.</p>
+                <p className="text-sm text-muted-foreground">Enter a search term to begin, or adjust your filters.</p>
             </div>
         </Card>
       )}

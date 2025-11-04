@@ -3,8 +3,6 @@ import { ClinicalTrial, Publication, Expert } from './types';
 
 const CLINICAL_TRIALS_API_BASE_URL = 'https://clinicaltrials.gov/api/v2';
 const PUBMED_API_BASE_URL = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils';
-const ORCID_API_BASE_URL = 'https://pub.orcid.org/v3.0';
-
 
 // A mapping from the API's status to the app's status
 const statusMapping: { [key: string]: ClinicalTrial['status'] } = {
@@ -34,10 +32,11 @@ const formatTrial = (study: any): ClinicalTrial => {
 
 // Function to fetch and format clinical trials
 export async function searchClinicalTrials(
-  query: string = 'cancer',
+  query: string,
   pageSize: number = 9,
   geo?: { lat: string, lon: string, radius: string }
 ): Promise<ClinicalTrial[]> {
+    if (!query) return [];
   try {
     let url = `${CLINICAL_TRIALS_API_BASE_URL}/studies?query.cond=${query}&pageSize=${pageSize}&filter.overallStatus=RECRUITING`;
     if (geo) {
@@ -73,9 +72,10 @@ const formatPublication = (id: string, data: any): Publication => {
 
 // Function to fetch and format publications from PubMed
 export async function searchPublications(
-  query: string = 'cancer',
+  query: string,
   pageSize: number = 10
 ): Promise<Publication[]> {
+    if (!query) return [];
   try {
     // Step 1: Search for publication IDs
     const searchResponse = await fetch(
@@ -88,7 +88,6 @@ export async function searchPublications(
     const searchData = await searchResponse.json();
     
     if (!searchData.esearchresult || !searchData.esearchresult.idlist) {
-        console.warn('PubMed API returned no result for query:', query);
         return [];
     }
 
@@ -121,46 +120,55 @@ export async function searchPublications(
   }
 }
 
-// A utility function to format a single expert from the ORCID API response
-const formatExpert = (author: any): Expert => {
-  const name = `${author['given-names']?.value || ''} ${author['family-name']?.value || ''}`.trim();
-  return {
-    id: author['orcid-id'],
-    name: name,
-    specialties: [], // Not provided by ORCID search
-    institution: author['institution-name']?.[0] || 'N/A',
-    publicationCount: 0, // Not provided by ORCID search
-    avatarUrl: `https://picsum.photos/seed/${author['orcid-id']}/200/200`, // Placeholder image
-    researchAreas: [], // Not provided by ORCID search
+const formatExpertFromPublication = (authorName: string, pubId: string): Expert => {
+    return {
+      id: `${authorName}-${pubId}`, // Create a pseudo-unique ID
+      name: authorName,
+      specialties: [], // Not provided by this API
+      institution: 'N/A', // Not reliably provided for authors
+      publicationCount: 1, // Can't easily calculate total, so we start with 1
+      avatarUrl: `https://picsum.photos/seed/${authorName}/200/200`, // Placeholder image
+      researchAreas: [], // Not provided by this API
+    };
   };
-};
 
-
-// Function to fetch and format experts from ORCID
+// Function to fetch and format experts from PubMed based on publications
 export async function searchExperts(
   query: string,
-  limit: number = 12
+  limit: number = 20
 ): Promise<Expert[]> {
   if (!query) {
     return [];
   }
   try {
-    const response = await fetch(
-      `${ORCID_API_BASE_URL}/search?q=${encodeURIComponent(query)}&rows=${limit}`,
-      { headers: { 'Accept': 'application/json' } }
-    );
-    if (!response.ok) {
-      throw new Error(`ORCID API error! status: ${response.status}`);
+    const publications = await searchPublications(`${query}[Author]`, limit);
+    if (!publications || publications.length === 0) {
+      return [];
     }
-    const data = await response.json();
-    if (!data.result) return [];
-    
-    // Filter out results that don't have an orcid-id to prevent key errors
-    const validResults = data.result.filter((author: any) => author['orcid-id']);
-    
-    return validResults.map(formatExpert);
+
+    const expertsMap: Map<string, Expert> = new Map();
+
+    publications.forEach(pub => {
+      pub.authors.forEach(authorName => {
+        if (expertsMap.has(authorName)) {
+          const expert = expertsMap.get(authorName)!;
+          expert.publicationCount += 1;
+        } else {
+          // Only add if the author name is somewhat similar to the query
+          if (authorName.toLowerCase().includes(query.toLowerCase())) {
+             const newExpert = formatExpertFromPublication(authorName, pub.id);
+             expertsMap.set(authorName, newExpert);
+          }
+        }
+      });
+    });
+
+    // Return the most published authors from the result set, up to the limit
+    const sortedExperts = Array.from(expertsMap.values()).sort((a, b) => b.publicationCount - a.publicationCount);
+    return sortedExperts.slice(0, limit);
+
   } catch (error) {
-    console.error('Failed to fetch experts:', error);
+    console.error('Failed to fetch experts via PubMed:', error);
     return [];
   }
 }

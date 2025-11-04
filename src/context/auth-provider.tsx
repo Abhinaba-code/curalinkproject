@@ -3,6 +3,8 @@
 import type { User, StoredUser } from '@/lib/types';
 import { useRouter } from 'next/navigation';
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { mockPublications } from '@/lib/data';
+import { mockExperts } from '@/lib/data';
 
 type ProfileData = Omit<User, 'id' | 'email' | 'role' | 'avatarUrl'>;
 
@@ -19,6 +21,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const USERS_DB_KEY = 'cura-users-db';
 const CURRENT_USER_KEY = 'cura-user';
+const FAVORITES_KEY = 'cura-favorites';
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -87,6 +90,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(userToStore));
       setUser(userToStore);
       
+      // Add default favorites for new users
+      const defaultFavorites = [
+        { type: 'publication', item: mockPublications[0] },
+        { type: 'expert', item: mockExperts[0] }
+      ];
+      localStorage.setItem(FAVORITES_KEY, JSON.stringify(defaultFavorites));
+
       if (role === 'patient') {
         router.push('/dashboard/create-profile');
       } else {

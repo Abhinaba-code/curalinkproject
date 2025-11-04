@@ -80,7 +80,8 @@ interface ForumContextType {
   addReply: (postId: string, content: string) => void;
   sendNudgeNotification: (expert: Expert) => void;
   removeNudgeNotification: (expertId: string) => void;
-  sendMeetingRequest: (expert: Expert, fromUser: User, reason: string) => void;
+  sendMeetingRequest: (expert: Expert, fromUser: User, reason: string) => Notification;
+  removeMeetingRequest: (expertId: string) => void;
   addMeetingReply: (originalNotification: Notification, replyContent: string) => void;
   markNotificationsAsRead: () => void;
   unreadCount: number;
@@ -218,14 +219,14 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
         if (!user) return;
 
         const updatedNotifs = allNotifications.filter(
-        n => !(n.type === 'nudge' && n.postId === expertId)
+        n => !(n.type === 'nudge' && n.postId === expertId && n.authorId === user.id)
         );
         
         setAllNotifications(updatedNotifs);
         localStorage.setItem('cura-notifications', JSON.stringify(updatedNotifs));
     };
     
-    const sendMeetingRequest = (expert: Expert, fromUser: User, reason: string) => {
+    const sendMeetingRequest = (expert: Expert, fromUser: User, reason: string): Notification => {
         const newNotification: Notification = {
             id: `notif-${Date.now()}`,
             postId: expert.id,
@@ -237,6 +238,16 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
             recipientId: 'all_researchers',
         };
         const updatedNotifs = [newNotification, ...allNotifications];
+        setAllNotifications(updatedNotifs);
+        localStorage.setItem('cura-notifications', JSON.stringify(updatedNotifs));
+        return newNotification;
+    };
+    
+    const removeMeetingRequest = (expertId: string) => {
+        if (!user) return;
+        const updatedNotifs = allNotifications.filter(
+            (n) => !(n.type === 'meeting_request' && n.postId === expertId && n.authorId === user.id)
+        );
         setAllNotifications(updatedNotifs);
         localStorage.setItem('cura-notifications', JSON.stringify(updatedNotifs));
     };
@@ -276,7 +287,7 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem('cura-notifications', JSON.stringify(updatedNotifications));
   }
 
-  const value = { posts, notifications, addPost, addReply, sendNudgeNotification, removeNudgeNotification, sendMeetingRequest, addMeetingReply, unreadCount, markNotificationsAsRead };
+  const value = { posts, notifications, addPost, addReply, sendNudgeNotification, removeNudgeNotification, sendMeetingRequest, addMeetingReply, removeMeetingRequest, unreadCount, markNotificationsAsRead };
 
   return (
     <ForumContext.Provider value={value}>

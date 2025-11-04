@@ -47,7 +47,7 @@ function RequestMeetingDialog({ expert, onRequested }: { expert: Expert, onReque
             toast({ variant: 'destructive', title: 'You must be logged in.' });
             return;
         }
-        sendMeetingRequest(expert, user, reason);
+        const notification = sendMeetingRequest(expert, user, reason);
         toast({
             title: "Meeting Request Sent!",
             description: `Your request regarding ${expert.name} has been sent to researchers.`,
@@ -168,7 +168,7 @@ function ExpertProfileDialog({ expert, children }: { expert: Expert, children: R
 function ExpertCard({ expert }: { expert: Expert }) {
     const { isFavorite, toggleFavorite } = useFavorites();
     const { isFollowing, toggleFollow } = useFollow();
-    const { sendNudgeNotification, removeNudgeNotification } = useForum();
+    const { sendNudgeNotification, removeNudgeNotification, removeMeetingRequest } = useForum();
     const { toast } = useToast();
     const initials = expert.name ? expert.name.split(' ').map(n => n[0]).join('') : '??';
     const favorite = isFavorite(expert.id);
@@ -197,6 +197,16 @@ function ExpertCard({ expert }: { expert: Expert }) {
         }
         setNudged(!nudged);
     };
+    
+    const handleCancelRequest = () => {
+        removeMeetingRequest(expert.id);
+        toast({
+            title: "Meeting Request Canceled",
+            description: `Your request for ${expert.name} has been withdrawn.`,
+            variant: "destructive",
+        });
+        setMeetingRequested(false);
+    }
 
     return (
         <Card className="flex flex-col">
@@ -245,7 +255,14 @@ function ExpertCard({ expert }: { expert: Expert }) {
                         {nudged ? <Check className="mr-2 h-4 w-4" /> : <Bell className="mr-2 h-4 w-4" />}
                         {nudged ? 'Nudged' : 'Nudge to Join'}
                     </Button>
-                    <RequestMeetingDialog expert={expert} onRequested={() => setMeetingRequested(true)} />
+                    {meetingRequested ? (
+                         <Button variant="destructive" size="sm" onClick={handleCancelRequest}>
+                            <Calendar className="mr-2 h-4 w-4" />
+                            Cancel Request
+                        </Button>
+                    ) : (
+                        <RequestMeetingDialog expert={expert} onRequested={() => setMeetingRequested(true)} />
+                    )}
                 </div>
             </CardFooter>
         </Card>

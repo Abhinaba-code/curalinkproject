@@ -45,6 +45,9 @@ function ExpertCard({ expert }: { expert: Expert }) {
     );
 }
 
+const initialSearchTerms = ['cardiology', 'genetics', 'oncology', 'pediatrics', 'neurology', 'immunology', 'public health'];
+
+
 export default function ExpertsPage() {
     const [experts, setExperts] = useState<Expert[]>([]);
     const [loading, setLoading] = useState(true);
@@ -52,10 +55,20 @@ export default function ExpertsPage() {
     const [researchField, setResearchField] = useState('');
     const [location, setLocation] = useState('');
 
-    const [submittedQuery, setSubmittedQuery] = useState({ name: '', researchField: 'cancer', location: '' });
+    const [submittedQuery, setSubmittedQuery] = useState({ 
+        name: '', 
+        researchField: '', 
+        location: '' 
+    });
+
+    useEffect(() => {
+        const randomTerm = initialSearchTerms[Math.floor(Math.random() * initialSearchTerms.length)];
+        setSubmittedQuery({ name: '', researchField: randomTerm, location: '' });
+    }, []);
 
     useEffect(() => {
         async function fetchInitialData() {
+            if (!submittedQuery.researchField) return;
             setLoading(true);
             const fetchedExperts = await searchExperts(submittedQuery.name, submittedQuery.researchField, submittedQuery.location, 12);
             setExperts(fetchedExperts);
@@ -140,7 +153,7 @@ export default function ExpertsPage() {
                  <Card className="flex items-center justify-center h-64 border-dashed col-span-full">
                     <div className="text-center">
                         <p className="text-lg font-medium">No Experts Found</p>
-                        <p className="text-sm text-muted-foreground">Your search did not return any results. Try different keywords.</p>
+                        <p className="text-sm text-muted-foreground">Your search for "{submittedQuery.researchField}" did not return any results. Try different keywords.</p>
                     </div>
                 </Card>
             ) : (

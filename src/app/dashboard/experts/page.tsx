@@ -9,6 +9,7 @@ import { Microscope, ExternalLink, Loader2, Search, Pin, User, Calendar, Mail, P
 import { searchExperts, searchClinicalTrials } from '@/lib/api';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useFavorites } from '@/context/favorites-provider';
+import { useFollow } from '@/context/follow-provider';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from '@/components/ui/dialog';
@@ -70,13 +71,14 @@ function ExpertProfileDialog({ expert, children }: { expert: Expert, children: R
 
 function ExpertCard({ expert }: { expert: Expert }) {
     const { isFavorite, toggleFavorite } = useFavorites();
+    const { isFollowing, toggleFollow } = useFollow();
     const { toast } = useToast();
     const initials = expert.name ? expert.name.split(' ').map(n => n[0]).join('') : '??';
     const favorite = isFavorite(expert.id);
-    const isFollowing = isFavorite(expert.id);
+    const following = isFollowing(expert.id);
 
     const handleFollow = () => {
-        toggleFavorite(expert, 'expert');
+        toggleFollow(expert);
     };
 
     const handleNudge = () => {
@@ -129,9 +131,9 @@ function ExpertCard({ expert }: { expert: Expert }) {
             </CardContent>
             <CardFooter>
                  <div className="grid grid-cols-2 gap-2 w-full">
-                    <Button variant={isFollowing ? 'secondary' : 'default'} onClick={handleFollow} size="sm">
+                    <Button variant={following ? 'secondary' : 'default'} onClick={handleFollow} size="sm">
                         <Plus className="mr-2 h-4 w-4" />
-                        {isFollowing ? 'Unfollow' : 'Follow'}
+                        {following ? 'Unfollow' : 'Follow'}
                     </Button>
                     <ExpertProfileDialog expert={expert}>
                         <Button variant="outline" size="sm" className="w-full"><User className="mr-2 h-4 w-4" />View Profile</Button>

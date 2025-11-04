@@ -15,7 +15,7 @@ import Link from 'next/link';
 import { Calendar, MapPin, Stethoscope, User, Edit, X } from 'lucide-react';
 import { Chatbot } from '@/components/chatbot';
 import { format } from 'date-fns';
-import { useFavorites } from '@/context/favorites-provider';
+import { useFollow } from '@/context/follow-provider';
 import type { Expert } from '@/lib/types';
 
 function ProfileDetail({ icon, label, value }: { icon: React.ReactNode, label: string, value: React.ReactNode }) {
@@ -57,15 +57,11 @@ function FollowedExpertCard({ expert, onUnfollow }: { expert: Expert, onUnfollow
 
 export default function ProfilePage() {
   const { user } = useAuth();
-  const { favorites, toggleFavorite } = useFavorites();
+  const { followedExperts, toggleFollow } = useFollow();
 
   if (!user) {
     return null; 
   }
-
-  const followedExperts = favorites
-    .filter(fav => fav.type === 'expert')
-    .map(fav => fav.item as Expert);
 
   const userInitials = user.name
     ? user.name
@@ -133,7 +129,7 @@ export default function ProfilePage() {
                     <FollowedExpertCard 
                         key={expert.id} 
                         expert={expert} 
-                        onUnfollow={() => toggleFavorite(expert, 'expert')} 
+                        onUnfollow={() => toggleFollow(expert)} 
                     />
                 ))}
             </div>

@@ -26,6 +26,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { useEffect } from 'react';
 import { FavoritesProvider } from '@/context/favorites-provider';
 import { ForumProvider } from '@/context/forum-provider';
+import { FollowProvider } from '@/context/follow-provider';
 
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -117,9 +118,11 @@ export default function DashboardLayout({
 }) {
   return (
     <FavoritesProvider>
-      <ForumProvider>
-        <DashboardApp>{children}</DashboardApp>
-      </ForumProvider>
+      <FollowProvider>
+        <ForumProvider>
+          <DashboardApp>{children}</DashboardApp>
+        </ForumProvider>
+      </FollowProvider>
     </FavoritesProvider>
   );
 }

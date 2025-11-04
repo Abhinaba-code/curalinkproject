@@ -6,7 +6,6 @@ import { Input } from './ui/input';
 import { Search, Star, Bell, MessageSquare, CornerDownRight } from 'lucide-react';
 import { Logo } from './logo';
 import { Button } from './ui/button';
-import { useFavorites } from '@/context/favorites-provider';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { useForum, type Notification } from '@/context/forum-provider';
 import Link from 'next/link';
@@ -41,7 +40,6 @@ function NotificationItem({ notif }: { notif: Notification }) {
 }
 
 export function AppHeader() {
-  const { setShowFavorites } = useFavorites();
   const { user } = useAuth();
   const { notifications, markNotificationsAsRead, unreadCount } = useForum();
 
@@ -64,8 +62,10 @@ export function AppHeader() {
             />
           </div>
         </form>
-        <Button variant="outline" size="icon" onClick={() => setShowFavorites(true)}>
-            <Star className="h-4 w-4" />
+        <Button variant="outline" size="icon" asChild>
+            <Link href="/dashboard/favorites">
+              <Star className="h-4 w-4" />
+            </Link>
         </Button>
         <Popover onOpenChange={(open) => { if (!open) markNotificationsAsRead() }}>
             <PopoverTrigger asChild>

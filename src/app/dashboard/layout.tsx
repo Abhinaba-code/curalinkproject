@@ -24,8 +24,7 @@ import { AppHeader } from '@/components/app-header';
 import { useAuth } from '@/context/auth-provider';
 import { useRouter, usePathname } from 'next/navigation';
 import { useEffect } from 'react';
-import { FavoritesSidebar } from '@/components/favorites-sidebar';
-import { FavoritesProvider, useFavorites } from '@/context/favorites-provider';
+import { FavoritesProvider } from '@/context/favorites-provider';
 import { ForumProvider } from '@/context/forum-provider';
 
 const navItems = [
@@ -34,13 +33,13 @@ const navItems = [
   { href: '/dashboard/publications', label: 'Publications', icon: FileText },
   { href: '/dashboard/experts', label: 'Health Experts', icon: Users },
   { href: '/dashboard/forums', label: 'Forums', icon: HeartPulse },
+  { href: '/dashboard/favorites', label: 'Favorites', icon: Star },
 ];
 
 function DashboardApp({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
-  const { setShowFavorites } = useFavorites();
 
   useEffect(() => {
     if (loading) return;
@@ -98,15 +97,6 @@ function DashboardApp({ children }: { children: React.ReactNode }) {
                 </SidebarMenuButton>
               </SidebarMenuItem>
             ))}
-            <SidebarMenuItem>
-              <SidebarMenuButton
-                onClick={() => setShowFavorites(true)}
-                tooltip={{ children: 'Favorites', className: 'bg-primary text-primary-foreground' }}
-              >
-                <Star />
-                <span>Favorites</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
           </SidebarMenu>
         </SidebarContent>
       </Sidebar>
@@ -115,7 +105,6 @@ function DashboardApp({ children }: { children: React.ReactNode }) {
           <AppHeader />
           <main className="flex-1 p-4 sm:p-6">{children}</main>
         </div>
-        <FavoritesSidebar />
       </SidebarInset>
     </SidebarProvider>
   );

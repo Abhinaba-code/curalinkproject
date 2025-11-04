@@ -17,8 +17,6 @@ interface FavoritesContextType {
     type: FavoriteItemType
   ) => void;
   isFavorite: (id: string) => boolean;
-  showFavorites: boolean;
-  setShowFavorites: (show: boolean) => void;
 }
 
 const FavoritesContext = createContext<FavoritesContextType | undefined>(
@@ -27,7 +25,6 @@ const FavoritesContext = createContext<FavoritesContextType | undefined>(
 
 export function FavoritesProvider({ children }: { children: React.ReactNode }) {
   const [favorites, setFavorites] = useState<FavoriteItem[]>([]);
-  const [showFavorites, setShowFavorites] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -75,8 +72,6 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
     favorites,
     toggleFavorite,
     isFavorite,
-    showFavorites,
-    setShowFavorites,
   };
 
   return (

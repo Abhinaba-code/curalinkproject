@@ -1,4 +1,3 @@
-
 import { NextResponse } from 'next/server';
 
 const NPI_REGISTRY_API_BASE_URL = 'https://npiregistry.cms.hhs.gov/api/';
@@ -31,42 +30,40 @@ const formatNPIRecord = (record: any): any | null => {
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const specialty = searchParams.get('specialty');
-  const name = searchParams.get('name');
+  const query = searchParams.get('query');
   const limit = searchParams.get('limit') || '12';
 
   const apiParams = new URLSearchParams({
     version: '2.1',
     limit: limit,
-    city: 'New York', // Default city to ensure some results
-    state: 'NY',      // Default state
   });
 
-  if (specialty) {
-    apiParams.set('taxonomy_description', specialty);
-  } else if (!name) { 
-    // If no specialty or name, use a default to get some results
+  if (query) {
+    // Apply the query to multiple fields for a broad search
+    apiParams.set('taxonomy_description', query);
+    apiParams.set('first_name', query);
+    apiParams.set('last_name', query);
+    apiParams.set('organization_name', query);
+    apiParams.set('city', query);
+  } else {
+    // Default to a common search to show initial results
     apiParams.set('taxonomy_description', 'Cardiology');
-  }
-
-  if (name) {
-    // The NPI registry doesn't have a single 'name' field, so we split it
-    const nameParts = name.split(' ');
-    if (nameParts.length > 1) {
-      apiParams.set('first_name', nameParts[0]);
-      apiParams.set('last_name', nameParts.slice(1).join(' '));
-    } else {
-      // If only one word, search it as organization name or last name
-      apiParams.set('organization_name', name);
-    }
+    apiParams.set('city', 'New York');
+    apiParams.set('state', 'NY');
   }
 
   try {
     const apiUrl = `${NPI_REGISTRY_API_BASE_URL}?${apiParams.toString()}`;
+    // The NPI API uses OR logic for most fields, so this will find matches in any of the specified fields.
+    // e.g., if query="Cardiology Boston", it might find cardiologists OR providers in Boston.
     const apiResponse = await fetch(apiUrl, { cache: 'no-store' });
 
     if (!apiResponse.ok) {
       const errorText = await apiResponse.text();
+      // Gracefully handle "no results" which the API sometimes returns as an error
+      if (apiResponse.status === 404) {
+         return NextResponse.json({ results: [] });
+      }
       return NextResponse.json({ error: `NPI API Error: ${errorText}` }, { status: apiResponse.status });
     }
 

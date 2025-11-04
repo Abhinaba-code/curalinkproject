@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -9,18 +8,8 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Microscope, ExternalLink, Loader2, Search, Pin, Star } from 'lucide-react';
 import { searchExperts } from '@/lib/api';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useFavorites } from '@/context/favorites-provider';
 import { Input } from '@/components/ui/input';
-
-
-const specialties = [
-    "Cardiology", "Dermatology", "Endocrinology", "Gastroenterology", 
-    "Neurology", "Oncology", "Orthopedics", "Pediatrics", 
-    "Psychiatry", "Pulmonology", "Radiology", "Urology"
-];
-
-const randomSpecialties = ["Cardiology", "Neurology", "Oncology", "Pediatrics", "Dermatology"];
 
 function ExpertCard({ expert }: { expert: Expert }) {
     const { isFavorite, toggleFavorite } = useFavorites();
@@ -68,19 +57,13 @@ function ExpertCard({ expert }: { expert: Expert }) {
 export default function ExpertsPage() {
     const [experts, setExperts] = useState<Expert[]>([]);
     const [loading, setLoading] = useState(true);
-    const [specialty, setSpecialty] = useState('');
-    const [name, setName] = useState('');
-    const [submittedQuery, setSubmittedQuery] = useState({ specialty: '', name: '' });
+    const [query, setQuery] = useState('');
+    const [submittedQuery, setSubmittedQuery] = useState('Cardiology');
     
-    useEffect(() => {
-        const randomSpecialty = randomSpecialties[Math.floor(Math.random() * randomSpecialties.length)];
-        setSubmittedQuery({ specialty: randomSpecialty, name: '' });
-    }, []);
-
     useEffect(() => {
         async function fetchInitialData() {
             setLoading(true);
-            const fetchedExperts = await searchExperts(submittedQuery.specialty, submittedQuery.name, 12);
+            const fetchedExperts = await searchExperts(submittedQuery, 12);
             setExperts(fetchedExperts);
             setLoading(false);
         }
@@ -90,10 +73,10 @@ export default function ExpertsPage() {
 
     const handleSearch = async (e: React.FormEvent) => {
         e.preventDefault();
-        setSubmittedQuery({ specialty, name });
+        setSubmittedQuery(query || 'Cardiology');
     };
 
-    const hasSearched = submittedQuery.specialty || submittedQuery.name;
+    const hasSearched = !!submittedQuery;
 
     return (
         <div className="space-y-6">
@@ -102,43 +85,24 @@ export default function ExpertsPage() {
                     Connect with Health Experts
                 </h1>
                 <p className="text-muted-foreground">
-                    Find healthcare providers in the US via the NPI Registry.
+                    Find healthcare providers in the US via the NPI Registry. Search by name, specialty, or location.
                 </p>
             </div>
 
-            <Card>
-                <form onSubmit={handleSearch}>
-                    <CardContent className="pt-6 space-y-4">
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                             <div className="sm:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div>
-                                    <label htmlFor="name" className="text-sm font-medium text-muted-foreground">Name</label>
-                                    <Input id="name" placeholder="e.g. Dr. John Doe" value={name} onChange={(e) => setName(e.target.value)} />
-                                </div>
-                                <div>
-                                    <label htmlFor="specialty" className="text-sm font-medium text-muted-foreground">Specialty</label>
-                                    <Select value={specialty} onValueChange={(value) => setSpecialty(value)}>
-                                        <SelectTrigger id="specialty">
-                                            <SelectValue placeholder="Select a specialty" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {specialties.map(spec => (
-                                                <SelectItem key={spec} value={spec}>{spec}</SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                            </div>
-                             <div className="flex items-end">
-                                <Button type="submit" className="w-full" disabled={loading}>
-                                    {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Search className="mr-2 h-4 w-4" />}
-                                    Search Providers
-                                </Button>
-                            </div>
-                        </div>
-                    </CardContent>
-                </form>
-            </Card>
+            <form onSubmit={handleSearch}>
+                <div className="flex gap-4">
+                    <Input 
+                        id="expert-search" 
+                        placeholder="e.g. Dr. John Doe, Cardiology, Boston..." 
+                        value={query} 
+                        onChange={(e) => setQuery(e.target.value)} 
+                    />
+                    <Button type="submit" disabled={loading}>
+                        {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Search className="mr-2 h-4 w-4" />}
+                        Search
+                    </Button>
+                </div>
+            </form>
 
             {loading ? (
                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -170,7 +134,7 @@ export default function ExpertsPage() {
                  <Card className="flex items-center justify-center h-64 border-dashed col-span-full">
                     <div className="text-center">
                         <p className="text-lg font-medium">No Providers Found</p>
-                        <p className="text-sm text-muted-foreground">Your search did not return any results. Try different or broader criteria.</p>
+                        <p className="text-sm text-muted-foreground">Your search for "{submittedQuery}" did not return any results. Try different or broader criteria.</p>
                     </div>
                 </Card>
             ) : (

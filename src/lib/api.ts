@@ -1,4 +1,3 @@
-
 import { ClinicalTrial, Publication, Expert } from './types';
 import { XMLParser } from 'fast-xml-parser';
 
@@ -104,19 +103,15 @@ export async function searchPublications(
 }
 
 export async function searchExperts(
-  specialty?: string,
-  name?: string,
+  query?: string,
   pageSize: number = 12
 ): Promise<Expert[]> {
   const params = new URLSearchParams({
     limit: pageSize.toString(),
   });
 
-  if (specialty) {
-    params.set('specialty', specialty);
-  }
-  if (name) {
-    params.set('name', name);
+  if (query) {
+    params.set('query', query);
   }
 
   try {

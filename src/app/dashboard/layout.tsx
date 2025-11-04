@@ -63,6 +63,12 @@ function DashboardApp({ children }: { children: React.ReactNode }) {
       </div>
     );
   }
+  
+  const isCreateProfilePage = pathname === '/dashboard/create-profile';
+  
+  if (isCreateProfilePage) {
+    return <main className="flex-1 p-4 sm:p-6 bg-secondary/30">{children}</main>;
+  }
 
   return (
     <SidebarProvider>

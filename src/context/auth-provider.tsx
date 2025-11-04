@@ -69,7 +69,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const { password: _, ...userToStore } = newUser;
       localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(userToStore));
       setUser(userToStore);
-      router.push('/dashboard');
+      
+      if (role === 'patient') {
+        router.push('/dashboard/create-profile');
+      } else {
+        router.push('/dashboard');
+      }
       resolve();
     });
   };

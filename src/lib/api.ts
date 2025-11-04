@@ -137,7 +137,9 @@ export async function searchExperts(
   query: string,
   limit: number = 12
 ): Promise<Expert[]> {
-  if (!query) return [];
+  if (!query) {
+    return [];
+  }
   try {
     const response = await fetch(
       `${SEMANTIC_SCHOLAR_API_BASE_URL}/author/search?query=${encodeURIComponent(

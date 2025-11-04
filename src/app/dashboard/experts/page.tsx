@@ -6,7 +6,6 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
 import { Building, ExternalLink, Loader2, Microscope, Search, BookCheck } from 'lucide-react';
 import { searchExperts } from '@/lib/api';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -54,23 +53,25 @@ export default function ExpertsPage() {
     const [researchField, setResearchField] = useState('');
     const [location, setLocation] = useState('');
 
-    const [submittedQuery, setSubmittedQuery] = useState({ name: '', researchField: '', location: '' });
+    const [submittedQuery, setSubmittedQuery] = useState({ name: '', researchField: 'cancer', location: '' });
 
     useEffect(() => {
         async function fetchInitialData() {
             setLoading(true);
-            const fetchedExperts = await searchExperts('', 'cancer', '', 12);
+            const fetchedExperts = await searchExperts(submittedQuery.name, submittedQuery.researchField, submittedQuery.location, 12);
             setExperts(fetchedExperts);
             setLoading(false);
         }
         fetchInitialData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const handleSearch = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
-        setSubmittedQuery({ name, researchField, location });
-        const fetchedExperts = await searchExperts(name, researchField, location, 12);
+        const query = { name, researchField, location };
+        setSubmittedQuery(query);
+        const fetchedExperts = await searchExperts(query.name, query.researchField, query.location, 12);
         setExperts(fetchedExperts);
         setLoading(false);
     };

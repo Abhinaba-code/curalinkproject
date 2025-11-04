@@ -168,7 +168,12 @@ const formatExpert = (author: any, pmid: string): Expert | null => {
     return null;
   }
   const name = `${author.ForeName} ${author.LastName}`;
-  const affiliation = author.AffiliationInfo.Affiliation;
+  // Sometimes affiliation is an array, sometimes not. Let's handle both.
+  const affiliation = Array.isArray(author.AffiliationInfo.Affiliation)
+    ? author.AffiliationInfo.Affiliation[0]
+    : author.AffiliationInfo.Affiliation;
+
+  if (!affiliation) return null;
 
   return {
     id: `${name}-${affiliation}`,
@@ -234,33 +239,34 @@ export async function searchExperts(
     });
     const jsonData = parser.parse(xmlData);
 
-    const articles = Array.isArray(jsonData.PubmedArticleSet.PubmedArticle)
-      ? jsonData.PubmedArticleSet.PubmedArticle
-      : [jsonData.PubmedArticleSet.PubmedArticle];
+    const articles = jsonData.PubmedArticleSet?.PubmedArticle
+      ? Array.isArray(jsonData.PubmedArticleSet.PubmedArticle)
+        ? jsonData.PubmedArticleSet.PubmedArticle
+        : [jsonData.PubmedArticleSet.PubmedArticle]
+      : [];
 
     const expertsMap = new Map<string, Expert>();
 
     articles.forEach(article => {
       const pmid = article.MedlineCitation.PMID;
-      if (!article.MedlineCitation.Article.AuthorList) {
-        return;
-      }
-      const authors = article.MedlineCitation.Article.AuthorList.Author;
+      const authorList = article.MedlineCitation.Article?.AuthorList;
+      
+      if (!authorList || !authorList.Author) return;
 
-      if (Array.isArray(authors)) {
-        authors.forEach(author => {
-          const expert = formatExpert(author, pmid);
-          if (expert) {
-            if (expertsMap.has(expert.id)) {
-              const existing = expertsMap.get(expert.id)!;
-              existing.publicationCount += 1;
-              expertsMap.set(expert.id, existing);
-            } else {
-              expertsMap.set(expert.id, expert);
-            }
+      const authors = Array.isArray(authorList.Author) ? authorList.Author : [authorList.Author];
+
+      authors.forEach(author => {
+        const expert = formatExpert(author, pmid);
+        if (expert) {
+          if (expertsMap.has(expert.id)) {
+            const existing = expertsMap.get(expert.id)!;
+            existing.publicationCount += 1;
+            expertsMap.set(expert.id, existing);
+          } else {
+            expertsMap.set(expert.id, expert);
           }
-        });
-      }
+        }
+      });
     });
 
     return Array.from(expertsMap.values());

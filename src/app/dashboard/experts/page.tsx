@@ -73,7 +73,7 @@ function ExpertProfileDialog({ expert, children }: { expert: Expert, children: R
 function ExpertCard({ expert }: { expert: Expert }) {
     const { isFavorite, toggleFavorite } = useFavorites();
     const { isFollowing, toggleFollow } = useFollow();
-    const { sendNudgeNotification } = useForum();
+    const { sendNudgeNotification, removeNudgeNotification } = useForum();
     const { toast } = useToast();
     const initials = expert.name ? expert.name.split(' ').map(n => n[0]).join('') : '??';
     const favorite = isFavorite(expert.id);
@@ -90,6 +90,13 @@ function ExpertCard({ expert }: { expert: Expert }) {
             toast({
                 title: "Nudge Sent!",
                 description: `A notification has been sent to researchers about ${expert.name}.`,
+            });
+        } else {
+            removeNudgeNotification(expert.id);
+            toast({
+                title: "Nudge Canceled",
+                description: `The nudge for ${expert.name} has been recalled.`,
+                variant: 'destructive'
             });
         }
         setNudged(!nudged);

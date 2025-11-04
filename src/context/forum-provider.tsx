@@ -77,6 +77,7 @@ interface ForumContextType {
   addPost: (post: Omit<ForumPost, 'id' | 'upvotes' | 'replies'>) => void;
   addReply: (postId: string, content: string) => void;
   sendNudgeNotification: (expert: Expert) => void;
+  removeNudgeNotification: (expertId: string) => void;
   markNotificationsAsRead: () => void;
   unreadCount: number;
 }
@@ -206,6 +207,17 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem('cura-notifications', JSON.stringify(updatedNotifs));
   }
   
+    const removeNudgeNotification = (expertId: string) => {
+        if (!user) return;
+
+        const updatedNotifs = allNotifications.filter(
+        n => !(n.type === 'nudge' && n.postId === expertId)
+        );
+        
+        setAllNotifications(updatedNotifs);
+        localStorage.setItem('cura-notifications', JSON.stringify(updatedNotifs));
+    };
+
   const markNotificationsAsRead = () => {
     if (!user || unreadCount === 0) return;
     
@@ -221,7 +233,7 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem('cura-notifications', JSON.stringify(updatedNotifications));
   }
 
-  const value = { posts, notifications, addPost, addReply, sendNudgeNotification, unreadCount, markNotificationsAsRead };
+  const value = { posts, notifications, addPost, addReply, sendNudgeNotification, removeNudgeNotification, unreadCount, markNotificationsAsRead };
 
   return (
     <ForumContext.Provider value={value}>

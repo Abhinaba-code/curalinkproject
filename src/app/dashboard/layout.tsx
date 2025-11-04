@@ -26,6 +26,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { useEffect } from 'react';
 import { FavoritesSidebar } from '@/components/favorites-sidebar';
 import { FavoritesProvider, useFavorites } from '@/context/favorites-provider';
+import { ForumProvider } from '@/context/forum-provider';
 
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -69,15 +70,6 @@ function DashboardApp({ children }: { children: React.ReactNode }) {
   }
 
   const isCreateProfilePage = pathname === '/dashboard/create-profile';
-  const profileComplete = user.interests && user.interests.length > 0;
-
-  if (user.role === 'patient' && !profileComplete && !isCreateProfilePage) {
-    return (
-       <div className="flex h-screen w-full items-center justify-center">
-         <p>Redirecting to profile setup...</p>
-      </div>
-    );
-  }
   
   if (isCreateProfilePage) {
     return <main className="flex-1 p-4 sm:p-6 bg-secondary/30">{children}</main>;
@@ -136,7 +128,9 @@ export default function DashboardLayout({
 }) {
   return (
     <FavoritesProvider>
-      <DashboardApp>{children}</DashboardApp>
+      <ForumProvider>
+        <DashboardApp>{children}</DashboardApp>
+      </ForumProvider>
     </FavoritesProvider>
   );
 }

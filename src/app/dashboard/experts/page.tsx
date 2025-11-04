@@ -63,12 +63,13 @@ export default function ExpertsPage() {
 
     useEffect(() => {
         const randomTerm = initialSearchTerms[Math.floor(Math.random() * initialSearchTerms.length)];
+        setResearchField(randomTerm);
         setSubmittedQuery({ name: '', researchField: randomTerm, location: '' });
     }, []);
 
     useEffect(() => {
         async function fetchInitialData() {
-            if (!submittedQuery.researchField) return;
+            if (!submittedQuery.researchField && !submittedQuery.name && !submittedQuery.location) return;
             setLoading(true);
             const fetchedExperts = await searchExperts(submittedQuery.name, submittedQuery.researchField, submittedQuery.location, 12);
             setExperts(fetchedExperts);

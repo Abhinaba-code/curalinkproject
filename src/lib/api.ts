@@ -38,14 +38,23 @@ const formatTrial = (study: any): ClinicalTrial => {
 export async function searchClinicalTrials(
   query: string,
   pageSize: number = 9,
-  geo?: { lat: string, lon: string, radius: string }
+  location?: string
 ): Promise<ClinicalTrial[]> {
-    if (!query) return [];
   try {
-    let url = `${CLINICAL_TRIALS_API_BASE_URL}/studies?query.cond=${query}&pageSize=${pageSize}&filter.overallStatus=RECRUITING`;
-    if (geo) {
-        url += `&filter.geo=distance(${geo.lat},${geo.lon},${geo.radius}mi)`;
+    let url = `${CLINICAL_TRIALS_API_BASE_URL}/studies?pageSize=${pageSize}&filter.overallStatus=RECRUITING`;
+    
+    const queryParts = [];
+    if (query) {
+        queryParts.push(`query.cond=${encodeURIComponent(query)}`);
     }
+    if (location) {
+        queryParts.push(`query.locn=${encodeURIComponent(location)}`);
+    }
+    
+    if (queryParts.length > 0) {
+        url += `&${queryParts.join('&')}`;
+    }
+
     const response = await fetch(url);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -81,7 +90,7 @@ export async function searchPublications(
   query: string,
   pageSize: number = 10
 ): Promise<Publication[]> {
-    if (!query) return [];
+  if (!query) return [];
   try {
     // Step 1: Search for publication IDs
     const searchResponse = await fetch(

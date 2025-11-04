@@ -23,36 +23,29 @@ export default function TrialsPage() {
   const [trials, setTrials] = useState<ClinicalTrial[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [searchQuery, setSearchQuery] = useState('cancer');
-  const [lat, setLat] = useState('');
-  const [lon, setLon] = useState('');
-  const [radius, setRadius] = useState('50'); // Default 50 miles
+  const [searchQuery, setSearchQuery] = useState('health');
+  const [city, setCity] = useState('');
+  const [country, setCountry] = useState('');
+  
+  const [locationQuery, setLocationQuery] = useState('');
 
   useEffect(() => {
     async function fetchTrials() {
-      if (!searchQuery) {
-        setTrials([]);
-        setLoading(false);
-        return;
-      };
       setLoading(true);
-      const geo = lat && lon && radius ? { lat, lon, radius } : undefined;
-      const fetchedTrials = await searchClinicalTrials(searchQuery, 9, geo);
+      const fetchedTrials = await searchClinicalTrials(searchQuery, 9, locationQuery);
       setTrials(fetchedTrials);
       setLoading(false);
     }
     fetchTrials();
-  }, [searchQuery, lat, lon, radius]);
+  }, [searchQuery, locationQuery]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    setSearchQuery(searchTerm);
+    setSearchQuery(searchTerm || 'health');
+    
+    const locationParts = [city, country].filter(Boolean);
+    setLocationQuery(locationParts.join(', '));
   };
-  
-  const handleGeoSearch = () => {
-    // This will trigger the useEffect to refetch with geo parameters
-    setSearchQuery(searchTerm || 'cancer');
-  }
 
   return (
     <div className="space-y-6">
@@ -66,59 +59,57 @@ export default function TrialsPage() {
       </div>
 
       <div className="space-y-4">
-        <div className="flex items-center gap-4">
-          <form onSubmit={handleSearch} className="flex-1 max-w-lg relative">
-            <Input 
-              placeholder="e.g. lung cancer, diabetes..." 
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pr-10"
-            />
-            <Button type="submit" size="icon" variant="ghost" className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8">
-              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
-            </Button>
-          </form>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="ml-auto">
-                <ListFilter className="mr-2 h-4 w-4" />
-                Filter
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Filter by Status</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuCheckboxItem checked>Recruiting</DropdownMenuCheckboxItem>
-              <DropdownMenuCheckboxItem>Active, not recruiting</DropdownMenuCheckboxItem>
-              <DropdownMenuCheckboxItem>Completed</DropdownMenuCheckboxItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-
-        <Card>
-          <CardContent className="pt-6">
-            <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 items-end">
-              <div className="sm:col-span-3 grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div>
-                  <label htmlFor="lat" className="text-sm font-medium text-muted-foreground">Latitude</label>
-                  <Input id="lat" placeholder="e.g. 39.0997" value={lat} onChange={(e) => setLat(e.target.value)} />
+        <form onSubmit={handleSearch} className="space-y-4">
+            <div className="flex items-center gap-4">
+                <div className="flex-1 max-w-lg relative">
+                    <Input 
+                    placeholder="e.g. lung cancer, diabetes..." 
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pr-10"
+                    />
+                    <Button type="submit" size="icon" variant="ghost" className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8" disabled={loading}>
+                    {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
+                    </Button>
                 </div>
-                <div>
-                  <label htmlFor="lon" className="text-sm font-medium text-muted-foreground">Longitude</label>
-                  <Input id="lon" placeholder="e.g. -94.5786" value={lon} onChange={(e) => setLon(e.target.value)} />
-                </div>
-                <div>
-                  <label htmlFor="radius" className="text-sm font-medium text-muted-foreground">Radius (miles)</label>
-                  <Input id="radius" placeholder="e.g. 50" value={radius} onChange={(e) => setRadius(e.target.value)} />
-                </div>
-              </div>
-              <Button onClick={handleGeoSearch} className="w-full" disabled={!lat || !lon || !radius}>
-                  <MapPin className="mr-2 h-4 w-4" />
-                  Search by Location
-              </Button>
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                    <Button variant="outline" className="ml-auto">
+                        <ListFilter className="mr-2 h-4 w-4" />
+                        Filter
+                    </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                    <DropdownMenuLabel>Filter by Status</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuCheckboxItem checked>Recruiting</DropdownMenuCheckboxItem>
+                    <DropdownMenuCheckboxItem>Active, not recruiting</DropdownMenuCheckboxItem>
+                    <DropdownMenuCheckboxItem>Completed</DropdownMenuCheckboxItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
             </div>
-          </CardContent>
-        </Card>
+
+            <Card>
+            <CardContent className="pt-6">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end">
+                <div className="sm:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                    <label htmlFor="city" className="text-sm font-medium text-muted-foreground">City</label>
+                    <Input id="city" placeholder="e.g. Boston" value={city} onChange={(e) => setCity(e.target.value)} />
+                    </div>
+                    <div>
+                    <label htmlFor="country" className="text-sm font-medium text-muted-foreground">Country</label>
+                    <Input id="country" placeholder="e.g. United States" value={country} onChange={(e) => setCountry(e.target.value)} />
+                    </div>
+                </div>
+                <Button type="submit" className="w-full sm:w-auto" disabled={loading}>
+                    <MapPin className="mr-2 h-4 w-4" />
+                    Search by Location
+                </Button>
+                </div>
+            </CardContent>
+            </Card>
+        </form>
       </div>
 
       {loading ? (

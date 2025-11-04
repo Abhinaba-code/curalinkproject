@@ -59,7 +59,7 @@ export default function ExpertsPage() {
     const [experts, setExperts] = useState<Expert[]>([]);
     const [loading, setLoading] = useState(true);
     const [query, setQuery] = useState('');
-    const [submittedQuery, setSubmittedQuery] = useState('Cardiology'); // Default search
+    const [submittedQuery, setSubmittedQuery] = useState('');
     
     useEffect(() => {
         async function fetchData() {

@@ -5,7 +5,6 @@ import { useEffect, useState } from 'react';
 import type { Expert } from '@/lib/types';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Microscope, ExternalLink, Loader2, Search, Pin, Star } from 'lucide-react';
 import { searchExperts } from '@/lib/api';
@@ -68,40 +67,31 @@ function ExpertCard({ expert }: { expert: Expert }) {
 export default function ExpertsPage() {
     const [experts, setExperts] = useState<Expert[]>([]);
     const [loading, setLoading] = useState(true);
-    const [searchForm, setSearchForm] = useState({ specialty: '', city: '', state: '' });
-    const [submittedQuery, setSubmittedQuery] = useState({ specialty: '', city: '', state: '' });
+    const [specialty, setSpecialty] = useState('');
+    const [submittedSpecialty, setSubmittedSpecialty] = useState('');
     
     useEffect(() => {
         const randomSpecialty = randomSpecialties[Math.floor(Math.random() * randomSpecialties.length)];
-        setSubmittedQuery({ specialty: randomSpecialty, city: '', state: '' });
+        setSubmittedSpecialty(randomSpecialty);
     }, []);
 
     useEffect(() => {
-        if (!submittedQuery.specialty && !submittedQuery.city && !submittedQuery.state) {
-            setLoading(false);
-            return;
-        };
-
         async function fetchInitialData() {
             setLoading(true);
-            const fetchedExperts = await searchExperts(submittedQuery.specialty, submittedQuery.city, submittedQuery.state, 12);
+            const fetchedExperts = await searchExperts(submittedSpecialty, 12);
             setExperts(fetchedExperts);
             setLoading(false);
         }
 
         fetchInitialData();
-    }, [submittedQuery]);
-
-    const handleInputChange = (name: string, value: string) => {
-        setSearchForm(prev => ({...prev, [name]: value}));
-    }
+    }, [submittedSpecialty]);
 
     const handleSearch = async (e: React.FormEvent) => {
         e.preventDefault();
-        setSubmittedQuery(searchForm);
+        setSubmittedSpecialty(specialty);
     };
 
-    const hasSearched = submittedQuery.specialty || submittedQuery.city || submittedQuery.state;
+    const hasSearched = submittedSpecialty;
 
     return (
         <div className="space-y-6">
@@ -118,9 +108,9 @@ export default function ExpertsPage() {
                 <form onSubmit={handleSearch}>
                     <CardContent className="pt-6 space-y-4">
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                            <div>
+                            <div className="sm:col-span-2">
                                 <label htmlFor="specialty" className="text-sm font-medium text-muted-foreground">Category</label>
-                                <Select value={searchForm.specialty} onValueChange={(value) => handleInputChange('specialty', value)}>
+                                <Select value={specialty} onValueChange={(value) => setSpecialty(value)}>
                                     <SelectTrigger id="specialty">
                                         <SelectValue placeholder="Select a specialty" />
                                     </SelectTrigger>
@@ -131,19 +121,13 @@ export default function ExpertsPage() {
                                     </SelectContent>
                                 </Select>
                             </div>
-                             <div>
-                                <label htmlFor="city" className="text-sm font-medium text-muted-foreground">City</label>
-                                <Input id="city" placeholder="e.g. New York" value={searchForm.city} onChange={(e) => handleInputChange('city', e.target.value)} />
-                            </div>
-                             <div>
-                                <label htmlFor="state" className="text-sm font-medium text-muted-foreground">State (2-letter code)</label>
-                                <Input id="state" placeholder="e.g. NY" value={searchForm.state} onChange={(e) => handleInputChange('state', e.target.value)} maxLength={2}/>
+                             <div className="flex items-end">
+                                <Button type="submit" className="w-full" disabled={loading}>
+                                    {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Search className="mr-2 h-4 w-4" />}
+                                    Search Providers
+                                </Button>
                             </div>
                         </div>
-                        <Button type="submit" className="w-full sm:w-auto" disabled={loading}>
-                            {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Search className="mr-2 h-4 w-4" />}
-                            Search Providers
-                        </Button>
                     </CardContent>
                 </form>
             </Card>

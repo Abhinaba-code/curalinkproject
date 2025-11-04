@@ -32,30 +32,20 @@ const formatNPIRecord = (record: any): any | null => {
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const specialty = searchParams.get('specialty');
-  const city = searchParams.get('city');
-  const state = searchParams.get('state');
   const limit = searchParams.get('limit') || '12';
 
   const apiParams = new URLSearchParams({
     version: '2.1',
     limit: limit,
+    city: 'New York', // Default city to ensure some results
+    state: 'NY',      // Default state
   });
 
   if (specialty) {
     apiParams.set('taxonomy_description', specialty);
-  }
-  if (city) {
-    apiParams.set('city', city);
-  }
-  if (state) {
-    apiParams.set('state', state);
-  }
-
-  // If no search terms, use a default to get some results
-  if (!specialty && !city && !state) {
+  } else {
+    // If no specialty, use a default to get some results
     apiParams.set('taxonomy_description', 'Cardiology');
-    apiParams.set('city', 'New York');
-    apiParams.set('state', 'NY');
   }
 
   try {

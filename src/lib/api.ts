@@ -107,8 +107,6 @@ export async function searchPublications(
 
 export async function searchExperts(
   specialty: string,
-  city: string,
-  state: string,
   pageSize: number = 12
 ): Promise<Expert[]> {
   const params = new URLSearchParams({
@@ -117,12 +115,6 @@ export async function searchExperts(
 
   if (specialty) {
     params.set('specialty', specialty);
-  }
-  if (city) {
-    params.set('city', city);
-  }
-  if (state) {
-    params.set('state', state);
   }
 
   try {

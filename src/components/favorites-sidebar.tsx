@@ -28,6 +28,11 @@ export function FavoritesSidebar() {
 
   const renderItem = (fav: any) => {
     const { item, type } = fav;
+    let internalLink = '';
+    if (type === 'trial') internalLink = '/dashboard/trials';
+    else if (type === 'publication') internalLink = '/dashboard/publications';
+    else if (type === 'expert') internalLink = '/dashboard/experts';
+
     return (
       <div
         key={item.id}
@@ -42,9 +47,7 @@ export function FavoritesSidebar() {
         </button>
         
         <Link
-            href={item.url}
-            target="_blank"
-            rel="noopener noreferrer"
+            href={internalLink || '#'}
             className="font-semibold truncate pr-4 block hover:underline"
         >
             {item.title || item.name}

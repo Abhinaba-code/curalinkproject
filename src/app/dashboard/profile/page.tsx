@@ -6,44 +6,33 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { useState, useEffect } from 'react';
-import { useToast } from '@/hooks/use-toast';
+import Link from 'next/link';
+import { Calendar, MapPin, Stethoscope, User, Edit, Bot } from 'lucide-react';
+import { Chatbot } from '@/components/chatbot';
+
+function ProfileDetail({ icon, label, value }: { icon: React.ReactNode, label: string, value: React.ReactNode }) {
+    return (
+        <div className="flex items-start gap-4">
+            <div className="text-muted-foreground mt-1">{icon}</div>
+            <div>
+                <p className="text-sm text-muted-foreground">{label}</p>
+                <p className="font-medium">{value || 'Not provided'}</p>
+            </div>
+        </div>
+    )
+}
 
 export default function ProfilePage() {
   const { user, loading } = useAuth();
-  const { toast } = useToast();
-  
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-
-  useEffect(() => {
-    if (user) {
-      setName(user.name);
-      setEmail(user.email);
-    }
-  }, [user]);
 
   if (loading || !user) {
     return null; // Or a loading skeleton
   }
-
-  const handleProfileUpdate = (e: React.FormEvent) => {
-    e.preventDefault();
-    // In a real app, you would call an API to update the user data.
-    // Here we'll just show a toast notification as a demonstration.
-    toast({
-      title: "Profile Updated",
-      description: "Your information has been successfully saved.",
-    });
-  };
 
   const userInitials = user.name
     ? user.name
@@ -54,70 +43,57 @@ export default function ProfilePage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="font-headline text-3xl font-bold">Your Profile</h1>
-        <p className="text-muted-foreground">
-          Manage your personal information and preferences.
-        </p>
+        <Chatbot />
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="font-headline text-3xl font-bold">My Profile</h1>
+          <p className="text-muted-foreground">
+            This is your personal profile.
+          </p>
+        </div>
+        <Button asChild>
+            <Link href="/dashboard/create-profile">
+                <Edit className="mr-2 h-4 w-4" />
+                Edit Profile
+            </Link>
+        </Button>
       </div>
 
       <Card>
-        <CardHeader>
-          <CardTitle>Personal Information</CardTitle>
-          <CardDescription>
-            Update your photo and personal details here.
-          </CardDescription>
-        </CardHeader>
-        <form onSubmit={handleProfileUpdate}>
-          <CardContent className="space-y-6">
-            <div className="flex items-center gap-4">
-              <Avatar className="h-20 w-20">
+        <CardHeader className="flex flex-row items-center gap-4">
+            <Avatar className="h-20 w-20">
                 <AvatarImage src={user.avatarUrl} alt={user.name} />
                 <AvatarFallback>{userInitials}</AvatarFallback>
-              </Avatar>
-              <div className="grid gap-2">
-                <p className="font-semibold text-lg">{user.name}</p>
-                <Badge className="capitalize">{user.role}</Badge>
-              </div>
+            </Avatar>
+            <div>
+                <CardTitle className="text-2xl">{user.name}</CardTitle>
+                <CardDescription>{user.email}</CardDescription>
+                <Badge className="capitalize mt-2">{user.role}</Badge>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="name">Full Name</Label>
-              <Input
-                id="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-              />
+        </CardHeader>
+        <CardContent className="space-y-6 pt-6 border-t">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <ProfileDetail icon={<User className="h-5 w-5" />} label="About Me" value={"This is a sample bio. It can be updated in the edit profile section."} />
+                <ProfileDetail icon={<Calendar className="h-5 w-5" />} label="Date of Birth" value={"October 27th, 2025"} />
+                <ProfileDetail icon={<MapPin className="h-5 w-5" />} label="Location" value={"Bengaluru, Karnataka, India"} />
+                <ProfileDetail icon={<Stethoscope className="h-5 w-5" />} label="Medical Conditions & Interests" value={"Glioblastoma, Lung Cancer, Immunotherapy"} />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
-          </CardContent>
-          <CardFooter className="border-t px-6 py-4">
-            <Button type="submit">Save Changes</Button>
-          </CardFooter>
-        </form>
+            <p className="text-xs text-muted-foreground text-center pt-4 border-t">
+                Your profile details help us personalize your recommendations.
+            </p>
+        </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle>Account Settings</CardTitle>
+          <CardTitle>Following</CardTitle>
           <CardDescription>
-            Manage your account preferences.
+            Experts you are following.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center justify-between p-4 border rounded-md">
-            <div>
-              <p className="font-medium">Account Role</p>
-              <p className="text-sm text-muted-foreground">Your current role is set to <span className='font-semibold capitalize'>{user.role}</span>.</p>
-            </div>
-            <Button variant="outline" disabled>Change Role</Button>
+          <div className="text-center text-muted-foreground border-2 border-dashed rounded-lg p-8">
+            <p>You are not following any experts yet. Click the "Follow" button on an expert's card to add them here.</p>
           </div>
         </CardContent>
       </Card>

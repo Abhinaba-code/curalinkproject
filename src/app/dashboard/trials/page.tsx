@@ -19,6 +19,9 @@ import {
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent } from '@/components/ui/card';
 
+type RecruitmentStatus = 'Recruiting' | 'Active, not recruiting' | 'Completed';
+const ALL_STATUSES: RecruitmentStatus[] = ['Recruiting', 'Active, not recruiting', 'Completed'];
+
 export default function TrialsPage() {
   const [trials, setTrials] = useState<ClinicalTrial[]>([]);
   const [loading, setLoading] = useState(true);
@@ -28,16 +31,17 @@ export default function TrialsPage() {
   const [country, setCountry] = useState('');
   
   const [locationQuery, setLocationQuery] = useState('');
+  const [statuses, setStatuses] = useState<RecruitmentStatus[]>(['Recruiting']);
 
   useEffect(() => {
     async function fetchTrials() {
       setLoading(true);
-      const fetchedTrials = await searchClinicalTrials(searchQuery, 9, locationQuery);
+      const fetchedTrials = await searchClinicalTrials(searchQuery, 9, locationQuery, statuses);
       setTrials(fetchedTrials);
       setLoading(false);
     }
     fetchTrials();
-  }, [searchQuery, locationQuery]);
+  }, [searchQuery, locationQuery, statuses]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,6 +49,16 @@ export default function TrialsPage() {
     
     const locationParts = [city, country].filter(Boolean);
     setLocationQuery(locationParts.join(', '));
+  };
+
+  const handleStatusChange = (status: RecruitmentStatus, checked: boolean) => {
+    setStatuses(prev => {
+        if (checked) {
+            return [...prev, status];
+        } else {
+            return prev.filter(s => s !== status);
+        }
+    });
   };
 
   return (
@@ -82,9 +96,15 @@ export default function TrialsPage() {
                     <DropdownMenuContent align="end">
                     <DropdownMenuLabel>Filter by Status</DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    <DropdownMenuCheckboxItem checked>Recruiting</DropdownMenuCheckboxItem>
-                    <DropdownMenuCheckboxItem>Active, not recruiting</DropdownMenuCheckboxItem>
-                    <DropdownMenuCheckboxItem>Completed</DropdownMenuCheckboxItem>
+                    {ALL_STATUSES.map(status => (
+                       <DropdownMenuCheckboxItem 
+                          key={status}
+                          checked={statuses.includes(status)}
+                          onCheckedChange={(checked) => handleStatusChange(status, checked)}
+                       >
+                         {status}
+                       </DropdownMenuCheckboxItem>
+                    ))}
                     </DropdownMenuContent>
                 </DropdownMenu>
             </div>

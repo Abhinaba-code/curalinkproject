@@ -9,8 +9,14 @@ const NPI_REGISTRY_API_BASE_URL = 'https://npiregistry.cms.hhs.gov/api/';
 // A mapping from the API's status to the app's status
 const statusMapping: { [key: string]: ClinicalTrial['status'] } = {
   RECRUITING: 'Recruiting',
-  ACTIVE_NOT_RECRUITUITING: 'Active, not recruiting',
+  ACTIVE_NOT_RECRUITING: 'Active, not recruiting',
   COMPLETED: 'Completed',
+};
+
+const appToApiStatusMapping: { [key in ClinicalTrial['status']]: string } = {
+  'Recruiting': 'RECRUITING',
+  'Active, not recruiting': 'ACTIVE_NOT_RECRUITING',
+  'Completed': 'COMPLETED',
 };
 
 // A utility function to format a single trial from the API response
@@ -38,23 +44,29 @@ const formatTrial = (study: any): ClinicalTrial => {
 export async function searchClinicalTrials(
   query: string,
   pageSize: number = 9,
-  location?: string
+  location?: string,
+  statuses?: ClinicalTrial['status'][]
 ): Promise<ClinicalTrial[]> {
   try {
-    let url = `${CLINICAL_TRIALS_API_BASE_URL}/studies?pageSize=${pageSize}&filter.overallStatus=RECRUITING`;
-    
     const queryParts = [];
     if (query) {
         queryParts.push(`query.cond=${encodeURIComponent(query)}`);
     }
     if (location) {
-        // ClinicalTrials.gov API uses 'query.locn' for location-based searches which can include city, state, country.
         queryParts.push(`query.locn=${encodeURIComponent(location)}`);
     }
-    
-    if (queryParts.length > 0) {
-        url += `&${queryParts.join('&')}`;
+
+    if (statuses && statuses.length > 0) {
+        const apiStatuses = statuses.map(s => appToApiStatusMapping[s]).filter(Boolean);
+        if (apiStatuses.length > 0) {
+            queryParts.push(`filter.overallStatus=${apiStatuses.join(',')}`);
+        }
+    } else {
+        // Default to recruiting if no statuses are provided
+        queryParts.push(`filter.overallStatus=RECRUITING`);
     }
+    
+    let url = `${CLINICAL_TRIALS_API_BASE_URL}/studies?pageSize=${pageSize}&${queryParts.join('&')}`;
 
     const response = await fetch(url);
     if (!response.ok) {

@@ -3,7 +3,7 @@
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { UserNav } from '@/components/user-nav';
 import { Input } from './ui/input';
-import { Search, Star } from 'lucide-react';
+import { Search, Star, Bell } from 'lucide-react';
 import { Logo } from './logo';
 import { Button } from './ui/button';
 import { useFavorites } from '@/context/favorites-provider';
@@ -31,6 +31,9 @@ export function AppHeader() {
         </form>
         <Button variant="outline" size="icon" onClick={() => setShowFavorites(true)}>
             <Star className="h-4 w-4" />
+        </Button>
+         <Button variant="outline" size="icon">
+            <Bell className="h-4 w-4" />
         </Button>
         <UserNav />
       </div>

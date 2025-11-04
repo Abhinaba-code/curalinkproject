@@ -242,6 +242,9 @@ export async function searchExperts(
 
     articles.forEach(article => {
       const pmid = article.MedlineCitation.PMID;
+      if (!article.MedlineCitation.Article.AuthorList) {
+        return;
+      }
       const authors = article.MedlineCitation.Article.AuthorList.Author;
 
       if (Array.isArray(authors)) {

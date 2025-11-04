@@ -25,7 +25,7 @@ export type Publication = {
   journal: string;
   abstract: string;
   doi: string;
-  year: number;
+  year: number | string;
 };
 
 export type Expert = {

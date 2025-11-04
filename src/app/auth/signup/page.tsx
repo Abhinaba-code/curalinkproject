@@ -17,10 +17,12 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Logo } from '@/components/logo';
+import { ArrowLeft } from 'lucide-react';
 
 export default function SignupPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [role, setRole] = useState<'patient' | 'researcher'>('patient');
   const { login } = useAuth();
   const searchParams = useSearchParams();
@@ -35,6 +37,11 @@ export default function SignupPage() {
 
   const handleSignup = (e: React.FormEvent) => {
     e.preventDefault();
+    if (password !== confirmPassword) {
+      // In a real app, you'd show an error message
+      alert("Passwords don't match!");
+      return;
+    }
     login(email, role);
   };
 
@@ -106,18 +113,34 @@ export default function SignupPage() {
                 onChange={(e) => setPassword(e.target.value)}
               />
             </div>
+            <div className="space-y-2">
+              <Label htmlFor="confirm-password">Confirm Password</Label>
+              <Input
+                id="confirm-password"
+                type="password"
+                required
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+              />
+            </div>
             <Button type="submit" className="w-full font-bold">
               Sign Up
             </Button>
           </form>
         </CardContent>
-        <CardFooter>
+        <CardFooter className="flex flex-col gap-4 items-center">
           <p className="text-center text-sm text-muted-foreground">
             Already have an account?{' '}
             <Link href="/auth/login" className="font-semibold text-primary hover:underline">
               Log in
             </Link>
           </p>
+          <Button variant="link" asChild className="text-muted-foreground">
+            <Link href="/">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to Home
+            </Link>
+          </Button>
         </CardFooter>
       </Card>
     </div>

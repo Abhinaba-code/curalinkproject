@@ -40,7 +40,7 @@ const prompt = ai.definePrompt({
   system: `You are an AI assistant for CuraLink, a platform that connects patients and researchers.
   Your task is to generate a personalized feed of content for a user based on their stated interests.
   The feed should contain a mix of relevant clinical trials, medical publications, and health experts.
-  For each item, provide a title, a brief summary explaining why it's relevant to the user's interests, and a placeholder link.
+  For each item, provide a title, a brief summary explaining why it's relevant to the user's interests, and a simple placeholder link.
   
   Example User Interests: "Glioblastoma", "Immunotherapy"
   
@@ -50,7 +50,7 @@ const prompt = ai.definePrompt({
   - A renowned neuro-oncologist who specializes in Glioblastoma research.
   
   Generate 3-5 items for the user's feed.
-  Make the links relevant to the type of content. For example, trial links should point to /dashboard/trials, publication links to /dashboard/publications, and expert links to /dashboard/experts.
+  Make the links simple paths: for trials use '/dashboard/trials', for publications use '/dashboard/publications', and for experts use '/dashboard/experts'.
   `,
   prompt: `Generate a personalized feed for a user with the following interests: {{{interests}}}.`,
 });

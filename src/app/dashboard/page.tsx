@@ -27,6 +27,7 @@ const chartConfig = {
 }
 
 function PersonalizedFeed() {
+  const { user } = useAuth();
   const [feed, setFeed] = useState<GeneratePersonalizedFeedOutput | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -34,10 +35,11 @@ function PersonalizedFeed() {
     async function getFeed() {
       setLoading(true);
       try {
-        // In a real app, you would fetch the user's actual interests.
-        // We'll use mock interests for this demonstration.
-        const mockInterests = ["Glioblastoma", "Immunotherapy", "Cancer Research"];
-        const result = await generatePersonalizedFeed({ interests: mockInterests });
+        const userInterests = user?.interests && user.interests.length > 0 
+          ? user.interests 
+          : ["General Health", "Medical Research"];
+          
+        const result = await generatePersonalizedFeed({ interests: userInterests });
         setFeed(result);
       } catch (error) {
         console.error("Failed to generate personalized feed:", error);
@@ -47,7 +49,7 @@ function PersonalizedFeed() {
       }
     }
     getFeed();
-  }, []);
+  }, [user]);
 
   if (loading) {
     return (

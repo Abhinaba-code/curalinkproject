@@ -14,15 +14,22 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 
 export default function ProfilePage() {
   const { user, loading } = useAuth();
   const { toast } = useToast();
   
-  const [name, setName] = useState(user?.name || '');
-  const [email, setEmail] = useState(user?.email || '');
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+
+  useEffect(() => {
+    if (user) {
+      setName(user.name);
+      setEmail(user.email);
+    }
+  }, [user]);
 
   if (loading || !user) {
     return null; // Or a loading skeleton
@@ -61,16 +68,16 @@ export default function ProfilePage() {
             Update your photo and personal details here.
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <form onSubmit={handleProfileUpdate} className="space-y-6">
+        <form onSubmit={handleProfileUpdate}>
+          <CardContent className="space-y-6">
             <div className="flex items-center gap-4">
               <Avatar className="h-20 w-20">
                 <AvatarImage src={user.avatarUrl} alt={user.name} />
                 <AvatarFallback>{userInitials}</AvatarFallback>
               </Avatar>
               <div className="grid gap-2">
-                <p className="font-semibold">{user.name}</p>
-                <Badge capitalize>{user.role}</Badge>
+                <p className="font-semibold text-lg">{user.name}</p>
+                <Badge className="capitalize">{user.role}</Badge>
               </div>
             </div>
             <div className="space-y-2">
@@ -90,11 +97,11 @@ export default function ProfilePage() {
                 onChange={(e) => setEmail(e.target.value)}
               />
             </div>
-          </form>
-        </CardContent>
-        <CardFooter className="border-t px-6 py-4">
-          <Button onClick={handleProfileUpdate}>Save Changes</Button>
-        </CardFooter>
+          </CardContent>
+          <CardFooter className="border-t px-6 py-4">
+            <Button type="submit">Save Changes</Button>
+          </CardFooter>
+        </form>
       </Card>
 
       <Card>

@@ -7,7 +7,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 interface AuthContextType {
   user: User | null;
   signup: (email: string, password: string, role: 'patient' | 'researcher') => Promise<void>;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string, role: 'patient' | 'researcher') => Promise<void>;
   logout: () => void;
   loading: boolean;
 }
@@ -79,13 +79,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
   };
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string, role: 'patient' | 'researcher') => {
     return new Promise<void>((resolve, reject) => {
       const users = getUsers();
       const foundUser = users.find(u => u.email === email);
 
       if (!foundUser) {
         return reject(new Error('No account found with this email.'));
+      }
+
+      if (foundUser.role !== role) {
+        return reject(new Error(`This email is registered as a ${foundUser.role}, not a ${role}.`));
       }
 
       if (foundUser.password !== password) {

@@ -11,7 +11,6 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useAuth } from '@/context/auth-provider';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
@@ -31,8 +30,10 @@ export default function SignupPage() {
 
   useEffect(() => {
     const roleParam = searchParams.get('role');
-    if (roleParam === 'patient' || roleParam === 'researcher') {
-      setRole(roleParam);
+    if (roleParam === 'researcher') {
+      setRole('researcher');
+    } else {
+      setRole('patient');
     }
   }, [searchParams]);
 
@@ -57,6 +58,8 @@ export default function SignupPage() {
     }
   };
 
+  const otherRole = role === 'patient' ? 'researcher' : 'patient';
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-background to-teal-50/50 p-4">
       <Card className="w-full max-w-md shadow-2xl bg-card/80 backdrop-blur-lg">
@@ -64,46 +67,13 @@ export default function SignupPage() {
           <div className="flex justify-center mb-4">
             <Logo />
           </div>
-          <CardTitle className="font-headline text-3xl">Create an Account</CardTitle>
+          <CardTitle className="font-headline text-3xl">Create a <span className="capitalize">{role}</span> Account</CardTitle>
           <CardDescription>
             Join CuraLink to get started.
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSignup} className="space-y-4">
-            <div className="space-y-2">
-              <Label>I am a...</Label>
-              <RadioGroup
-                value={role}
-                onValueChange={(value: 'patient' | 'researcher') =>
-                  setRole(value)
-                }
-                className="grid grid-cols-2 gap-4"
-              >
-                <div>
-                  <RadioGroupItem value="patient" id="patient" className="peer sr-only" />
-                  <Label
-                    htmlFor="patient"
-                    className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
-                  >
-                    Patient
-                  </Label>
-                </div>
-                <div>
-                  <RadioGroupItem
-                    value="researcher"
-                    id="researcher"
-                    className="peer sr-only"
-                  />
-                  <Label
-                    htmlFor="researcher"
-                    className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
-                  >
-                    Researcher
-                  </Label>
-                </div>
-              </RadioGroup>
-            </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
@@ -120,6 +90,7 @@ export default function SignupPage() {
               <Input
                 id="password"
                 type="password"
+                placeholder="••••••••"
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -130,24 +101,30 @@ export default function SignupPage() {
               <Input
                 id="confirm-password"
                 type="password"
+                placeholder="••••••••"
                 required
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
               />
             </div>
             <Button type="submit" className="w-full font-bold">
-              Sign Up
+              Sign Up as a <span className="capitalize ml-1">{role}</span>
             </Button>
           </form>
         </CardContent>
         <CardFooter className="flex flex-col gap-4 items-center">
           <p className="text-center text-sm text-muted-foreground">
             Already have an account?{' '}
-            <Link href="/auth/login" className="font-semibold text-primary hover:underline">
+            <Link href={`/auth/login?role=${role}`} className="font-semibold text-primary hover:underline">
               Log in
             </Link>
           </p>
-          <Button variant="link" asChild className="text-muted-foreground">
+          <div className="text-center text-sm">
+            <Link href={`/auth/signup?role=${otherRole}`} className="text-muted-foreground hover:text-primary transition-colors">
+              Are you a {otherRole}? Sign up as a <span className="capitalize font-semibold">{otherRole}</span>
+            </Link>
+          </div>
+          <Button variant="link" asChild className="text-muted-foreground mt-4">
             <Link href="/">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back to Home

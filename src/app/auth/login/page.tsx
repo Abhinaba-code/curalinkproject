@@ -13,21 +13,33 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/context/auth-provider';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Logo } from '@/components/logo';
 import { ArrowLeft } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useSearchParams } from 'next/navigation';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { login } = useAuth();
   const { toast } = useToast();
+  const searchParams = useSearchParams();
+  const [role, setRole] = useState<'patient' | 'researcher'>('patient');
+
+  useEffect(() => {
+    const roleParam = searchParams.get('role');
+    if (roleParam === 'researcher') {
+      setRole('researcher');
+    } else {
+      setRole('patient');
+    }
+  }, [searchParams]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await login(email, password);
+      await login(email, password, role);
     } catch (error: any) {
       toast({
         variant: 'destructive',
@@ -36,6 +48,8 @@ export default function LoginPage() {
       });
     }
   };
+  
+  const otherRole = role === 'patient' ? 'researcher' : 'patient';
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-background to-blue-50/50 p-4">
@@ -44,9 +58,9 @@ export default function LoginPage() {
           <div className="flex justify-center mb-4">
             <Logo />
           </div>
-          <CardTitle className="font-headline text-3xl">Welcome Back</CardTitle>
+          <CardTitle className="font-headline text-3xl">Welcome to CuraLink</CardTitle>
           <CardDescription>
-            Enter your credentials to access your account.
+            Sign in to your <span className="capitalize font-semibold">{role}</span> account
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -56,7 +70,7 @@ export default function LoginPage() {
               <Input
                 id="email"
                 type="email"
-                placeholder="patient@example.com"
+                placeholder="m@example.com"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -67,24 +81,30 @@ export default function LoginPage() {
               <Input
                 id="password"
                 type="password"
+                placeholder="••••••••"
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
             </div>
             <Button type="submit" className="w-full font-bold">
-              Log In
+              Sign In
             </Button>
           </form>
         </CardContent>
-        <CardFooter className="flex flex-col gap-4">
-          <p className="text-center text-sm text-muted-foreground">
-            Don't have an account?{' '}
-            <Link href="/auth/signup" className="font-semibold text-primary hover:underline">
-              Sign up
+        <CardFooter className="flex flex-col gap-4 items-center">
+           <p className="text-center text-sm text-muted-foreground">
+            Don&apos;t have an account?{' '}
+            <Link href={`/auth/signup?role=${role}`} className="font-semibold text-primary hover:underline">
+              Sign Up
             </Link>
           </p>
-           <Button variant="link" asChild className="text-muted-foreground">
+          <div className="text-center text-sm">
+            <Link href={`/auth/login?role=${otherRole}`} className="text-muted-foreground hover:text-primary transition-colors">
+              Are you a {otherRole}? Sign in as a <span className="capitalize font-semibold">{otherRole}</span>
+            </Link>
+          </div>
+           <Button variant="link" asChild className="text-muted-foreground mt-4">
             <Link href="/">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back to Home

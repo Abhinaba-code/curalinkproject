@@ -96,21 +96,63 @@
   }
 
   .theme-ocean {
-    --background: 205 50% 95%;
-    --primary: 220 85% 55%;
-    --accent: 190 70% 88%;
+    --background: 204 100% 96%;
+    --foreground: 215 28% 17.1%;
+    --card: 204 100% 99%;
+    --card-foreground: 215 28% 17.1%;
+    --popover: 204 100% 99%;
+    --popover-foreground: 215 28% 17.1%;
+    --primary: 198 93% 45%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 204 100% 94%;
+    --secondary-foreground: 198 93% 30%;
+    --muted: 204 100% 94%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 204 100% 91%;
+    --accent-foreground: 198 93% 30%;
+    --border: 204 100% 88%;
+    --input: 204 100% 88%;
+    --ring: 198 93% 45%;
   }
 
   .theme-sunset {
-    --background: 25 60% 96%;
-    --primary: 15 90% 60%;
-    --accent: 40 85% 90%;
+    --background: 24 100% 97%;
+    --foreground: 24 9.8% 10%;
+    --card: 24 100% 99%;
+    --card-foreground: 24 9.8% 10%;
+    --popover: 24 100% 99%;
+    --popover-foreground: 24 9.8% 10%;
+    --primary: 24 93% 55%;
+    --primary-foreground: 24 9.8% 10%;
+    --secondary: 24 100% 94%;
+    --secondary-foreground: 24 9.8% 10%;
+    --muted: 24 100% 94%;
+    --muted-foreground: 24 9.8% 40%;
+    --accent: 24 100% 91%;
+    --accent-foreground: 24 9.8% 10%;
+    --border: 24 100% 88%;
+    --input: 24 100% 88%;
+    --ring: 24 93% 55%;
   }
 
   .theme-forest {
-    --background: 110 20% 96%;
-    --primary: 120 40% 40%;
-    --accent: 100 30% 88%;
+    --background: 120 25% 97%;
+    --foreground: 120 9.8% 10%;
+    --card: 120 25% 99%;
+    --card-foreground: 120 9.8% 10%;
+    --popover: 120 25% 99%;
+    --popover-foreground: 120 9.8% 10%;
+    --primary: 132 41% 40%;
+    --primary-foreground: 132 41% 95%;
+    --secondary: 132 41% 94%;
+    --secondary-foreground: 132 41% 20%;
+    --muted: 132 41% 94%;
+    --muted-foreground: 120 9.8% 40%;
+    --accent: 132 41% 91%;
+    --accent-foreground: 132 41% 20%;
+    --border: 132 41% 88%;
+    --input: 132 41% 88%;
+    --ring: 132 41% 40%;
   }
 }
 

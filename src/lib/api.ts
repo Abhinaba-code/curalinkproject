@@ -2,6 +2,8 @@ import { ClinicalTrial, Publication, Expert } from './types';
 
 const CLINICAL_TRIALS_API_BASE_URL = 'https://clinicaltrials.gov/api/v2';
 const PUBMED_API_BASE_URL = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils';
+const ORCID_API_BASE_URL = 'https://pub.orcid.org/v3.0';
+
 
 // A mapping from the API's status to the app's status
 const statusMapping: { [key: string]: ClinicalTrial['status'] } = {
@@ -123,21 +125,24 @@ export async function searchPublications(
   }
 }
 
-const formatExpertFromPublication = (authorName: string, pub: Publication, query: string): Expert => {
-    return {
-      id: `${authorName}-${pub.id}`, // Create a pseudo-unique ID
-      name: authorName,
-      specialties: [query], // Use the query as a specialty
-      institution: 'N/A', // Not reliably provided for authors
-      publicationCount: 1, // Can't easily calculate total, so we start with 1
-      avatarUrl: `https://picsum.photos/seed/${authorName}/200/200`, // Placeholder image
-      researchAreas: [pub.title], // Use publication title as a research area
-      clinicalTrialCount: 0,
-      url: `https://pubmed.ncbi.nlm.nih.gov/?term=${encodeURIComponent(authorName)}[Author]`,
-    };
+const formatExpertFromOrcid = (person: any): Expert => {
+  const orcid = person['orcid-id'];
+  const givenName = person['given-names']?.value || '';
+  const familyName = person['family-names']?.value || '';
+  const name = `${givenName} ${familyName}`.trim();
+  return {
+    id: orcid,
+    name: name,
+    specialties: [],
+    institution: 'N/A', // Not available in basic search
+    publicationCount: 0, // Not available in basic search
+    avatarUrl: `https://picsum.photos/seed/${orcid}/200/200`, // Placeholder image
+    researchAreas: [],
+    clinicalTrialCount: 0,
+    url: `https://orcid.org/${orcid}`, // Verified link to ORCID profile
   };
+};
 
-// Function to fetch and format experts from PubMed based on publications
 export async function searchExperts(
   query: string,
   limit: number = 20
@@ -146,58 +151,22 @@ export async function searchExperts(
     return [];
   }
   try {
-    const publications = await searchPublications(query, limit);
-    if (!publications || publications.length === 0) {
-      return [];
+    const response = await fetch(
+        `${ORCID_API_BASE_URL}/search?q=${encodeURIComponent(query)}&rows=${limit}`,
+        { headers: { 'Accept': 'application/json' } }
+    );
+    if (!response.ok) {
+      throw new Error(`ORCID API error! status: ${response.status}`);
     }
-
-    const expertsMap: Map<string, Expert> = new Map();
-
-    publications.forEach(pub => {
-      pub.authors.forEach(authorName => {
-        if (expertsMap.has(authorName)) {
-          const expert = expertsMap.get(authorName)!;
-          expert.publicationCount += 1;
-          if(!expert.researchAreas.includes(pub.title)) {
-            expert.researchAreas.push(pub.title);
-          }
-          if(!expert.specialties.includes(query)){
-            expert.specialties.push(query);
-          }
-
-        } else {
-          const newExpert = formatExpertFromPublication(authorName, pub, query);
-          expertsMap.set(authorName, newExpert);
-        }
-      });
-    });
-
-    const expertList = Array.from(expertsMap.values());
+    const data = await response.json();
     
-    // The following block is very slow and has been removed for performance.
-    // We can add it back in a more performant way later if needed.
-    /*
-    for (const expert of expertList) {
-        try {
-            const trialsResponse = await fetch(
-              `${CLINICAL_TRIALS_API_BASE_URL}/studies?query.term=${encodeURIComponent(expert.name)}&pageSize=10`
-            );
-            if (trialsResponse.ok) {
-              const trialsData = await trialsResponse.json();
-              expert.clinicalTrialCount = trialsData.studies.length;
-            }
-        } catch (error) {
-            console.error(`Failed to fetch clinical trials for ${expert.name}:`, error);
-        }
-    }
-    */
+    // The ORCID search result is in 'result'
+    const results = data.result || [];
 
-    // Return the most published authors from the result set, up to the limit
-    const sortedExperts = expertList.sort((a, b) => b.publicationCount - a.publicationCount);
-    return sortedExperts.slice(0, limit);
-
+    // Filter out results that don't have an ORCID ID, as they can't be used as a key.
+    return results.filter((person: any) => person['orcid-id']).map(formatExpertFromOrcid);
   } catch (error) {
-    console.error('Failed to fetch experts via PubMed:', error);
+    console.error('Failed to fetch experts from ORCID:', error);
     return [];
   }
 }

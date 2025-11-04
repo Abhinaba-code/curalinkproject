@@ -12,11 +12,11 @@ import { Mail, Plus, Loader2, Search, Heart, Activity, Brain, FlaskConical, Exte
 import { Skeleton } from '@/components/ui/skeleton';
 
 const specialties = [
-    { name: "Cardiology", icon: Heart, query: "heart disease" },
-    { name: "Nephrology", icon: Activity, query: "kidney disease" },
-    { name: "Pulmonology", icon: Brain, query: "lung disease" },
-    { name: "Neurology", icon: Brain, query: "neuroscience" },
-    { name: "Oncology", icon: Activity, query: "cancer" },
+    { name: "Cardiology", icon: Heart, query: "cardiology" },
+    { name: "Nephrology", icon: Activity, query: "nephrology" },
+    { name: "Pulmonology", icon: Brain, query: "pulmonology" },
+    { name: "Neurology", icon: Brain, query: "neurology" },
+    { name: "Oncology", icon: Activity, query: "oncology" },
 ];
 
 function ExpertCard({ expert }: { expert: Expert }) {
@@ -37,11 +37,7 @@ function ExpertCard({ expert }: { expert: Expert }) {
         <CardTitle className="font-headline text-2xl">{expert.name}</CardTitle>
         <CardDescription>{expert.institution}</CardDescription>
         <div className="flex flex-wrap justify-center gap-2 pt-2">
-          {expert.specialties.map(specialty => (
-            <Badge key={specialty} variant="secondary">{specialty}</Badge>
-          ))}
-           {expert.publicationCount > 0 && <Badge variant="outline">Publications: {expert.publicationCount}</Badge>}
-           {expert.clinicalTrialCount > 0 && <Badge variant="outline" className="flex items-center"><FlaskConical className="mr-1 h-3 w-3"/> Trials: {expert.clinicalTrialCount}</Badge>}
+          {expert.id && <Badge variant="outline">ORCID: {expert.id}</Badge>}
         </div>
       </CardContent>
       <div className="pt-4 flex justify-center gap-2 p-6">
@@ -52,7 +48,7 @@ function ExpertCard({ expert }: { expert: Expert }) {
         <Button size="sm" variant="outline" asChild>
           <a href={expert.url} target="_blank" rel="noopener noreferrer">
             <ExternalLink className="mr-2 h-4 w-4" />
-            View Source
+            View Profile
           </a>
         </Button>
       </div>
@@ -105,7 +101,7 @@ export default function ExpertsPage() {
        <div className="space-y-4">
         <form onSubmit={handleSearch} className="flex-1 max-w-lg relative">
           <Input
-              placeholder="e.g. cardiology, immunology, John Smith..."
+              placeholder="e.g. cancer, immunology, John Smith..."
               className="pr-10"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}

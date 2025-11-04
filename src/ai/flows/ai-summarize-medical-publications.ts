@@ -10,7 +10,6 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-import { googleAI } from '@genkit-ai/google-genai';
 
 const SummarizeMedicalPublicationInputSchema = z.object({
   publicationContent: z.string().describe('The content of the medical publication to be summarized.'),
@@ -28,7 +27,6 @@ export async function summarizeMedicalPublication(input: SummarizeMedicalPublica
 
 const summarizeMedicalPublicationPrompt = ai.definePrompt({
   name: 'summarizeMedicalPublicationPrompt',
-  model: googleAI('gemini-pro'),
   input: {schema: SummarizeMedicalPublicationInputSchema},
   output: {schema: SummarizeMedicalPublicationOutputSchema},
   prompt: `You are an expert at summarizing complex medical research papers for a general audience.

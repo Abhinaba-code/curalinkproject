@@ -5,14 +5,14 @@ import type { Expert, ClinicalTrial } from '@/lib/types';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Microscope, ExternalLink, Loader2, Search, Pin, User, Calendar, Mail, Phone, Plus, Star, Bell, Check } from 'lucide-react';
+import { Microscope, ExternalLink, Loader2, Search, Pin, User, Calendar, Mail, Phone, Plus, Star, Bell, Check, Send } from 'lucide-react';
 import { searchExperts, searchClinicalTrials } from '@/lib/api';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useFavorites } from '@/context/favorites-provider';
 import { useFollow } from '@/context/follow-provider';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger, DialogFooter, DialogClose } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import TrialCard from '../trials/trial-card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useForum } from '@/context/forum-provider';
@@ -33,29 +33,38 @@ const CATEGORIES = [
     "Radiology",
 ];
 
-function RequestMeetingDialog({ expert, children }: { expert: Expert, children: React.ReactNode }) {
+function RequestMeetingDialog({ expert, onRequested }: { expert: Expert, onRequested: () => void }) {
     const { user } = useAuth();
     const { toast } = useToast();
+    const { sendMeetingRequest } = useForum();
     const [name, setName] = useState(user?.name || '');
     const [email, setEmail] = useState(user?.email || '');
     const [reason, setReason] = useState('');
     const [isOpen, setIsOpen] = useState(false);
 
     const handleSendRequest = () => {
-        // In a real app, this would trigger an API call.
-        // Here, we just show a toast notification.
+        if (!user) {
+            toast({ variant: 'destructive', title: 'You must be logged in.' });
+            return;
+        }
+        sendMeetingRequest(expert, user, reason);
         toast({
             title: "Meeting Request Sent!",
-            description: `Your request for a meeting with ${expert.name} has been sent.`,
+            description: `Your request regarding ${expert.name} has been sent to researchers.`,
         });
-        setIsOpen(false); // Close the dialog
-        // Reset form
+        onRequested();
+        setIsOpen(false);
         setReason('');
     };
 
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
-            <DialogTrigger asChild>{children}</DialogTrigger>
+            <DialogTrigger asChild>
+                <Button variant="outline" size="sm">
+                    <Calendar className="mr-2 h-4 w-4" />
+                    Request Meeting
+                </Button>
+            </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
                     <DialogTitle>Request a Meeting with {expert.name}</DialogTitle>
@@ -106,7 +115,10 @@ function RequestMeetingDialog({ expert, children }: { expert: Expert, children: 
                     <DialogClose asChild>
                         <Button type="button" variant="outline">Cancel</Button>
                     </DialogClose>
-                    <Button type="submit" onClick={handleSendRequest}>Send Request</Button>
+                    <Button type="submit" onClick={handleSendRequest}>
+                        <Send className="mr-2 h-4 w-4" />
+                        Send Request
+                    </Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>
@@ -162,6 +174,7 @@ function ExpertCard({ expert }: { expert: Expert }) {
     const favorite = isFavorite(expert.id);
     const following = isFollowing(expert.id);
     const [nudged, setNudged] = useState(false);
+    const [meetingRequested, setMeetingRequested] = useState(false);
 
     const handleFollow = () => {
         toggleFollow(expert);
@@ -232,12 +245,16 @@ function ExpertCard({ expert }: { expert: Expert }) {
                         {nudged ? <Check className="mr-2 h-4 w-4" /> : <Bell className="mr-2 h-4 w-4" />}
                         {nudged ? 'Nudged' : 'Nudge to Join'}
                     </Button>
-                    <RequestMeetingDialog expert={expert}>
-                        <Button variant="outline" size="sm">
-                            <Calendar className="mr-2 h-4 w-4" />
-                            Request Meeting
-                        </Button>
-                    </RequestMeetingDialog>
+                     <Button variant="outline" size="sm" disabled={meetingRequested}>
+                        {meetingRequested ? (
+                            <>
+                                <Check className="mr-2 h-4 w-4" />
+                                Requested
+                            </>
+                        ) : (
+                           <RequestMeetingDialog expert={expert} onRequested={() => setMeetingRequested(true)} />
+                        )}
+                    </Button>
                 </div>
             </CardFooter>
         </Card>

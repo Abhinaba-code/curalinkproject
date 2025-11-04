@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useAuth } from './auth-provider';
-import type { Expert } from '@/lib/types';
+import type { Expert, User } from '@/lib/types';
 
 
 export interface ForumPostAuthor {
@@ -30,12 +30,14 @@ export interface ForumPost {
 
 export interface Notification {
   id: string;
-  postId: string;
-  postTitle: string;
+  postId: string; // Can be post ID, expert ID, etc.
+  postTitle: string; // Can be post title, expert name, etc.
+  authorId: string;
   authorName: string;
   read: boolean;
-  type: 'new_post' | 'new_reply' | 'nudge';
-  recipientId: string;
+  type: 'new_post' | 'new_reply' | 'nudge' | 'meeting_request' | 'meeting_reply';
+  recipientId: string; // Can be a user ID or 'all_researchers'
+  originalRequest?: Notification; // Used for replies to link back
 }
 
 const samplePosts: ForumPost[] = [
@@ -78,6 +80,8 @@ interface ForumContextType {
   addReply: (postId: string, content: string) => void;
   sendNudgeNotification: (expert: Expert) => void;
   removeNudgeNotification: (expertId: string) => void;
+  sendMeetingRequest: (expert: Expert, fromUser: User, reason: string) => void;
+  addMeetingReply: (originalNotification: Notification, replyContent: string) => void;
   markNotificationsAsRead: () => void;
   unreadCount: number;
 }
@@ -136,6 +140,7 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
         id: `notif-${Date.now()}`,
         postId: newPost.id,
         postTitle: newPost.title,
+        authorId: user.id,
         authorName: newPost.author.name,
         read: false,
         type: 'new_post',
@@ -171,6 +176,7 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
                     id: `notif-${Date.now()}`,
                     postId: p.id,
                     postTitle: p.title,
+                    authorId: user.id,
                     authorName: user.name || 'Anonymous',
                     read: false,
                     type: 'new_reply',
@@ -196,6 +202,7 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
         id: `notif-${Date.now()}`,
         postId: expert.id, // Use expert ID as postId for nudges
         postTitle: expert.name, // Use expert name as title
+        authorId: user.id,
         authorName: user.name || 'Anonymous',
         read: false,
         type: 'nudge',
@@ -217,6 +224,42 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
         setAllNotifications(updatedNotifs);
         localStorage.setItem('cura-notifications', JSON.stringify(updatedNotifs));
     };
+    
+    const sendMeetingRequest = (expert: Expert, fromUser: User, reason: string) => {
+        const newNotification: Notification = {
+            id: `notif-${Date.now()}`,
+            postId: expert.id,
+            postTitle: expert.name, // Expert's name
+            authorId: fromUser.id,
+            authorName: fromUser.name,
+            read: false,
+            type: 'meeting_request',
+            recipientId: 'all_researchers',
+        };
+        const updatedNotifs = [newNotification, ...allNotifications];
+        setAllNotifications(updatedNotifs);
+        localStorage.setItem('cura-notifications', JSON.stringify(updatedNotifs));
+    };
+
+    const addMeetingReply = (originalNotification: Notification, replyContent: string) => {
+        if (!user) return;
+
+        const newReplyNotification: Notification = {
+            id: `notif-${Date.now()}`,
+            postId: originalNotification.postId, // ID of the expert
+            postTitle: originalNotification.postTitle, // Name of the expert
+            authorId: user.id,
+            authorName: user.name,
+            read: false,
+            type: 'meeting_reply',
+            recipientId: originalNotification.authorId, // The patient who made the request
+            originalRequest: originalNotification,
+        };
+        const updatedNotifs = [newReplyNotification, ...allNotifications];
+        setAllNotifications(updatedNotifs);
+        localStorage.setItem('cura-notifications', JSON.stringify(updatedNotifs));
+    };
+
 
   const markNotificationsAsRead = () => {
     if (!user || unreadCount === 0) return;
@@ -233,7 +276,7 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem('cura-notifications', JSON.stringify(updatedNotifications));
   }
 
-  const value = { posts, notifications, addPost, addReply, sendNudgeNotification, removeNudgeNotification, unreadCount, markNotificationsAsRead };
+  const value = { posts, notifications, addPost, addReply, sendNudgeNotification, removeNudgeNotification, sendMeetingRequest, addMeetingReply, unreadCount, markNotificationsAsRead };
 
   return (
     <ForumContext.Provider value={value}>

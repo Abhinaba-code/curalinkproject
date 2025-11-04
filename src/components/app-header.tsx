@@ -3,15 +3,75 @@
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { UserNav } from '@/components/user-nav';
 import { Input } from './ui/input';
-import { Search, Star, Bell, MessageSquare, CornerDownRight, Users } from 'lucide-react';
+import { Search, Star, Bell, MessageSquare, CornerDownRight, Users, Calendar, Send } from 'lucide-react';
 import { Logo } from './logo';
 import { Button } from './ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { useForum, type Notification } from '@/context/forum-provider';
 import Link from 'next/link';
 import { useAuth } from '@/context/auth-provider';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
+import { useState } from 'react';
+import { Label } from './ui/label';
+import { Textarea } from './ui/textarea';
+import { useToast } from '@/hooks/use-toast';
+
+function ReplyToMeetingRequestDialog({ notif, children }: { notif: Notification, children: React.ReactNode }) {
+    const { addMeetingReply } = useForum();
+    const { user } = useAuth();
+    const { toast } = useToast();
+    const [replyContent, setReplyContent] = useState('');
+    const [isOpen, setIsOpen] = useState(false);
+
+    const handleSendReply = () => {
+        if (!replyContent.trim() || !user) return;
+        addMeetingReply(notif, replyContent);
+        setReplyContent('');
+        setIsOpen(false);
+        toast({
+            title: "Reply Sent!",
+            description: `Your reply has been sent to ${notif.authorName}.`
+        });
+    };
+    
+    return (
+        <Dialog open={isOpen} onOpenChange={setIsOpen}>
+            <DialogTrigger asChild>{children}</DialogTrigger>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Reply to {notif.authorName}</DialogTitle>
+                    <DialogDescription>
+                        Replying to a meeting request regarding expert: {notif.postTitle}. 
+                        The patient will be notified of your response.
+                    </DialogDescription>
+                </DialogHeader>
+                <div className="py-4 space-y-4">
+                    <Label htmlFor="reply-content">Your Message</Label>
+                    <Textarea 
+                        id="reply-content"
+                        value={replyContent}
+                        onChange={(e) => setReplyContent(e.target.value)}
+                        placeholder="Write your response..."
+                        className="min-h-[120px]"
+                    />
+                </div>
+                <DialogFooter>
+                    <DialogClose asChild>
+                        <Button variant="outline">Cancel</Button>
+                    </DialogClose>
+                    <Button onClick={handleSendReply}>
+                        <Send className="mr-2 h-4 w-4" />
+                        Send Reply
+                    </Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
+    );
+}
+
 
 function NotificationItem({ notif }: { notif: Notification }) {
+    const { user } = useAuth();
     let Icon, text, subtext, link;
     
     switch (notif.type) {
@@ -33,17 +93,34 @@ function NotificationItem({ notif }: { notif: Notification }) {
             subtext = `Expert: ${notif.postTitle}`;
             link = '/dashboard/experts';
             break;
+        case 'meeting_request':
+            Icon = Calendar;
+            text = `Meeting request for ${notif.postTitle}`;
+            subtext = `From: ${notif.authorName}`;
+            link = '#'; // Handled by dialog
+            break;
+        case 'meeting_reply':
+            Icon = Calendar;
+            text = `Update on your meeting request`;
+            subtext = `From: ${notif.authorName} re: ${notif.postTitle}`;
+            link = '#'; // Informational
+            break;
         default:
             return null;
     }
 
+    const Wrapper = ({ children }: { children: React.ReactNode }) => {
+        if (notif.type === 'meeting_request' && user?.role === 'researcher') {
+            return <ReplyToMeetingRequestDialog notif={notif}>{children}</ReplyToMeetingRequestDialog>;
+        }
+        if (link === '#') {
+            return <div className="flex items-start gap-3 rounded-lg p-2 hover:bg-accent cursor-default">{children}</div>;
+        }
+        return <Link href={link} className="flex items-start gap-3 rounded-lg p-2 hover:bg-accent">{children}</Link>;
+    };
 
     return (
-        <Link
-            key={notif.id}
-            href={link}
-            className="flex items-start gap-3 rounded-lg p-2 hover:bg-accent"
-        >
+        <Wrapper>
             <div className="mt-1">
                 <Icon className="h-4 w-4 text-primary" />
             </div>
@@ -55,7 +132,7 @@ function NotificationItem({ notif }: { notif: Notification }) {
                     {subtext}
                 </p>
             </div>
-        </Link>
+        </Wrapper>
     );
 }
 
@@ -102,7 +179,7 @@ export function AppHeader() {
                 <div className="p-4">
                     <h4 className="font-medium leading-none">Notifications</h4>
                     <p className="text-sm text-muted-foreground">
-                        {user?.role === 'researcher' ? 'New posts from patients.' : 'Replies from researchers.'}
+                        Recent updates and interactions.
                     </p>
                 </div>
                 <div className="grid gap-2 p-2">

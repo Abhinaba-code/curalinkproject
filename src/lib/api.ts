@@ -9,7 +9,7 @@ const ORCID_API_BASE_URL = 'https://pub.orcid.org/v3.0';
 // A mapping from the API's status to the app's status
 const statusMapping: { [key: string]: ClinicalTrial['status'] } = {
   RECRUITING: 'Recruiting',
-  ACTIVE_NOT_RECRUITING: 'Active, not recruiting',
+  ACTIVE_NOT_RECRUITUITING: 'Active, not recruiting',
   COMPLETED: 'Completed',
 };
 
@@ -35,12 +35,15 @@ const formatTrial = (study: any): ClinicalTrial => {
 // Function to fetch and format clinical trials
 export async function searchClinicalTrials(
   query: string = 'cancer',
-  pageSize: number = 9
+  pageSize: number = 9,
+  geo?: { lat: string, lon: string, radius: string }
 ): Promise<ClinicalTrial[]> {
   try {
-    const response = await fetch(
-      `${CLINICAL_TRIALS_API_BASE_URL}/studies?query.cond=${query}&pageSize=${pageSize}&filter.overallStatus=RECRUITING`
-    );
+    let url = `${CLINICAL_TRIALS_API_BASE_URL}/studies?query.cond=${query}&pageSize=${pageSize}&filter.overallStatus=RECRUITING`;
+    if (geo) {
+        url += `&filter.geo=distance(${geo.lat},${geo.lon},${geo.radius}mi)`;
+    }
+    const response = await fetch(url);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }

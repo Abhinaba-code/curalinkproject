@@ -108,7 +108,7 @@ export default function SignupPage() {
               />
             </div>
             <Button type="submit" className="w-full font-bold">
-              Sign Up as a <span className="capitalize">{role}</span>
+              Sign Up as<span className="mr-1"> </span>a<span className="mr-1"> </span><span className="capitalize">{role}</span>
             </Button>
           </form>
         </CardContent>

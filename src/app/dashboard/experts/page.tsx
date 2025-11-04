@@ -62,14 +62,21 @@ export default function ExpertsPage() {
     const [currentQuery, setCurrentQuery] = useState('');
     
     useEffect(() => {
+        let isMounted = true;
         async function fetchData() {
             setLoading(true);
             const fetchedExperts = await searchExperts(currentQuery, 12);
-            setExperts(fetchedExperts);
-            setLoading(false);
+            if (isMounted) {
+                setExperts(fetchedExperts);
+                setLoading(false);
+            }
         }
 
         fetchData();
+
+        return () => {
+            isMounted = false;
+        };
     }, [currentQuery]);
 
     const handleSearch = async (e: React.FormEvent) => {

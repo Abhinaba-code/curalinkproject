@@ -35,7 +35,7 @@ const featureCards = [
 
 export default function Home() {
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col bg-background">
       <header className="container mx-auto flex h-20 items-center justify-between px-4">
         <Logo />
         <nav className="flex items-center gap-4">
@@ -48,8 +48,9 @@ export default function Home() {
         </nav>
       </header>
       <main className="flex-1">
-        <section className="relative overflow-hidden bg-gradient-to-b from-background to-teal-50/50 py-20 md:py-32">
-          <div className="container mx-auto px-4">
+        <section className="relative overflow-hidden py-20 md:py-32">
+          <div className="absolute inset-0 bg-gradient-to-b from-background via-blue-50/50 to-background"></div>
+           <div className="container mx-auto px-4">
             <div className="grid grid-cols-1 items-center gap-12 md:grid-cols-2">
               <div className="z-10 text-center md:text-left">
                 <h1 className="font-headline text-5xl font-bold tracking-tight md:text-7xl">
@@ -72,7 +73,7 @@ export default function Home() {
                 </div>
               </div>
               <div className="relative h-64 md:h-full">
-                <div className="absolute inset-0 grid grid-cols-3 grid-rows-3 gap-4">
+                <div className="absolute inset-0 grid grid-cols-3 grid-rows-3 gap-4 animate-fade-in">
                   <Dna className="h-10 w-10 animate-pulse text-primary/50" style={{ animationDelay: '0.1s' }} />
                   <Stethoscope className="h-12 w-12 animate-pulse text-accent/60" style={{ animationDelay: '0.3s' }} />
                   <HeartPulse className="h-14 w-14 animate-pulse text-primary/70" style={{ animationDelay: '0.5s' }} />
@@ -102,7 +103,7 @@ export default function Home() {
               {featureCards.map((feature, index) => (
                 <Card
                   key={index}
-                  className="transform-gpu bg-white/40 backdrop-blur-lg transition-all duration-300 ease-in-out hover:-translate-y-2 hover:shadow-2xl"
+                  className="transform-gpu transition-all duration-300 ease-in-out hover:-translate-y-2 hover:shadow-2xl"
                 >
                   <CardHeader className="items-center text-center">
                     <div className="rounded-full bg-primary/10 p-4">
@@ -137,7 +138,7 @@ export default function Home() {
           </div>
         </section>
       </main>
-      <footer className="bg-gray-800 text-white">
+      <footer className="bg-slate-900 text-slate-100">
         <div className="container mx-auto px-4 py-6 text-center">
           <p>&copy; {new Date().getFullYear()} CuraLink. All rights reserved.</p>
         </div>

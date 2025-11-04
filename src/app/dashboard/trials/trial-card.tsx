@@ -1,3 +1,4 @@
+
 'use client';
 
 import { summarizeClinicalTrial } from '@/ai/flows/ai-summarize-clinical-trials';
@@ -33,6 +34,22 @@ export default function TrialCard({ trial }: { trial: ClinicalTrial }) {
     }
   };
 
+  const copyLinkToClipboard = async () => {
+    try {
+        await navigator.clipboard.writeText(trial.url);
+        toast({
+          title: 'Link Copied!',
+          description: 'The trial link has been copied to your clipboard.',
+        });
+    } catch (error) {
+        toast({
+          variant: 'destructive',
+          title: 'Copy Failed',
+          description: 'Could not copy the link to your clipboard.',
+        });
+    }
+  }
+
   const handleShare = async () => {
     const shareData = {
       title: trial.title,
@@ -44,23 +61,12 @@ export default function TrialCard({ trial }: { trial: ClinicalTrial }) {
       try {
         await navigator.share(shareData);
       } catch (error) {
-        console.error('Error sharing:', error);
+        // If share fails, copy to clipboard
+        await copyLinkToClipboard();
       }
     } else {
-      try {
-        await navigator.clipboard.writeText(trial.url);
-        toast({
-          title: 'Link Copied!',
-          description: 'The trial link has been copied to your clipboard.',
-        });
-      } catch (error) {
-        console.error('Error copying to clipboard:', error);
-        toast({
-          variant: 'destructive',
-          title: 'Copy Failed',
-          description: 'Could not copy the link to your clipboard.',
-        });
-      }
+      // Fallback for browsers that don't support navigator.share
+      await copyLinkToClipboard();
     }
   };
   

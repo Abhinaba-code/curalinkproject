@@ -38,6 +38,22 @@ function PublicationCard({ pub }: { pub: Publication }) {
         }
     };
 
+    const copyLinkToClipboard = async () => {
+        try {
+            await navigator.clipboard.writeText(pub.url);
+            toast({
+              title: 'Link Copied!',
+              description: 'The publication link has been copied to your clipboard.',
+            });
+        } catch (error) {
+            toast({
+              variant: 'destructive',
+              title: 'Copy Failed',
+              description: 'Could not copy the link to your clipboard.',
+            });
+        }
+    }
+
     const handleShare = async () => {
         const shareData = {
           title: pub.title,
@@ -49,23 +65,12 @@ function PublicationCard({ pub }: { pub: Publication }) {
           try {
             await navigator.share(shareData);
           } catch (error) {
-            console.error('Error sharing:', error);
+            // If share fails, copy to clipboard
+            await copyLinkToClipboard();
           }
         } else {
-          try {
-            await navigator.clipboard.writeText(pub.url);
-            toast({
-              title: 'Link Copied!',
-              description: 'The publication link has been copied to your clipboard.',
-            });
-          } catch (error) {
-            console.error('Error copying to clipboard:', error);
-            toast({
-              variant: 'destructive',
-              title: 'Copy Failed',
-              description: 'Could not copy the link to your clipboard.',
-            });
-          }
+            // Fallback for browsers that don't support navigator.share
+            await copyLinkToClipboard();
         }
     };
 

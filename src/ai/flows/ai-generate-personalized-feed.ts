@@ -12,7 +12,7 @@ import { z } from 'genkit';
 import { googleAI } from '@genkit-ai/google-genai';
 
 const GeneratePersonalizedFeedInputSchema = z.object({
-  interests: z.array(z.string()).describe('A list of the user\'s medical conditions or research interests.'),
+  interests: z.array(z.string()).describe("A list of the user's medical conditions or research interests."),
 });
 export type GeneratePersonalizedFeedInput = z.infer<typeof GeneratePersonalizedFeedInputSchema>;
 

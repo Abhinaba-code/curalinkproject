@@ -17,13 +17,13 @@ const ChatHistorySchema = z.object({
 });
 
 const CuraLinkAssistantInputSchema = z.object({
-  question: z.string().describe('The user\'s question about CuraLink.'),
+  question: z.string().describe("The user's question about CuraLink."),
   history: z.array(ChatHistorySchema).optional().describe('The conversation history.'),
 });
 export type CuraLinkAssistantInput = z.infer<typeof CuraLinkAssistantInputSchema>;
 
 const CuraLinkAssistantOutputSchema = z.object({
-  answer: z.string().describe('The AI\'s answer to the user\'s question.'),
+  answer: z.string().describe("The AI's answer to the user's question."),
 });
 export type CuraLinkAssistantOutput = z.infer<typeof CuraLinkAssistantOutputSchema>;
 

@@ -69,7 +69,8 @@ export async function searchClinicalTrials(
 
 // A utility function to format a single publication from the API response
 const formatPublication = (articleData: any): Publication => {
-  const pmid = articleData.MedlineCitation.PMID;
+  const pmidNode = articleData.MedlineCitation.PMID;
+  const pmid = typeof pmidNode === 'object' ? pmidNode['#text'] : pmidNode;
   const article = articleData.MedlineCitation.Article;
 
   let abstract = 'No abstract available.';
@@ -86,13 +87,13 @@ const formatPublication = (articleData: any): Publication => {
   
   const doi = article.ELocationID?.find((id: any) => id.EIdType === 'doi')?.['#text'] || '';
 
-  const authors = article.AuthorList.Author;
+  const authors = article.AuthorList?.Author;
   const authorNames = Array.isArray(authors)
     ? authors.map(author => `${author.ForeName} ${author.LastName}`)
     : authors ? [`${authors.ForeName} ${authors.LastName}`] : [];
 
   return {
-    id: pmid,
+    id: pmid.toString(),
     title: article.ArticleTitle || 'No title available.',
     authors: authorNames,
     journal: article.Journal.Title || 'N/A',
@@ -156,7 +157,7 @@ export async function searchPublications(
       : [jsonData.PubmedArticleSet.PubmedArticle];
 
     // Step 3: Format the data
-    return articles.map(formatPublication);
+    return articles.map(formatPublication).filter(p => p.id);
   } catch (error) {
     console.error('Failed to fetch publications:', error);
     return []; // Return an empty array on error

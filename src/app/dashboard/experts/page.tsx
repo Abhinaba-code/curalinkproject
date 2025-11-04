@@ -70,7 +70,7 @@ export default function ExpertsPage() {
     const [experts, setExperts] = useState<Expert[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
-    const [currentQuery, setCurrentQuery] = useState('');
+    const [currentQuery, setCurrentQuery] = useState(''); // Initially empty, will be set in useEffect
     const [currentPage, setCurrentPage] = useState(1);
     const [totalResults, setTotalResults] = useState(0);
 
@@ -80,12 +80,30 @@ export default function ExpertsPage() {
         let isMounted = true;
         async function fetchData(query: string, page: number) {
             setLoading(true);
-            const { results, totalCount } = await searchExperts(query, page, PAGE_SIZE);
-            if (isMounted) {
-                setExperts(results);
-                setTotalResults(totalCount);
-                setLoading(false);
+            try {
+                const { results, totalCount } = await searchExperts(query, page, PAGE_SIZE);
+                if (isMounted) {
+                    setExperts(results);
+                    setTotalResults(totalCount);
+                }
+            } catch (error) {
+                console.error("Failed to fetch experts", error);
+                if(isMounted) {
+                    setExperts([]);
+                    setTotalResults(0);
+                }
             }
+            finally {
+                 if (isMounted) {
+                    setLoading(false);
+                }
+            }
+        }
+        
+        // On initial mount, if there's no query, set one to fetch initial data.
+        if (isMounted && !currentQuery) {
+            setCurrentQuery('Cardiology'); // Default category to show something on load
+            return;
         }
 
         fetchData(currentQuery, currentPage);

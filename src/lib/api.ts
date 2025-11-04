@@ -179,8 +179,9 @@ export async function searchExperts(
     return [];
   }
   try {
+    const formattedQuery = `keyword:${encodeURIComponent(query)}`;
     const response = await fetch(
-      `${ORCID_API_BASE_URL}/search?q=${encodeURIComponent(query)}&rows=${limit}`,
+      `${ORCID_API_BASE_URL}/search?q=${formattedQuery}&rows=${limit}`,
       { headers: { 'Accept': 'application/json' } }
     );
     if (!response.ok) {

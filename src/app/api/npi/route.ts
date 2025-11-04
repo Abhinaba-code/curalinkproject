@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 
 const NPI_REGISTRY_API_BASE_URL = 'https://npiregistry.cms.hhs.gov/api/';
+const MAX_RESULTS = 1200; // NPI API limit
 
 const formatNPIRecord = (record: any): any | null => {
     if (!record || !record.number) return null;
@@ -31,11 +32,19 @@ const formatNPIRecord = (record: any): any | null => {
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const query = searchParams.get('query');
-  const limit = searchParams.get('limit') || '12';
+  const page = parseInt(searchParams.get('page') || '1', 10);
+  const limit = parseInt(searchParams.get('limit') || '12', 10);
+  const skip = (page - 1) * limit;
+
+  // Prevent skipping beyond the API's limit
+  if (skip >= MAX_RESULTS) {
+    return NextResponse.json({ results: [], totalCount: 0 });
+  }
 
   const apiParams = new URLSearchParams({
     version: '2.1',
-    limit: limit,
+    limit: limit.toString(),
+    skip: skip.toString(),
   });
 
   if (query) {
@@ -53,15 +62,13 @@ export async function GET(request: Request) {
 
   try {
     const apiUrl = `${NPI_REGISTRY_API_BASE_URL}?${apiParams.toString()}`;
-    // The NPI API uses OR logic for most fields, so this will find matches in any of the specified fields.
-    // e.g., if query="Cardiology Boston", it might find cardiologists OR providers in Boston.
     const apiResponse = await fetch(apiUrl, { cache: 'no-store' });
 
     if (!apiResponse.ok) {
       const errorText = await apiResponse.text();
       // Gracefully handle "no results" which the API sometimes returns as an error
-      if (apiResponse.status === 404) {
-         return NextResponse.json({ results: [] });
+      if (apiResponse.status === 404 || errorText.includes("No results found")) {
+         return NextResponse.json({ results: [], totalCount: 0 });
       }
       return NextResponse.json({ error: `NPI API Error: ${errorText}` }, { status: apiResponse.status });
     }
@@ -69,14 +76,17 @@ export async function GET(request: Request) {
     const data = await apiResponse.json();
 
     if (data.result_count === 0 || !data.results) {
-        return NextResponse.json({ results: [] });
+        return NextResponse.json({ results: [], totalCount: 0 });
     }
 
     const formattedResults = data.results
       .map(formatNPIRecord)
       .filter((expert: any | null): expert is any => expert !== null);
+      
+    // The API returns the total count for the query, but caps it at MAX_RESULTS.
+    const totalCount = Math.min(data.result_count, MAX_RESULTS);
 
-    return NextResponse.json({ results: formattedResults });
+    return NextResponse.json({ results: formattedResults, totalCount });
   } catch (error) {
     console.error('Error in NPI proxy route:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });

@@ -104,9 +104,11 @@ export async function searchPublications(
 
 export async function searchExperts(
   query?: string,
-  pageSize: number = 12
-): Promise<Expert[]> {
+  page: number = 1,
+  pageSize: number = 12,
+): Promise<{results: Expert[], totalCount: number}> {
   const params = new URLSearchParams({
+    page: page.toString(),
     limit: pageSize.toString(),
   });
 
@@ -124,10 +126,10 @@ export async function searchExperts(
     }
 
     const data = await response.json();
-    return data.results;
+    return data;
 
   } catch (error) {
     console.error('Failed to fetch experts:', error);
-    return [];
+    return { results: [], totalCount: 0 };
   }
 }

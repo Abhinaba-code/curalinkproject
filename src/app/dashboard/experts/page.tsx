@@ -5,12 +5,13 @@ import type { Expert } from '@/lib/types';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Microscope, ExternalLink, Loader2, Search, Pin } from 'lucide-react';
+import { Microscope, ExternalLink, Loader2, Search, Pin, Star } from 'lucide-react';
 import { searchExperts } from '@/lib/api';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useFavorites } from '@/context/favorites-provider';
 import { Input } from '@/components/ui/input';
-import { Star } from 'lucide-react';
+
+const PAGE_SIZE = 12;
 
 function ExpertCard({ expert }: { expert: Expert }) {
     const { isFavorite, toggleFavorite } = useFavorites();
@@ -60,29 +61,41 @@ export default function ExpertsPage() {
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [currentQuery, setCurrentQuery] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalResults, setTotalResults] = useState(0);
+
+    const totalPages = Math.ceil(totalResults / PAGE_SIZE);
     
     useEffect(() => {
         let isMounted = true;
-        async function fetchData(query: string) {
+        async function fetchData(query: string, page: number) {
             setLoading(true);
-            const fetchedExperts = await searchExperts(query);
+            const { results, totalCount } = await searchExperts(query, page, PAGE_SIZE);
             if (isMounted) {
-                setExperts(fetchedExperts);
+                setExperts(results);
+                setTotalResults(totalCount);
                 setLoading(false);
             }
         }
 
-        fetchData(currentQuery);
+        fetchData(currentQuery, currentPage);
 
         return () => {
             isMounted = false;
         };
-    }, [currentQuery]);
+    }, [currentQuery, currentPage]);
 
     const handleSearch = async (e: React.FormEvent) => {
         e.preventDefault();
+        setCurrentPage(1); // Reset to first page on new search
         setCurrentQuery(searchTerm);
     };
+
+    const handlePageChange = (newPage: number) => {
+        if (newPage >= 1 && newPage <= totalPages) {
+            setCurrentPage(newPage);
+        }
+    }
 
     return (
         <div className="space-y-6">
@@ -104,7 +117,7 @@ export default function ExpertsPage() {
                         onChange={(e) => setSearchTerm(e.target.value)} 
                     />
                     <Button type="submit" disabled={loading}>
-                        {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Search className="mr-2 h-4 w-4" />}
+                        {loading && searchTerm === currentQuery ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Search className="mr-2 h-4 w-4" />}
                         Search
                     </Button>
                 </div>
@@ -131,11 +144,34 @@ export default function ExpertsPage() {
                     ))}
                 </div>
             ) : experts.length > 0 ? (
-                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                    {experts.map((expert) => (
-                        <ExpertCard key={expert.id} expert={expert} />
-                    ))}
-                </div>
+                <>
+                    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                        {experts.map((expert) => (
+                            <ExpertCard key={expert.id} expert={expert} />
+                        ))}
+                    </div>
+                    {totalPages > 1 && (
+                        <div className="flex items-center justify-center space-x-2 pt-4">
+                            <Button
+                                variant="outline"
+                                onClick={() => handlePageChange(currentPage - 1)}
+                                disabled={currentPage === 1}
+                            >
+                                Previous
+                            </Button>
+                            <span className="text-sm text-muted-foreground">
+                                Page {currentPage} of {totalPages}
+                            </span>
+                            <Button
+                                variant="outline"
+                                onClick={() => handlePageChange(currentPage + 1)}
+                                disabled={currentPage === totalPages}
+                            >
+                                Next
+                            </Button>
+                        </div>
+                    )}
+                </>
             ) : (
                  <Card className="flex items-center justify-center h-64 border-dashed col-span-full">
                     <div className="text-center">

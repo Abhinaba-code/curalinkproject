@@ -8,7 +8,6 @@ import {
   SheetDescription,
 } from '@/components/ui/sheet';
 import { useFavorites } from '@/context/favorites-provider';
-import { Button } from './ui/button';
 import {
   FlaskConical,
   FileText,
@@ -18,7 +17,6 @@ import {
   X,
 } from 'lucide-react';
 import { ScrollArea } from './ui/scroll-area';
-import { Badge } from './ui/badge';
 import Link from 'next/link';
 
 export function FavoritesSidebar() {
@@ -33,15 +31,25 @@ export function FavoritesSidebar() {
     return (
       <div
         key={item.id}
-        className="group relative rounded-lg border p-3 text-sm"
+        className="group relative rounded-lg border p-3 text-sm transition-colors hover:bg-muted/50"
       >
         <button
           onClick={() => toggleFavorite(item, type)}
-          className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity"
+          aria-label={`Remove ${item.title || item.name} from favorites`}
+          className="absolute top-1 right-1 z-10 p-1 text-muted-foreground opacity-0 transition-opacity hover:text-foreground group-hover:opacity-100"
         >
           <X className="h-4 w-4" />
         </button>
-        <p className="font-semibold truncate pr-4">{item.title || item.name}</p>
+        
+        <Link
+            href={item.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-semibold truncate pr-4 block hover:underline"
+        >
+            {item.title || item.name}
+        </Link>
+        
         {type === 'trial' && (
           <p className="text-xs text-muted-foreground">{item.id}</p>
         )}

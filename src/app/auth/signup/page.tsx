@@ -120,7 +120,7 @@ export default function SignupPage() {
             </Link>
           </p>
           <div className="text-center text-sm">
-            <Link href={`/auth/signup?role=${otherRole}`} className="text-muted-foreground hover:text-primary transition-colors">
+            <Link href={`/auth/signup?role=${otherRole}`} className="text-primary hover:underline transition-colors">
               Are you a {otherRole}? Sign up as a <span className="capitalize font-semibold">{otherRole}</span>
             </Link>
           </div>

@@ -12,10 +12,13 @@ import { useFavorites } from '@/context/favorites-provider';
 import { useFollow } from '@/context/follow-provider';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import TrialCard from '../trials/trial-card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useForum } from '@/context/forum-provider';
+import { useAuth } from '@/context/auth-provider';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 
 
 const PAGE_SIZE = 12;
@@ -29,6 +32,86 @@ const CATEGORIES = [
     "Orthopedics",
     "Radiology",
 ];
+
+function RequestMeetingDialog({ expert, children }: { expert: Expert, children: React.ReactNode }) {
+    const { user } = useAuth();
+    const { toast } = useToast();
+    const [name, setName] = useState(user?.name || '');
+    const [email, setEmail] = useState(user?.email || '');
+    const [reason, setReason] = useState('');
+    const [isOpen, setIsOpen] = useState(false);
+
+    const handleSendRequest = () => {
+        // In a real app, this would trigger an API call.
+        // Here, we just show a toast notification.
+        toast({
+            title: "Meeting Request Sent!",
+            description: `Your request for a meeting with ${expert.name} has been sent.`,
+        });
+        setIsOpen(false); // Close the dialog
+        // Reset form
+        setReason('');
+    };
+
+    return (
+        <Dialog open={isOpen} onOpenChange={setIsOpen}>
+            <DialogTrigger asChild>{children}</DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                    <DialogTitle>Request a Meeting with {expert.name}</DialogTitle>
+                    <DialogDescription>
+                        Please provide your details below. Your request will be sent to the researcher.
+                    </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="name" className="text-right">
+                            Your Name
+                        </Label>
+                        <Input
+                            id="name"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            className="col-span-3"
+                            required
+                        />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="email" className="text-right">
+                            Your Email
+                        </Label>
+                        <Input
+                            id="email"
+                            type="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            className="col-span-3"
+                            required
+                        />
+                    </div>
+                    <div className="grid grid-cols-4 items-start gap-4">
+                        <Label htmlFor="reason" className="text-right pt-2">
+                           Reason for Meeting (Optional)
+                        </Label>
+                        <Textarea
+                            id="reason"
+                            value={reason}
+                            onChange={(e) => setReason(e.target.value)}
+                            className="col-span-3 min-h-[100px]"
+                            placeholder="Briefly explain why you'd like to connect..."
+                        />
+                    </div>
+                </div>
+                <DialogFooter>
+                    <DialogClose asChild>
+                        <Button type="button" variant="outline">Cancel</Button>
+                    </DialogClose>
+                    <Button type="submit" onClick={handleSendRequest}>Send Request</Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
+    );
+}
 
 function ExpertProfileDialog({ expert, children }: { expert: Expert, children: React.ReactNode }) {
     const initials = expert.name ? expert.name.split(' ').map(n => n[0]).join('') : '??';
@@ -102,13 +185,6 @@ function ExpertCard({ expert }: { expert: Expert }) {
         setNudged(!nudged);
     };
 
-    const handleRequestMeeting = () => {
-        toast({
-            title: "Meeting Request Sent!",
-            description: `Your request for a meeting with ${expert.name} has been sent.`,
-        });
-    };
-
     return (
         <Card className="flex flex-col">
             <CardHeader>
@@ -156,10 +232,12 @@ function ExpertCard({ expert }: { expert: Expert }) {
                         {nudged ? <Check className="mr-2 h-4 w-4" /> : <Bell className="mr-2 h-4 w-4" />}
                         {nudged ? 'Nudged' : 'Nudge to Join'}
                     </Button>
-                    <Button variant="outline" size="sm" onClick={handleRequestMeeting}>
-                        <Calendar className="mr-2 h-4 w-4" />
-                        Request Meeting
-                    </Button>
+                    <RequestMeetingDialog expert={expert}>
+                        <Button variant="outline" size="sm">
+                            <Calendar className="mr-2 h-4 w-4" />
+                            Request Meeting
+                        </Button>
+                    </RequestMeetingDialog>
                 </div>
             </CardFooter>
         </Card>
@@ -381,3 +459,5 @@ export default function ExpertsPage() {
         </div>
     );
 }
+
+    

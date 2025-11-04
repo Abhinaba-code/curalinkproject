@@ -133,9 +133,9 @@ const formatExpertFromOrcid = (person: any): Expert => {
   const name = `${givenName} ${familyName}`.trim();
 
   // Simulated data for richer profiles, as the basic search doesn't provide these.
-  const specialties = ['Oncology', 'Immunology', 'Genetics'];
-  const researchAreas = ['Cancer Research', 'T-cell therapy', 'Clinical Trials'];
-  const institutions = ['Memorial Sloan Kettering', 'Stanford University', 'MIT'];
+  const specialties = ['Oncology', 'Immunology', 'Genetics', 'Neurology', 'Cardiology'];
+  const researchAreas = ['Cancer Research', 'T-cell therapy', 'Glioma', 'Brain Cancer'];
+  const institutions = ['Memorial Sloan Kettering', 'Stanford University', 'MIT', 'Harvard Medical School'];
 
   return {
     id: orcid,

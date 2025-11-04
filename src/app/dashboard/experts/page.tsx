@@ -84,7 +84,7 @@ export default function ExpertsPage() {
 
     const handleSearch = async (e: React.FormEvent) => {
         e.preventDefault();
-        setSubmittedQuery(query || 'Cardiology');
+        setSubmittedQuery(query);
     };
     
     const handleCategoryClick = (category: string) => {

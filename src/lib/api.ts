@@ -1,4 +1,3 @@
-
 import { ClinicalTrial, Publication, Expert } from './types';
 import { XMLParser } from 'fast-xml-parser';
 
@@ -27,7 +26,7 @@ const formatTrial = (study: any): ClinicalTrial => {
     phase: protocol.designModule.phases?.join(', ') || 'N/A',
     eligibility: eligibility.eligibilityCriteria || 'No eligibility criteria available.',
     location: protocol.contactsLocationsModule.locations?.[0]?.city || 'N/A',
-    contact: protocol.contactsLocationsModule.centralContacts?.[0]?.name || 'N/A',
+    contact: protocol.contactsLocationsModule.centralContacts?.[0?.name || 'N/A',
     tags: protocol.conditionsModule.conditions || [],
     url: `https://clinicaltrials.gov/study/${nctId}`,
   };
@@ -160,5 +159,109 @@ export async function searchPublications(
   } catch (error) {
     console.error('Failed to fetch publications:', error);
     return []; // Return an empty array on error
+  }
+}
+
+const formatExpert = (author: any, pmid: string): Expert | null => {
+  if (!author.LastName || !author.ForeName || !author.AffiliationInfo?.Affiliation) {
+    return null;
+  }
+  const name = `${author.ForeName} ${author.LastName}`;
+  const affiliation = author.AffiliationInfo.Affiliation;
+
+  return {
+    id: `${name}-${affiliation}`,
+    name: name,
+    affiliation: affiliation,
+    publicationCount: 1, // Start with 1, will be aggregated
+    latestPublicationId: pmid,
+    url: `https://pubmed.ncbi.nlm.nih.gov/?term=${encodeURIComponent(`"${name}"[Author] AND "${affiliation}"[Affiliation]`)}`,
+    avatarUrl: `https://picsum.photos/seed/${name}/200/200`,
+  };
+};
+
+export async function searchExperts(
+    name: string,
+    researchField: string,
+    location: string,
+    pageSize: number = 20
+): Promise<Expert[]> {
+  const queryParts = [];
+  if (name) {
+    queryParts.push(`${name}[Author]`);
+  }
+  if (researchField) {
+    queryParts.push(researchField);
+  }
+  if (location) {
+    queryParts.push(`${location}[Affiliation]`);
+  }
+
+  const query = queryParts.join(' AND ');
+  if (!query) return [];
+
+  try {
+    const searchResponse = await fetch(
+      `${PUBMED_API_BASE_URL}/esearch.fcgi?db=pubmed&term=${encodeURIComponent(query)}&retmax=${pageSize}&retmode=json`
+    );
+
+    if (!searchResponse.ok) {
+      throw new Error(`PubMed search API error! status: ${searchResponse.status}`);
+    }
+    const searchData = await searchResponse.json();
+    
+    const ids = searchData.esearchresult?.idlist;
+    if (!ids || ids.length === 0) {
+      return [];
+    }
+    
+    const fetchResponse = await fetch(
+      `${PUBMED_API_BASE_URL}/efetch.fcgi?db=pubmed&id=${ids.join(',')}&retmode=xml`
+    );
+
+    if (!fetchResponse.ok) {
+      throw new Error(`PubMed fetch API error! status: ${fetchResponse.status}`);
+    }
+    const xmlData = await fetchResponse.text();
+
+    const parser = new XMLParser({
+      ignoreAttributes: false,
+      attributeNamePrefix: '',
+      textNodeName: '#text',
+      parseAttributeValue: true,
+      isArray: (name) => ['Author', 'AffiliationInfo'].includes(name),
+    });
+    const jsonData = parser.parse(xmlData);
+
+    const articles = Array.isArray(jsonData.PubmedArticleSet.PubmedArticle)
+      ? jsonData.PubmedArticleSet.PubmedArticle
+      : [jsonData.PubmedArticleSet.PubmedArticle];
+
+    const expertsMap = new Map<string, Expert>();
+
+    articles.forEach(article => {
+      const pmid = article.MedlineCitation.PMID;
+      const authors = article.MedlineCitation.Article.AuthorList.Author;
+
+      if (Array.isArray(authors)) {
+        authors.forEach(author => {
+          const expert = formatExpert(author, pmid);
+          if (expert) {
+            if (expertsMap.has(expert.id)) {
+              const existing = expertsMap.get(expert.id)!;
+              existing.publicationCount += 1;
+              expertsMap.set(expert.id, existing);
+            } else {
+              expertsMap.set(expert.id, expert);
+            }
+          }
+        });
+      }
+    });
+
+    return Array.from(expertsMap.values());
+  } catch (error) {
+    console.error('Failed to fetch experts:', error);
+    return [];
   }
 }

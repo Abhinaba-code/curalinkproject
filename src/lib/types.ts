@@ -31,13 +31,11 @@ export type Publication = {
 };
 
 export type Expert = {
-  id: string;
+  id: string; // Using name + affiliation as a unique ID
   name: string;
-  specialties: string[];
-  institution: string;
+  affiliation: string;
   publicationCount: number;
-  avatarUrl: string;
-  researchAreas: string[];
-  clinicalTrialCount: number;
+  latestPublicationId: string;
   url: string;
+  avatarUrl: string;
 };

@@ -88,10 +88,11 @@ function PersonalizedFeed() {
           <div>
             <h4 className="font-semibold">{item.title}</h4>
             <p className="text-sm text-muted-foreground">{item.summary}</p>
-            <Link href={item.link} passHref legacyBehavior>
-                <a className="text-sm font-medium text-primary hover:underline flex items-center gap-1 mt-2">
-                    Learn More <ExternalLink className="h-3 w-3" />
-                </a>
+            <Link
+              href={item.link}
+              className="text-sm font-medium text-primary hover:underline flex items-center gap-1 mt-2"
+            >
+              Learn More <ExternalLink className="h-3 w-3" />
             </Link>
           </div>
         </div>

@@ -53,15 +53,14 @@ export function FavoritesSidebar() {
         {type === 'expert' && (
           <p className="text-xs text-muted-foreground">{item.specialty}</p>
         )}
-        <Link href={item.url} passHref legacyBehavior>
-          <a
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-xs text-primary hover:underline flex items-center gap-1 mt-1"
-          >
-            <ExternalLink className="h-3 w-3" />
-            View Source
-          </a>
+        <Link
+          href={item.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-xs text-primary hover:underline flex items-center gap-1 mt-1"
+        >
+          <ExternalLink className="h-3 w-3" />
+          View Source
         </Link>
       </div>
     );

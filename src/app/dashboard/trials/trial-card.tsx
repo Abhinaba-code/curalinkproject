@@ -34,9 +34,9 @@ export default function TrialCard({ trial }: { trial: ClinicalTrial }) {
     <>
       <Card className="flex flex-col">
         <CardHeader>
-          <div className="flex items-start justify-between">
+          <div className="flex items-start justify-between gap-4">
             <CardTitle className="text-lg font-bold leading-tight">{trial.title}</CardTitle>
-            <Badge variant="outline" className="shrink-0 ml-4">
+            <Badge variant="outline" className="shrink-0">
               <span className={`w-2 h-2 rounded-full ${statusColor} mr-2`}></span>
               {trial.status}
             </Badge>
@@ -46,7 +46,7 @@ export default function TrialCard({ trial }: { trial: ClinicalTrial }) {
         <CardContent className="flex-grow">
           <p className="text-sm text-muted-foreground line-clamp-3">{trial.description}</p>
           <div className="mt-4 flex flex-wrap gap-2">
-            {trial.tags.map(tag => (
+            {trial.tags.slice(0,3).map(tag => (
               <Badge key={tag} variant="secondary">{tag}</Badge>
             ))}
           </div>

@@ -10,7 +10,7 @@ export type ClinicalTrial = {
   id: string;
   title: string;
   description: string;
-  status: 'Recruiting' | 'Completed' | 'Active, not recruiting';
+  status: string;
   phase: string;
   eligibility: string;
   location: string;

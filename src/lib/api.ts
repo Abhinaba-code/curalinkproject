@@ -79,6 +79,13 @@ export async function searchPublications(
       throw new Error(`HTTP error! status: ${searchResponse.status}`);
     }
     const searchData = await searchResponse.json();
+    
+    // The API can return a response without a `result` field.
+    if (!searchData.result) {
+        console.error('PubMed API returned no result for query:', query, searchData);
+        return [];
+    }
+
     const ids = searchData.result.idlist;
 
     if (!ids || ids.length === 0) {

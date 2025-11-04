@@ -107,7 +107,7 @@ export default function ExpertsPage() {
         <div className="space-y-6">
             <div>
                 <h1 className="font-headline text-3xl font-bold">
-                    Connect with Experts
+                    Connect with Health Experts
                 </h1>
                 <p className="text-muted-foreground">
                     Find healthcare providers in the US via the NPI Registry.

@@ -76,7 +76,7 @@ export function FavoritesSidebar() {
             Your Favorites
           </SheetTitle>
           <SheetDescription>
-            Your saved trials, publications, and experts.
+            Your saved trials, publications, and health experts.
           </SheetDescription>
         </SheetHeader>
         <ScrollArea className="flex-1 -mx-6 px-6">
@@ -114,7 +114,7 @@ export function FavoritesSidebar() {
                 <section>
                   <h3 className="font-semibold text-lg flex items-center gap-2 mb-2">
                     <Users className="h-5 w-5" />
-                    Experts
+                    Health Experts
                   </h3>
                   <div className="space-y-2">{experts.map(renderItem)}</div>
                 </section>

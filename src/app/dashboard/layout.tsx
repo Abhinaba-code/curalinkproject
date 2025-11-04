@@ -31,7 +31,7 @@ const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/dashboard/trials', label: 'Clinical Trials', icon: FlaskConical },
   { href: '/dashboard/publications', label: 'Publications', icon: FileText },
-  { href: '/dashboard/experts', label: 'Experts', icon: Users },
+  { href: '/dashboard/experts', label: 'Health Experts', icon: Users },
   { href: '/dashboard/forums', label: 'Forums', icon: HeartPulse },
 ];
 

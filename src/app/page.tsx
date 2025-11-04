@@ -27,7 +27,7 @@ const featureCards = [
   },
   {
     icon: <Users className="h-8 w-8 text-primary" />,
-    title: 'Expert Connections',
+    title: 'Health Expert Connections',
     description:
       'Connect with leading health experts and researchers in your field of interest.',
   },

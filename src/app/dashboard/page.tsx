@@ -45,7 +45,7 @@ export default function DashboardPage() {
           <CardContent className="flex flex-col gap-2">
             <Button variant="outline"><FlaskConical className="mr-2 h-4 w-4" />Find Clinical Trials</Button>
             <Button variant="outline"><FileText className="mr-2 h-4 w-4" />Browse Publications</Button>
-            <Button variant="outline"><Users className="mr-2 h-4 w-4" />Discover Experts</Button>
+            <Button variant="outline"><Users className="mr-2 h-4 w-4" />Discover Health Experts</Button>
           </CardContent>
         </Card>
 

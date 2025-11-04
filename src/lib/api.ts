@@ -4,6 +4,8 @@ import { XMLParser } from 'fast-xml-parser';
 
 const CLINICAL_TRIALS_API_BASE_URL = 'https://clinicaltrials.gov/api/v2';
 const PUBMED_API_BASE_URL = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils';
+const ORCID_API_BASE_URL = 'https://pub.orcid.org/v3.0';
+
 
 // A mapping from the API's status to the app's status
 const statusMapping: { [key: string]: ClinicalTrial['status'] } = {
@@ -163,115 +165,75 @@ export async function searchPublications(
   }
 }
 
-const formatExpert = (author: any, pmid: string): Expert | null => {
-  if (!author.LastName || !author.ForeName || !author.AffiliationInfo?.Affiliation) {
-    return null;
-  }
-  const name = `${author.ForeName} ${author.LastName}`;
-  // Sometimes affiliation is an array, sometimes not. Let's handle both.
-  const affiliation = Array.isArray(author.AffiliationInfo.Affiliation)
-    ? author.AffiliationInfo.Affiliation[0]
-    : author.AffiliationInfo.Affiliation;
 
-  if (!affiliation) return null;
+const formatExpertFromOrcid = (result: any): Expert | null => {
+  const orcidId = result['orcid-id'];
+  if (!orcidId) return null;
 
+  const name = result['given-names'] && result['family-name'] ? `${result['given-names']} ${result['family-name']}` : 'Name not available';
+  const affiliation = result['institution-name'] ? (Array.isArray(result['institution-name']) ? result['institution-name'][0] : result['institution-name']) : null;
+  
   return {
-    id: `${name}-${affiliation}`,
-    name: name,
-    affiliation: affiliation,
-    publicationCount: 1, // Start with 1, will be aggregated
-    latestPublicationId: pmid,
-    url: `https://pubmed.ncbi.nlm.nih.gov/?term=${encodeURIComponent(`"${name}"[Author] AND "${affiliation}"[Affiliation]`)}`,
-    avatarUrl: `https://picsum.photos/seed/${name}/200/200`,
+      id: orcidId,
+      name: name,
+      affiliation: affiliation,
+      url: `https://orcid.org/${orcidId}`,
+      avatarUrl: `https://picsum.photos/seed/${orcidId}/200/200`,
   };
 };
 
 export async function searchExperts(
-    name: string,
-    researchField: string,
-    location: string,
-    pageSize: number = 20
+  name: string,
+  researchField: string,
+  location: string, // This will be treated as affiliation
+  pageSize: number = 12
 ): Promise<Expert[]> {
   const queryParts = [];
   if (name) {
-    queryParts.push(`${name}[Author]`);
+      // Basic name parsing, works for "First Last"
+      const nameParts = name.split(' ');
+      if (nameParts.length > 1) {
+          queryParts.push(`(given-names:${nameParts[0]} AND family-name:${nameParts.slice(1).join(' ')})`);
+      } else {
+          queryParts.push(`(given-names:${name} OR family-name:${name})`);
+      }
   }
   if (researchField) {
-    queryParts.push(researchField);
+      queryParts.push(`keyword:${researchField}`);
   }
   if (location) {
-    queryParts.push(`${location}[Affiliation]`);
+      queryParts.push(`affiliation-org-name:"${location}"`);
   }
 
-  const query = queryParts.join(' AND ');
+  const query = queryParts.join(' OR ');
   if (!query) return [];
 
   try {
-    const searchResponse = await fetch(
-      `${PUBMED_API_BASE_URL}/esearch.fcgi?db=pubmed&term=${encodeURIComponent(query)}&retmax=${pageSize}&retmode=json`
-    );
-
-    if (!searchResponse.ok) {
-      throw new Error(`PubMed search API error! status: ${searchResponse.status}`);
-    }
-    const searchData = await searchResponse.json();
-    
-    const ids = searchData.esearchresult?.idlist;
-    if (!ids || ids.length === 0) {
-      return [];
-    }
-    
-    const fetchResponse = await fetch(
-      `${PUBMED_API_BASE_URL}/efetch.fcgi?db=pubmed&id=${ids.join(',')}&retmode=xml`
-    );
-
-    if (!fetchResponse.ok) {
-      throw new Error(`PubMed fetch API error! status: ${fetchResponse.status}`);
-    }
-    const xmlData = await fetchResponse.text();
-
-    const parser = new XMLParser({
-      ignoreAttributes: false,
-      attributeNamePrefix: '',
-      textNodeName: '#text',
-      parseAttributeValue: true,
-      isArray: (name) => ['Author', 'AffiliationInfo'].includes(name),
-    });
-    const jsonData = parser.parse(xmlData);
-
-    const articles = jsonData.PubmedArticleSet?.PubmedArticle
-      ? Array.isArray(jsonData.PubmedArticleSet.PubmedArticle)
-        ? jsonData.PubmedArticleSet.PubmedArticle
-        : [jsonData.PubmedArticleSet.PubmedArticle]
-      : [];
-
-    const expertsMap = new Map<string, Expert>();
-
-    articles.forEach(article => {
-      const pmid = article.MedlineCitation.PMID;
-      const authorList = article.MedlineCitation.Article?.AuthorList;
-      
-      if (!authorList || !authorList.Author) return;
-
-      const authors = Array.isArray(authorList.Author) ? authorList.Author : [authorList.Author];
-
-      authors.forEach(author => {
-        const expert = formatExpert(author, pmid);
-        if (expert) {
-          if (expertsMap.has(expert.id)) {
-            const existing = expertsMap.get(expert.id)!;
-            existing.publicationCount += 1;
-            expertsMap.set(expert.id, existing);
-          } else {
-            expertsMap.set(expert.id, expert);
-          }
-        }
+      const url = `${ORCID_API_BASE_URL}/search?q=${encodeURIComponent(query)}&rows=${pageSize}`;
+      const response = await fetch(url, {
+          headers: {
+              'Accept': 'application/json',
+          },
       });
-    });
 
-    return Array.from(expertsMap.values());
+      if (!response.ok) {
+          throw new Error(`ORCID API error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      if (!data['result'] || data['result'].length === 0) {
+          return [];
+      }
+
+      const experts: Expert[] = data.result
+        .map((res: any) => formatExpertFromOrcid(res))
+        .filter((expert: Expert | null): expert is Expert => expert !== null);
+      
+      return experts;
+
   } catch (error) {
-    console.error('Failed to fetch experts:', error);
-    return [];
+      console.error('Failed to fetch experts from ORCID:', error);
+      return [];
   }
 }

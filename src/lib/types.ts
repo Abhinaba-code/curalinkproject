@@ -31,11 +31,9 @@ export type Publication = {
 };
 
 export type Expert = {
-  id: string; // Using name + affiliation as a unique ID
+  id: string; // ORCID iD
   name: string;
-  affiliation: string;
-  publicationCount: number;
-  latestPublicationId: string;
+  affiliation: string | null;
   url: string;
   avatarUrl: string;
 };

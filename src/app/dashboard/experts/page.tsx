@@ -6,12 +6,12 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Building, ExternalLink, Loader2, Microscope, Search, BookCheck } from 'lucide-react';
+import { Building, ExternalLink, Loader2, Microscope, Search } from 'lucide-react';
 import { searchExperts } from '@/lib/api';
 import { Skeleton } from '@/components/ui/skeleton';
 
 function ExpertCard({ expert }: { expert: Expert }) {
-    const initials = expert.name.split(' ').map(n => n[0]).join('');
+    const initials = expert.name ? expert.name.split(' ').map(n => n[0]).join('') : '??';
 
     return (
         <Card>
@@ -21,24 +21,23 @@ function ExpertCard({ expert }: { expert: Expert }) {
                     <AvatarFallback>{initials}</AvatarFallback>
                 </Avatar>
                 <div>
-                    <CardTitle>{expert.name}</CardTitle>
-                    <CardDescription className="flex items-center gap-2 mt-1">
-                        <Building className="h-4 w-4" />
-                        {expert.affiliation}
-                    </CardDescription>
+                    <CardTitle>{expert.name || 'Name not available'}</CardTitle>
+                    {expert.affiliation && (
+                         <CardDescription className="flex items-center gap-2 mt-1">
+                            <Building className="h-4 w-4" />
+                            {expert.affiliation}
+                        </CardDescription>
+                    )}
                 </div>
             </CardHeader>
             <CardContent>
-                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <BookCheck className="h-4 w-4" />
-                    <span>{expert.publicationCount} publication{expert.publicationCount > 1 ? 's' : ''}</span>
-                 </div>
+                 <p className="text-sm text-muted-foreground">ORCID: {expert.id}</p>
             </CardContent>
             <CardFooter>
                 <Button variant="outline" asChild size="sm">
                     <a href={expert.url} target="_blank" rel="noopener noreferrer">
                         <ExternalLink className="mr-2 h-4 w-4" />
-                        View Publications
+                        View on ORCID
                     </a>
                 </Button>
             </CardFooter>
@@ -50,7 +49,7 @@ export default function ExpertsPage() {
     const [experts, setExperts] = useState<Expert[]>([]);
     const [loading, setLoading] = useState(false);
     const [name, setName] = useState('');
-    const [researchField, setResearchField] = useState('');
+    const [researchField, setResearchField] = useState('cancer');
     const [location, setLocation] = useState('');
 
     const [submittedQuery, setSubmittedQuery] = useState({ name: '', researchField: 'cancer', location: '' });
@@ -85,7 +84,7 @@ export default function ExpertsPage() {
                     Connect with Experts
                 </h1>
                 <p className="text-muted-foreground">
-                    Find collaborators and specialists in your field.
+                    Find collaborators and specialists in your field via ORCID.
                 </p>
             </div>
 
@@ -98,12 +97,12 @@ export default function ExpertsPage() {
                                 <Input id="name" placeholder="e.g. John Doe" value={name} onChange={(e) => setName(e.target.value)} />
                             </div>
                              <div>
-                                <label htmlFor="research" className="text-sm font-medium text-muted-foreground">Research Field</label>
+                                <label htmlFor="research" className="text-sm font-medium text-muted-foreground">Research Field / Keyword</label>
                                 <Input id="research" placeholder="e.g. immunology" value={researchField} onChange={(e) => setResearchField(e.target.value)} />
                             </div>
                              <div>
-                                <label htmlFor="location" className="text-sm font-medium text-muted-foreground">Location / Affiliation</label>
-                                <Input id="location" placeholder="e.g. Boston, MA" value={location} onChange={(e) => setLocation(e.target.value)} />
+                                <label htmlFor="location" className="text-sm font-medium text-muted-foreground">Affiliation / Institution</label>
+                                <Input id="location" placeholder="e.g. Boston University" value={location} onChange={(e) => setLocation(e.target.value)} />
                             </div>
                         </div>
                         <Button type="submit" className="w-full sm:w-auto" disabled={loading}>
@@ -152,7 +151,7 @@ export default function ExpertsPage() {
                     <div className="text-center">
                          <Microscope className="mx-auto h-12 w-12 text-muted-foreground" />
                         <p className="mt-4 text-lg font-medium">Search for Experts</p>
-                        <p className="text-sm text-muted-foreground">Use the filters above to find researchers.</p>
+                        <p className="text-sm text-muted-foreground">Use the filters above to find researchers on ORCID.</p>
                     </div>
                 </Card>
             )}

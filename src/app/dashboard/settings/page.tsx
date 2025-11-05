@@ -239,10 +239,12 @@ function ThemeSelector() {
     { name: 'dark', colors: ['#334155', '#60a5fa', '#f472b6'] },
     { name: 'ocean', colors: ['#cbd5e1', '#38bdf8', '#34d399'] },
     { name: 'sunset', colors: ['#94a3b8', '#f97316', '#d946ef'] },
+    { name: 'forest', colors: ['#a3b894', '#4d7c0f', '#84cc16'] },
+    { name: 'rose', colors: ['#fecdd3', '#f43f5e', '#fb7185'] },
   ];
 
   return (
-    <div className="grid grid-cols-2 gap-4">
+    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
       {themes.map((t) => (
         <button
           key={t.name}
@@ -277,7 +279,7 @@ function ThemeSelector() {
 
 export default function SettingsPage() {
   return (
-    <div className="space-y-8 animate-fade-in">
+    <div className="space-y-8 animation-fade-in">
       <div>
         <h1 className="font-headline text-3xl font-bold">Settings</h1>
         <p className="text-muted-foreground">

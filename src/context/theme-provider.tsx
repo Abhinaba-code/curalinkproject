@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
-type Theme = 'light' | 'dark' | 'ocean' | 'sunset';
+type Theme = 'light' | 'dark' | 'ocean' | 'sunset' | 'forest' | 'rose';
 
 interface ThemeProviderState {
   theme: Theme;
@@ -30,7 +30,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   
   useEffect(() => {
     const root = window.document.documentElement;
-    root.classList.remove('light', 'dark', 'ocean', 'sunset');
+    root.classList.remove('light', 'dark', 'ocean', 'sunset', 'forest', 'rose');
     
     if (theme === 'dark') {
       root.classList.add('dark');

@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -241,10 +242,14 @@ function ThemeSelector() {
     { name: 'sunset', colors: ['#fde68a', '#f97316', '#d946ef'] },
     { name: 'forest', colors: ['#dcfce7', '#4d7c0f', '#84cc16'] },
     { name: 'rose', colors: ['#fecdd3', '#f43f5e', '#fb7185'] },
+    { name: 'mint', colors: ['#d1fae5', '#10b981', '#6ee7b7'] },
+    { name: 'indigo', colors: ['#3730a3', '#818cf8', '#a78bfa'] },
+    { name: 'gold', colors: ['#fef3c7', '#f59e0b', '#fbbf24'] },
+    { name: 'slate', colors: ['#334155', '#64748b', '#94a3b8'] },
   ];
 
   return (
-    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
       {themes.map((t) => (
         <button
           key={t.name}
@@ -380,3 +385,5 @@ export default function SettingsPage() {
     </div>
   );
 }
+
+    

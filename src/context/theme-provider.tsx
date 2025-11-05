@@ -1,8 +1,9 @@
+
 'use client';
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
-type Theme = 'light' | 'dark' | 'ocean' | 'sunset' | 'forest' | 'rose';
+type Theme = 'light' | 'dark' | 'ocean' | 'sunset' | 'forest' | 'rose' | 'mint' | 'indigo' | 'gold' | 'slate';
 
 interface ThemeProviderState {
   theme: Theme;
@@ -30,13 +31,13 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   
   useEffect(() => {
     const root = window.document.documentElement;
-    root.classList.remove('light', 'dark', 'ocean', 'sunset', 'forest', 'rose');
+    root.classList.remove('light', 'dark', 'ocean', 'sunset', 'forest', 'rose', 'mint', 'indigo', 'gold', 'slate');
     
-    if (theme === 'dark') {
+    if (theme === 'dark' || theme === 'indigo' || theme === 'slate') {
       root.classList.add('dark');
-    } else {
-      root.classList.add(theme);
     }
+    root.classList.add(theme);
+
   }, [theme]);
 
 
@@ -57,3 +58,5 @@ export function useTheme() {
   }
   return context;
 }
+
+    

@@ -36,82 +36,73 @@ const formatNPIRecord = (record: any): any | null => {
     };
   }
 
+async function fetchNpiData(params: URLSearchParams) {
+    const apiUrl = `${NPI_REGISTRY_API_BASE_URL}?${params.toString()}`;
+    const response = await fetch(apiUrl, { cache: 'no-store' });
+    
+    if (!response.ok) {
+        let errorText = await response.text();
+        try {
+            const errorJson = JSON.parse(errorText);
+            if (errorJson.Errors) {
+                errorText = errorJson.Errors.map((e: any) => e.description).join(', ');
+            }
+        } catch(e) {
+            // Not JSON, use the text as is
+        }
+        const error = new Error(`NPI API Error: ${errorText}`);
+        (error as any).status = response.status;
+        throw error;
+    }
+    
+    return await response.json();
+}
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const query = searchParams.get('query');
   const page = parseInt(searchParams.get('page') || '1', 10);
   const limit = parseInt(searchParams.get('limit') || '12', 10);
   
-  // NPI API has a hard limit of 1200 results total.
-  // Calculate the skip based on the requested page and the API's own limit (200).
-  // We can't just use our own limit/page for skip, we have to fetch in chunks of 200.
   const apiPage = Math.floor(((page - 1) * limit) / API_RESULT_LIMIT) + 1;
   const skipWithinApiPage = ((page - 1) * limit) % API_RESULT_LIMIT;
-
   const apiSkip = (apiPage - 1) * API_RESULT_LIMIT;
 
   if (apiSkip >= MAX_RESULTS) {
     return NextResponse.json({ results: [], totalCount: 0 });
   }
-
-  const apiParams = new URLSearchParams({
-    version: '2.1',
-    limit: API_RESULT_LIMIT.toString(), // Always fetch the max allowed by the API
-    skip: apiSkip.toString(),
-  });
-
-  if (query) {
-    apiParams.set('taxonomy_description', query);
-  } else {
-    // If no query, return a default set of results (e.g., from a specific state).
-    apiParams.set('state', 'NY');
-  }
-
+  
   try {
-    const apiUrl = `${NPI_REGISTRY_API_BASE_URL}?${apiParams.toString()}`;
-    const apiResponse = await fetch(apiUrl, { cache: 'no-store' });
-    
-    if (!apiResponse.ok) {
-        const errorText = await apiResponse.text();
-        try {
-            const errorJson = JSON.parse(errorText);
-            if (errorJson.Errors && errorJson.Errors.some((e: any) => e.description.includes("No results found"))) {
-                // If the primary query fails, try a broader search.
-                const fallbackParams = new URLSearchParams({
-                  version: '2.1',
-                  limit: API_RESULT_LIMIT.toString(),
-                  skip: apiSkip.toString(),
-                });
-                if(query) fallbackParams.set('first_name', `*${query}*`);
-
-                const fallbackUrl = `${NPI_REGISTRY_API_BASE_URL}?${fallbackParams.toString()}`;
-                const fallbackResponse = await fetch(fallbackUrl, { cache: 'no-store' });
-                if (!fallbackResponse.ok) {
-                   const fallbackErrorText = await fallbackResponse.text();
-                   console.error(`NPI API Fallback Error: ${fallbackResponse.status} ${fallbackErrorText}`);
-                   return NextResponse.json({ results: [], totalCount: 0 });
-                }
-                const fallbackData = await fallbackResponse.json();
-                 if (fallbackData.result_count === 0 || !fallbackData.results) {
-                    return NextResponse.json({ results: [], totalCount: 0 });
-                }
-                 const allFormattedResults = fallbackData.results
-                    .map(formatNPIRecord)
-                    .filter((expert: any | null): expert is any => expert !== null);
-                const paginatedResults = allFormattedResults.slice(skipWithinApiPage, skipWithinApiPage + limit);
-                const totalCount = Math.min(fallbackData.result_count, MAX_RESULTS);
-                return NextResponse.json({ results: paginatedResults, totalCount });
-            }
-        } catch(e) {
-            // Not a JSON error with "No results found", fall through to general error handling
+    let data;
+    try {
+        const apiParams = new URLSearchParams({
+            version: '2.1',
+            limit: API_RESULT_LIMIT.toString(),
+            skip: apiSkip.toString(),
+        });
+        if (query) {
+            apiParams.set('taxonomy_description', query);
+        } else {
+            apiParams.set('state', 'NY'); // Default search
         }
-        console.error(`NPI API Error: ${apiResponse.status} ${errorText}`);
-        return NextResponse.json({ error: `NPI API Error: ${errorText}` }, { status: apiResponse.status });
+        data = await fetchNpiData(apiParams);
+    } catch (primaryError: any) {
+        // If the primary search for "taxonomy_description" yields no results, try a broader name search.
+        if (query && primaryError.message.includes("No results found")) {
+            const fallbackParams = new URLSearchParams({
+                version: '2.1',
+                limit: API_RESULT_LIMIT.toString(),
+                skip: apiSkip.toString(),
+                first_name: `*${query}*`,
+            });
+            data = await fetchNpiData(fallbackParams);
+        } else {
+            // Re-throw other errors
+            throw primaryError;
+        }
     }
 
-    const data = await apiResponse.json();
-
-    if (data.result_count === 0 || !data.results) {
+    if (!data || data.result_count === 0 || !data.results) {
         return NextResponse.json({ results: [], totalCount: 0 });
     }
 
@@ -119,17 +110,16 @@ export async function GET(request: Request) {
       .map(formatNPIRecord)
       .filter((expert: any | null): expert is any => expert !== null);
 
-    // Now, apply our internal pagination to the chunk we fetched.
     const paginatedResults = allFormattedResults.slice(skipWithinApiPage, skipWithinApiPage + limit);
-      
-    // The API returns the total count for the query, but we cap it at MAX_RESULTS.
     const totalCount = Math.min(data.result_count, MAX_RESULTS);
 
     return NextResponse.json({ results: paginatedResults, totalCount });
-  } catch (error) {
-    console.error('Error in NPI proxy route:', error);
-    return NextResponse.json({ error: 'Internal ServerError' }, { status: 500 });
+
+  } catch (error: any) {
+    // This will catch errors from both primary and fallback fetches if they are not "No results found"
+    console.error('Error in NPI proxy route:', error.message);
+    const status = error.status || 500;
+    // Ensure we always return a standard JSON error response
+    return NextResponse.json({ error: 'Failed to fetch data from NPI Registry.', details: error.message }, { status });
   }
 }
-
-    

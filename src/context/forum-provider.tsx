@@ -84,7 +84,7 @@ const samplePosts: ForumPost[] = [
 interface ForumContextType {
   posts: ForumPost[];
   notifications: Notification[];
-  addPost: (post: Omit<ForumPost, 'id' | 'upvotes' | 'replies' | 'reactions' | 'author'> & { author?: Partial<ForumPostAuthor> }) => void;
+  addPost: (post: Omit<ForumPost, 'id' | 'upvotes' | 'replies' | 'reactions' | 'author'>) => void;
   deletePost: (postId: string) => void;
   addReply: (postId: string, content: string) => void;
   deleteReply: (postId: string, replyId: string) => void;
@@ -144,7 +144,7 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  const addPost = (postData: Omit<ForumPost, 'id' | 'upvotes' | 'replies' | 'reactions' | 'author'> & { author?: Partial<ForumPostAuthor> }) => {
+  const addPost = (postData: Omit<ForumPost, 'id' | 'upvotes' | 'replies' | 'reactions' | 'author'>) => {
     if (!user) return;
 
     const newPost: ForumPost = {
@@ -457,3 +457,5 @@ export function useForum() {
   }
   return context;
 }
+
+    

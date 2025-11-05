@@ -43,10 +43,20 @@ export default function CreateProfilePage() {
     e.preventDefault();
     setLoading(true);
 
+    if (!fullName || !dob || !location || !bio || !interests) {
+      toast({
+        variant: 'destructive',
+        title: 'Incomplete Profile',
+        description: 'Please fill out all fields to continue.',
+      });
+      setLoading(false);
+      return;
+    }
+
     try {
       await updateUserProfile({
         name: fullName,
-        dob: dob ? dob.toISOString() : undefined,
+        dob: dob.toISOString(),
         location,
         bio,
         interests: interests.split(',').map(i => i.trim()).filter(Boolean),
@@ -132,6 +142,7 @@ export default function CreateProfilePage() {
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
                 placeholder="e.g., Bengaluru, Karnataka, India"
+                required
               />
               <p className="text-xs text-muted-foreground">
                 Your city, state, and country help us find relevant local
@@ -146,9 +157,10 @@ export default function CreateProfilePage() {
                 value={bio}
                 onChange={(e) => setBio(e.target.value)}
                 placeholder="Tell us a little bit about yourself."
+                required
               />
               <p className="text-xs text-muted-foreground">
-                A brief summary about you (optional).
+                A brief summary about you.
               </p>
             </div>
 
@@ -161,6 +173,7 @@ export default function CreateProfilePage() {
                 value={interests}
                 onChange={(e) => setInterests(e.target.value)}
                 placeholder="e.g., Glioblastoma, Lung Cancer, Immunotherapy"
+                required
               />
               <p className="text-xs text-muted-foreground">
                 List the conditions or research topics you are interested in,

@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview An AI assistant for the CuraLink platform.
@@ -31,24 +32,6 @@ export async function askCuraLinkAssistant(input: CuraLinkAssistantInput): Promi
   return curaLinkAssistantFlow(input);
 }
 
-const curaLinkAssistantPrompt = ai.definePrompt(
-  {
-    name: 'curaLinkAssistantPrompt',
-    system: `You are a friendly and helpful AI assistant for a platform called CuraLink.
-  
-CuraLink's mission is to connect patients and researchers to accelerate medical advancements.
-
-Key Features:
-- AI-Powered Trial Matching: Helps patients find relevant clinical trials.
-- Simplified Research: Provides AI-generated summaries of complex medical publications.
-- Health Expert Connections: Allows users to find and connect with healthcare providers and researchers.
-- Community Forums: A place for patients and researchers to connect.
-
-Your role is to answer user questions about the platform. Be concise, friendly, and informative. If a user asks something outside the scope of CuraLink, politely state that you can only answer questions about the platform.`,
-  }
-);
-
-
 const curaLinkAssistantFlow = ai.defineFlow(
   {
     name: 'curaLinkAssistantFlow',
@@ -62,6 +45,20 @@ const curaLinkAssistantFlow = ai.defineFlow(
       model: googleAI('gemini-pro'),
       prompt: question,
       history: history,
+      config: {
+        // Add a system prompt to guide the model's behavior
+        systemPrompt: `You are a friendly and helpful AI assistant for a platform called CuraLink.
+  
+CuraLink's mission is to connect patients and researchers to accelerate medical advancements.
+
+Key Features:
+- AI-Powered Trial Matching: Helps patients find relevant clinical trials.
+- Simplified Research: Provides AI-generated summaries of complex medical publications.
+- Health Expert Connections: Allows users to find and connect with healthcare providers and researchers.
+- Community Forums: A place for patients and researchers to connect.
+
+Your role is to answer user questions about the platform. Be concise, friendly, and informative. If a user asks something outside the scope of CuraLink, politely state that you can only answer questions about the platform.`,
+      },
     });
 
     return { answer: llmResponse.text };

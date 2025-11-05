@@ -102,20 +102,14 @@ function MeetingReplyDialog({ notif, children }: { notif: Notification, children
 }
 
 
-function NotificationItem({ notif }: { notif: Notification }) {
+function NotificationItem({ notif, deleteNotification }: { notif: Notification, deleteNotification: (id: string) => void }) {
     const { user } = useAuth();
-    const { deleteNotification } = useForum();
-    const { toast } = useToast();
     let Icon, text, subtext, link;
     
     const handleDelete = (e: React.MouseEvent) => {
         e.stopPropagation();
         e.preventDefault();
         deleteNotification(notif.id);
-        toast({
-            title: "Notification Removed",
-            duration: 2000,
-        });
     }
 
     switch (notif.type) {
@@ -202,7 +196,7 @@ function NotificationItem({ notif }: { notif: Notification }) {
 
 export function AppHeader() {
   const { user } = useAuth();
-  const { notifications, markNotificationsAsRead, unreadCount, clearNotifications } = useForum();
+  const { notifications, markNotificationsAsRead, unreadCount, clearNotifications, deleteNotification } = useForum();
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -259,7 +253,7 @@ export function AppHeader() {
                 <div className="grid gap-1 p-2 max-h-96 overflow-y-auto">
                     {notifications.length > 0 ? (
                         notifications.map((notif) => (
-                           <NotificationItem key={notif.id} notif={notif} />
+                           <NotificationItem key={notif.id} notif={notif} deleteNotification={deleteNotification} />
                         ))
                     ) : (
                         <div className="text-center text-sm text-muted-foreground p-4">

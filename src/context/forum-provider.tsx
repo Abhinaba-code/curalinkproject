@@ -551,6 +551,11 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
     const updatedNotifications = allNotifications.filter(n => n.id !== notificationId);
     setAllNotifications(updatedNotifications);
     localStorage.setItem('cura-notifications', JSON.stringify(updatedNotifications));
+
+    toast({
+        title: "Notification Removed",
+        duration: 2000,
+    });
   };
 
 

@@ -3,5 +3,4 @@ config();
 
 // The dev file is used to register Genkit flows for local development.
 // Keeping this file for now in case other flows still use Genkit.
-import '@/ai/flows/ai-chatbot.ts';
 import '@/ai/flows/ai-generate-personalized-feed.ts';

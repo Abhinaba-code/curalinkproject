@@ -1,16 +1,19 @@
 
 'use server';
 /**
- * @fileOverview An AI assistant for the CuraLink platform.
+ * @fileOverview An AI assistant for the CuraLink platform using OpenAI.
  *
  * - askCuraLinkAssistant - A function that answers questions about CuraLink.
  * - CuraLinkAssistantInput - The input type for the assistant.
  * - CuraLinkAssistantOutput - The output type for the assistant.
  */
 
-import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
-import { googleAI } from '@genkit-ai/google-genai';
+import OpenAI from 'openai';
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
 
 const ChatHistorySchema = z.object({
   role: z.enum(['user', 'model']),
@@ -28,14 +31,10 @@ const CuraLinkAssistantOutputSchema = z.object({
 });
 export type CuraLinkAssistantOutput = z.infer<typeof CuraLinkAssistantOutputSchema>;
 
-const curaLinkAssistantFlow = ai.defineFlow(
-  {
-    name: 'curaLinkAssistantFlow',
-    inputSchema: CuraLinkAssistantInputSchema,
-    outputSchema: CuraLinkAssistantOutputSchema,
-  },
-  async ({ question, history = [] }) => {
-    const systemPrompt = `You are a friendly and helpful AI assistant for a platform called CuraLink.
+export async function askCuraLinkAssistant(input: CuraLinkAssistantInput): Promise<CuraLinkAssistantOutput> {
+  const { question, history = [] } = input;
+  
+  const systemPrompt = `You are a friendly and helpful AI assistant for a platform called CuraLink.
   
 CuraLink's mission is to connect patients and researchers to accelerate medical advancements.
 
@@ -47,24 +46,26 @@ Key Features:
 
 Your role is to answer user questions about the platform. Be concise, friendly, and informative. If a user asks something outside the scope of CuraLink, politely state that you can only answer questions about the platform.`;
 
-    try {
-      const llmResponse = await ai.generate({
-        model: googleAI('gemini-pro'),
-        system: systemPrompt,
-        history,
-        prompt: question,
-      });
+  const messages: OpenAI.Chat.ChatCompletionMessageParam[] = [
+    { role: 'system', content: systemPrompt },
+    ...history.map((msg) => ({
+      role: msg.role === 'model' ? 'assistant' : 'user',
+      content: msg.content,
+    })),
+    { role: 'user', content: question },
+  ];
 
-      const answer = llmResponse.text;
+  try {
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: messages,
+    });
 
-      return { answer };
-    } catch (error) {
-      console.error('Error in curaLinkAssistantFlow:', error);
-      return { answer: "Sorry, I'm having trouble connecting to the AI service right now." };
-    }
+    const answer = completion.choices[0]?.message?.content || "Sorry, I couldn't generate a response.";
+    return { answer };
+
+  } catch (error) {
+    console.error('Error calling OpenAI for chatbot:', error);
+    return { answer: "Sorry, I'm having trouble connecting to the AI service right now." };
   }
-);
-
-export async function askCuraLinkAssistant(input: CuraLinkAssistantInput): Promise<CuraLinkAssistantOutput> {
-  return curaLinkAssistantFlow(input);
 }

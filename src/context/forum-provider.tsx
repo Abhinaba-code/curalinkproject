@@ -38,6 +38,7 @@ export interface Notification {
   type: 'new_post' | 'new_reply' | 'nudge' | 'meeting_request' | 'meeting_reply';
   recipientId: string; // Can be a user ID or 'all_researchers'
   originalRequest?: Notification; // Used for replies to link back
+  senderId?: string; // ID of the user who triggered the notification
 }
 
 const samplePosts: ForumPost[] = [
@@ -95,7 +96,16 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
   const [allNotifications, setAllNotifications] = useState<Notification[]>([]);
   
   // Derived state: notifications for the current user
-  const notifications = user ? allNotifications.filter(n => n.recipientId === user.id || (user.role === 'researcher' && n.recipientId === 'all_researchers')).sort((a, b) => parseInt(b.id.split('-')[1]) - parseInt(a.id.split('-')[1])) : [];
+  const notifications = user 
+    ? allNotifications
+        .filter(n => {
+            const isRecipient = n.recipientId === user.id || (user.role === 'researcher' && n.recipientId === 'all_researchers');
+            // Exclude notifications sent by the user themselves
+            const isNotSender = n.senderId ? n.senderId !== user.id : true;
+            return isRecipient && isNotSender;
+        })
+        .sort((a, b) => parseInt(b.id.split('-')[1]) - parseInt(a.id.split('-')[1]))
+    : [];
   const unreadCount = notifications.filter(n => !n.read).length;
 
 
@@ -150,6 +160,7 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
         read: false,
         type: 'new_post',
         recipientId: 'all_researchers', // Special ID for all researchers
+        senderId: user.id,
       };
 
       const updatedNotifs = [newNotification, ...allNotifications];
@@ -186,6 +197,7 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
                     read: false,
                     type: 'new_reply',
                     recipientId: p.author.id, // Target the specific patient
+                    senderId: user.id,
                 };
                 const updatedNotifs = [newNotification, ...allNotifications];
                 setAllNotifications(updatedNotifs);
@@ -212,6 +224,7 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
         read: false,
         type: 'nudge',
         recipientId: 'all_researchers',
+        senderId: user.id,
     };
 
     const updatedNotifs = [newNotification, ...allNotifications];
@@ -240,6 +253,7 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
             read: false,
             type: 'meeting_request',
             recipientId: 'all_researchers',
+            senderId: fromUser.id,
         };
         const updatedNotifs = [newNotification, ...allNotifications];
         setAllNotifications(updatedNotifs);
@@ -269,6 +283,7 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
             type: 'meeting_reply',
             recipientId: originalNotification.authorId, // The patient who made the request
             originalRequest: originalNotification,
+            senderId: user.id,
         };
         const updatedNotifs = [newReplyNotification, ...allNotifications];
         setAllNotifications(updatedNotifs);

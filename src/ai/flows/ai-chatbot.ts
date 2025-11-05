@@ -1,16 +1,16 @@
 
 'use server';
 /**
- * @fileOverview An AI assistant for the CuraLink platform.
+ * @fileOverview An AI assistant for the CuraLink platform using OpenAI.
  *
  * - askCuraLinkAssistant - A function that answers questions about CuraLink.
  * - CuraLinkAssistantInput - The input type for the assistant.
  * - CuraLinkAssistantOutput - The output type for the assistant.
  */
 
-import { ai } from '@/ai/genkit';
-import { z } from 'genkit';
-import { googleAI } from '@genkit-ai/google-genai';
+import { openai } from '@/ai/genkit';
+import { z } from 'zod';
+import type { ChatCompletionMessageParam } from 'openai/resources/chat';
 
 const ChatHistorySchema = z.object({
   role: z.enum(['user', 'model']),
@@ -28,26 +28,7 @@ const CuraLinkAssistantOutputSchema = z.object({
 });
 export type CuraLinkAssistantOutput = z.infer<typeof CuraLinkAssistantOutputSchema>;
 
-export async function askCuraLinkAssistant(input: CuraLinkAssistantInput): Promise<CuraLinkAssistantOutput> {
-  return curaLinkAssistantFlow(input);
-}
-
-const curaLinkAssistantFlow = ai.defineFlow(
-  {
-    name: 'curaLinkAssistantFlow',
-    inputSchema: CuraLinkAssistantInputSchema,
-    outputSchema: CuraLinkAssistantOutputSchema,
-  },
-  async (input) => {
-    const { question, history } = input;
-
-    const llmResponse = await ai.generate({
-      model: googleAI('gemini-pro'),
-      prompt: question,
-      history: history,
-      config: {
-        // Add a system prompt to guide the model's behavior
-        systemPrompt: `You are a friendly and helpful AI assistant for a platform called CuraLink.
+const SYSTEM_PROMPT = `You are a friendly and helpful AI assistant for a platform called CuraLink.
   
 CuraLink's mission is to connect patients and researchers to accelerate medical advancements.
 
@@ -57,10 +38,36 @@ Key Features:
 - Health Expert Connections: Allows users to find and connect with healthcare providers and researchers.
 - Community Forums: A place for patients and researchers to connect.
 
-Your role is to answer user questions about the platform. Be concise, friendly, and informative. If a user asks something outside the scope of CuraLink, politely state that you can only answer questions about the platform.`,
-      },
+Your role is to answer user questions about the platform. Be concise, friendly, and informative. If a user asks something outside the scope of CuraLink, politely state that you can only answer questions about the platform.`;
+
+export async function askCuraLinkAssistant(input: CuraLinkAssistantInput): Promise<CuraLinkAssistantOutput> {
+  const { question, history = [] } = input;
+
+  const messages: ChatCompletionMessageParam[] = [
+    { role: 'system', content: SYSTEM_PROMPT },
+  ];
+
+  // Convert history roles from 'model' to 'assistant' for the OpenAI API
+  history.forEach(msg => {
+    messages.push({
+      role: msg.role === 'model' ? 'assistant' : 'user',
+      content: msg.content,
+    });
+  });
+
+  messages.push({ role: 'user', content: question });
+
+  try {
+    const response = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: messages,
     });
 
-    return { answer: llmResponse.text };
+    const answer = response.choices[0]?.message?.content || "Sorry, I couldn't generate a response.";
+
+    return { answer };
+  } catch (error) {
+    console.error('Error calling OpenAI API:', error);
+    return { answer: "Sorry, I'm having trouble connecting to the AI service right now." };
   }
-);
+}

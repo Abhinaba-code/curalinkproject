@@ -11,7 +11,6 @@
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
 import { googleAI } from '@genkit-ai/google-genai';
-import { message } from 'genkit/experimental/ai';
 
 const ChatHistorySchema = z.object({
   role: z.enum(['user', 'model']),
@@ -49,14 +48,10 @@ Key Features:
 Your role is to answer user questions about the platform. Be concise, friendly, and informative. If a user asks something outside the scope of CuraLink, politely state that you can only answer questions about the platform.`;
 
     try {
-      const messages = [
-        message(systemPrompt, 'system'),
-        ...history.map(msg => message(msg.content, msg.role)),
-      ];
-
       const llmResponse = await ai.generate({
         model: googleAI('gemini-pro'),
-        history: messages,
+        system: systemPrompt,
+        history,
         prompt: question,
       });
 

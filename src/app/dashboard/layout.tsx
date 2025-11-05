@@ -33,7 +33,7 @@ import { FollowProvider } from '@/context/follow-provider';
 import { Chatbot } from '@/components/chatbot';
 import { HistoryProvider } from '@/context/history-provider';
 
-const navItems = [
+const patientNavItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/dashboard/search', label: 'Search', icon: Search },
   { href: '/dashboard/trials', label: 'Clinical Trials', icon: FlaskConical },
@@ -42,6 +42,17 @@ const navItems = [
   { href: '/dashboard/forums', label: 'Forums', icon: HeartPulse },
   { href: '/dashboard/favorites', label: 'Favorites', icon: Star },
   { href: '/dashboard/history', label: 'History', icon: History },
+];
+
+const researcherNavItems = [
+    { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { href: '/dashboard/search', label: 'Search', icon: Search },
+    { href: '/dashboard/trials', label: 'Clinical Trials', icon: FlaskConical },
+    { href: '/dashboard/publications', label: 'Publications', icon: FileText },
+    { href: '/dashboard/experts', label: 'Collaborators', icon: Users },
+    { href: '/dashboard/forums', label: 'Forums', icon: HeartPulse },
+    { href: '/dashboard/favorites', label: 'Favorites', icon: Star },
+    { href: '/dashboard/history', label: 'History', icon: History },
 ];
 
 function DashboardApp({ children }: { children: React.ReactNode }) {
@@ -86,12 +97,14 @@ function DashboardApp({ children }: { children: React.ReactNode }) {
       </div>
     );
   }
-
+  
   const isCreateProfilePage = pathname === '/dashboard/create-profile' || pathname === '/dashboard/create-researcher-profile';
   
   if (isCreateProfilePage) {
     return <main className="flex-1 p-4 sm:p-6 animate-fade-in">{children}</main>;
   }
+
+  const navItems = user.role === 'researcher' ? researcherNavItems : patientNavItems;
 
   return (
     <SidebarProvider>
@@ -140,6 +153,7 @@ export default function DashboardLayout({
         <FollowProvider>
           <ForumProvider>
             <DashboardApp>{children}</DashboardApp>
+            <Chatbot />
           </ForumProvider>
         </FollowProvider>
       </FavoritesProvider>

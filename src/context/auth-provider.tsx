@@ -74,40 +74,42 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signup = async (email: string, password: string, role: 'patient' | 'researcher') => {
     return new Promise<void>((resolve, reject) => {
-      const users = getUsers();
-      if (users.find(u => u.email === email)) {
-        return reject(new Error('An account with this email already exists.'));
-      }
-      
-      const newUser: StoredUser = {
-        id: `usr_${Date.now()}`,
-        email,
-        password, // In a real app, this should be hashed
-        name: email.split('@')[0],
-        role,
-        avatarUrl: `https://picsum.photos/seed/${email}/200/200`,
-      };
-
-      users.push(newUser);
-      setUsers(users);
-
-      const { password: _, ...userToStore } = newUser;
-      localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(userToStore));
-      setUser(userToStore);
-
-      // Add default favorites for new users
-      const defaultFavorites = [
-        { type: 'publication', item: mockPublications[0] },
-        { type: 'expert', item: mockExperts[0] }
-      ];
-      localStorage.setItem(FAVORITES_KEY, JSON.stringify(defaultFavorites));
-
-      if (role === 'patient') {
-        router.push('/dashboard/create-profile');
-      } else {
-        router.push('/dashboard');
-      }
-      resolve();
+      setTimeout(() => { // Simulate network delay
+        const users = getUsers();
+        if (users.find(u => u.email === email)) {
+          return reject(new Error('An account with this email already exists.'));
+        }
+        
+        const newUser: StoredUser = {
+          id: `usr_${Date.now()}`,
+          email,
+          password, // In a real app, this should be hashed
+          name: email.split('@')[0],
+          role,
+          avatarUrl: `https://picsum.photos/seed/${email}/200/200`,
+        };
+  
+        users.push(newUser);
+        setUsers(users);
+  
+        const { password: _, ...userToStore } = newUser;
+        localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(userToStore));
+        setUser(userToStore);
+  
+        // Add default favorites for new users
+        const defaultFavorites = [
+          { type: 'publication', item: mockPublications[0] },
+          { type: 'expert', item: mockExperts[0] }
+        ];
+        localStorage.setItem(FAVORITES_KEY, JSON.stringify(defaultFavorites));
+  
+        if (role === 'patient') {
+          router.push('/dashboard/create-profile');
+        } else {
+          router.push('/dashboard');
+        }
+        resolve();
+      }, 500);
     });
   };
 

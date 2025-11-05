@@ -86,20 +86,43 @@ export async function GET(request: Request) {
             apiParams.set('state', 'NY'); // Default search
         }
         data = await fetchNpiData(apiParams);
-    } catch (primaryError: any) {
+
         // If the primary search for "taxonomy_description" yields no results, try a broader name search.
-        if (query && primaryError.message.includes("No results found")) {
+        if (query && data.result_count === 0) {
             const fallbackParams = new URLSearchParams({
                 version: '2.1',
                 limit: API_RESULT_LIMIT.toString(),
                 skip: apiSkip.toString(),
-                first_name: `*${query}*`,
             });
-            data = await fetchNpiData(fallbackParams);
-        } else {
-            // Re-throw other errors
+            
+            // Basic name parser
+            const nameParts = query.split(' ').filter(Boolean);
+            if (nameParts.length > 1) {
+                fallbackParams.set('first_name', `*${nameParts.slice(0, -1).join(' ')}*`);
+                fallbackParams.set('last_name', `*${nameParts.slice(-1)[0]}*`);
+            } else {
+                fallbackParams.set('organization_name', `*${query}*`);
+                fallbackParams.append('first_name', `*${query}*`);
+                fallbackParams.append('last_name', `*${query}*`);
+            }
+            
+            try {
+              const fallbackData = await fetchNpiData(fallbackParams);
+              if (fallbackData.result_count > 0) {
+                data = fallbackData;
+              }
+            } catch(e) {
+                // Ignore fallback error and stick with original empty result.
+            }
+        }
+
+    } catch (primaryError: any) {
+        // Re-throw errors that are not about "No results found"
+        if (!primaryError.message.includes("No results found")) {
             throw primaryError;
         }
+        // Initialize data to avoid undefined errors
+        data = { result_count: 0, results: [] };
     }
 
     if (!data || data.result_count === 0 || !data.results) {
@@ -116,10 +139,8 @@ export async function GET(request: Request) {
     return NextResponse.json({ results: paginatedResults, totalCount });
 
   } catch (error: any) {
-    // This will catch errors from both primary and fallback fetches if they are not "No results found"
     console.error('Error in NPI proxy route:', error.message);
     const status = error.status || 500;
-    // Ensure we always return a standard JSON error response
     return NextResponse.json({ error: 'Failed to fetch data from NPI Registry.', details: error.message }, { status });
   }
 }

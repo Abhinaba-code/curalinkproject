@@ -61,7 +61,7 @@ export default function FavoritesPage() {
           <p className="text-sm text-muted-foreground">{item.specialty}</p>
         )}
         <Link
-          href={item.url}
+          href={item.url || '#'}
           target="_blank"
           rel="noopener noreferrer"
           className="text-sm text-primary hover:underline flex items-center gap-1 mt-2"

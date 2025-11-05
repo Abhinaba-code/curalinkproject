@@ -3,7 +3,7 @@
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { UserNav } from '@/components/user-nav';
 import { Input } from './ui/input';
-import { Search, Star, Bell, MessageSquare, CornerDownRight, Users, Calendar, Send, CheckCircle } from 'lucide-react';
+import { Search, Star, Bell, MessageSquare, CornerDownRight, Users, Calendar, Send, CheckCircle, Trash2 } from 'lucide-react';
 import { Logo } from './logo';
 import { Button } from './ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
@@ -180,7 +180,7 @@ function NotificationItem({ notif }: { notif: Notification }) {
 
 export function AppHeader() {
   const { user } = useAuth();
-  const { notifications, markNotificationsAsRead, unreadCount } = useForum();
+  const { notifications, markNotificationsAsRead, unreadCount, clearNotifications } = useForum();
 
   return (
     <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-background/80 backdrop-blur-lg px-4 md:px-6">
@@ -206,7 +206,7 @@ export function AppHeader() {
               <Star className="h-4 w-4" />
             </Link>
         </Button>
-        <Popover onOpenChange={(open) => { if (open) markNotificationsAsRead() }}>
+        <Popover onOpenChange={(open) => { if (open && unreadCount > 0) markNotificationsAsRead() }}>
             <PopoverTrigger asChild>
                 <Button variant="outline" size="icon" className="relative">
                     <Bell className="h-4 w-4" />
@@ -236,7 +236,7 @@ export function AppHeader() {
                     )}
                 </div>
                 {notifications.length > 0 && (
-                    <div className="border-t p-2">
+                    <div className="border-t p-2 grid grid-cols-2 gap-2">
                         <Button
                             variant="ghost"
                             size="sm"
@@ -246,6 +246,15 @@ export function AppHeader() {
                         >
                             <CheckCircle className="mr-2 h-4 w-4" />
                             Mark all as read
+                        </Button>
+                         <Button
+                            variant="ghost"
+                            size="sm"
+                            className="w-full hover:bg-destructive/10 hover:text-destructive"
+                            onClick={clearNotifications}
+                        >
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Clear all
                         </Button>
                     </div>
                 )}

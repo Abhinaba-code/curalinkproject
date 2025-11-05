@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useAuth } from './auth-provider';
 import type { Expert, User } from '@/lib/types';
+import { useToast } from '@/hooks/use-toast';
 
 
 export interface ForumPostAuthor {
@@ -95,6 +96,7 @@ interface ForumContextType {
   removeMeetingRequest: (expertId: string) => void;
   addMeetingReply: (originalNotification: Notification, replyContent: string) => void;
   markNotificationsAsRead: () => void;
+  clearNotifications: () => void;
   unreadCount: number;
 }
 
@@ -102,6 +104,7 @@ const ForumContext = createContext<ForumContextType | undefined>(undefined);
 
 export function ForumProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
+  const { toast } = useToast();
   const [posts, setPosts] = useState<ForumPost[]>([]);
   const [allNotifications, setAllNotifications] = useState<Notification[]>([]);
   
@@ -262,7 +265,7 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
   };
   
   const toggleReaction = (currentReactions: Reactions, userId: string, emoji: string): Reactions => {
-    const reactions = { ...currentReactions };
+    const reactions = { ...(currentReactions || {}) };
     // User wants to remove their reaction
     if (reactions[emoji]?.includes(userId)) {
       reactions[emoji] = reactions[emoji].filter(id => id !== userId);
@@ -420,7 +423,23 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem('cura-notifications', JSON.stringify(updatedNotifications));
   }
 
-  const value = { posts, notifications, addPost, deletePost, addReply, deleteReply, sendNudgeNotification, removeNudgeNotification, sendMeetingRequest, addMeetingReply, removeMeetingRequest, markNotificationsAsRead, unreadCount, togglePostReaction, toggleReplyReaction };
+  const clearNotifications = () => {
+    if (!user) return;
+    
+    const currentUserNotifIds = notifications.map(n => n.id);
+
+    const updatedNotifications = allNotifications.filter(n => !currentUserNotifIds.includes(n.id));
+    
+    setAllNotifications(updatedNotifications);
+    localStorage.setItem('cura-notifications', JSON.stringify(updatedNotifications));
+    
+    toast({
+        title: "Notifications Cleared",
+        description: "All your notifications have been removed.",
+    });
+  };
+
+  const value = { posts, notifications, addPost, deletePost, addReply, deleteReply, sendNudgeNotification, removeNudgeNotification, sendMeetingRequest, addMeetingReply, removeMeetingRequest, markNotificationsAsRead, unreadCount, togglePostReaction, toggleReplyReaction, clearNotifications };
 
   return (
     <ForumContext.Provider value={value}>

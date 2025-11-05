@@ -25,10 +25,12 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const USERS_DB_KEY = 'cura-users-db';
 const CURRENT_USER_KEY = 'cura-user';
-const FAVORITES_KEY = 'cura-favorites';
-const FOLLOW_STORAGE_KEY = 'cura-followed';
+const FAVORITES_KEY_PREFIX = 'cura-favorites';
+const FOLLOW_STORAGE_KEY_PREFIX = 'cura-followed';
 const POSTS_KEY = 'cura-posts';
 const NOTIFICATIONS_KEY = 'cura-notifications';
+const ANNOUNCEMENTS_KEY_PREFIX = 'cura-announcements';
+const SYMPTOMS_KEY_PREFIX = 'cura-symptoms';
 
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -103,7 +105,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           { type: 'publication', item: mockPublications[0] },
           { type: 'expert', item: mockExperts[0] }
         ];
-        localStorage.setItem(FAVORITES_KEY, JSON.stringify(defaultFavorites));
+        localStorage.setItem(`${FAVORITES_KEY_PREFIX}-${newUser.id}`, JSON.stringify(defaultFavorites));
   
         if (role === 'patient') {
           router.push('/dashboard/create-profile');
@@ -206,22 +208,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             return reject(new Error("No user is currently logged in."));
         }
 
+        const userId = user.id;
+
         // 1. Remove user from the users "DB"
         const users = getUsers();
-        const updatedUsers = users.filter(u => u.id !== user.id);
+        const updatedUsers = users.filter(u => u.id !== userId);
         setUsers(updatedUsers);
 
         // 2. Clear all associated data from localStorage
-        localStorage.removeItem(`${FAVORITES_KEY}`);
-        localStorage.removeItem(`${FOLLOW_STORAGE_KEY}`);
+        localStorage.removeItem(`${FAVORITES_KEY_PREFIX}-${userId}`);
+        localStorage.removeItem(`${FOLLOW_STORAGE_KEY_PREFIX}-${userId}`);
+        localStorage.removeItem(`${ANNOUNCEMENTS_KEY_PREFIX}-${userId}`);
+        localStorage.removeItem(`${SYMPTOMS_KEY_PREFIX}-${userId}`);
         
         // Example of removing user-specific posts/notifications (more complex logic might be needed)
         try {
             const posts = JSON.parse(localStorage.getItem(POSTS_KEY) || '[]');
             const notifications = JSON.parse(localStorage.getItem(NOTIFICATIONS_KEY) || '[]');
             
-            const filteredPosts = posts.filter((p: any) => p.author.id !== user.id);
-            const filteredNotifications = notifications.filter((n: any) => n.authorId !== user.id && n.recipientId !== user.id);
+            const filteredPosts = posts.filter((p: any) => p.author.id !== userId);
+            const filteredNotifications = notifications.filter((n: any) => n.authorId !== userId && n.recipientId !== userId);
 
             localStorage.setItem(POSTS_KEY, JSON.stringify(filteredPosts));
             localStorage.setItem(NOTIFICATIONS_KEY, JSON.stringify(filteredNotifications));

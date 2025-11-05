@@ -1,3 +1,4 @@
+
 'use client';
 
 import type { User, StoredUser } from '@/lib/types';
@@ -6,7 +7,8 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { mockPublications } from '@/lib/data';
 import { mockExperts } from '@/lib/data';
 
-type ProfileData = Omit<User, 'id' | 'email' | 'role' | 'avatarUrl'>;
+type ProfileData = Partial<Omit<User, 'id' | 'email' | 'role' | 'avatarUrl'>>;
+
 
 interface AuthContextType {
   user: User | null;
@@ -106,7 +108,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (role === 'patient') {
           router.push('/dashboard/create-profile');
         } else {
-          router.push('/dashboard');
+          router.push('/dashboard/create-researcher-profile');
         }
         resolve();
       }, 500);
@@ -159,7 +161,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
   
       // Update the user in the "database"
-      const updatedUserDB = { ...users[userIndex], ...profileData, name: profileData.name || users[userIndex].name };
+      const updatedUserDB = { ...users[userIndex], ...profileData };
       users[userIndex] = updatedUserDB;
       setUsers(users);
   

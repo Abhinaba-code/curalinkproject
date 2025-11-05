@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useAuth } from '@/context/auth-provider';
@@ -12,7 +13,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
-import { Calendar, MapPin, Stethoscope, User, Edit, X } from 'lucide-react';
+import { Calendar, MapPin, Stethoscope, User, Edit, X, Building, BookUser, Link2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { useFollow } from '@/context/follow-provider';
 import type { Expert } from '@/lib/types';
@@ -68,6 +69,8 @@ export default function ProfilePage() {
         .map((n) => n[0])
         .join('')
     : 'U';
+    
+  const editProfileLink = user.role === 'patient' ? '/dashboard/create-profile' : '/dashboard/create-researcher-profile';
 
   return (
     <div className="space-y-6">
@@ -79,7 +82,7 @@ export default function ProfilePage() {
           </p>
         </div>
         <Button asChild>
-            <Link href="/dashboard/create-profile">
+            <Link href={editProfileLink}>
                 <Edit className="mr-2 h-4 w-4" />
                 Edit Profile
             </Link>
@@ -99,16 +102,22 @@ export default function ProfilePage() {
             </div>
         </CardHeader>
         <CardContent className="space-y-6 pt-6 border-t">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <ProfileDetail icon={<User className="h-5 w-5" />} label="About Me" value={user.bio} />
-                <ProfileDetail icon={<Calendar className="h-5 w-5" />} label="Date of Birth" value={user.dob ? format(new Date(user.dob), 'PPP') : null} />
-                <ProfileDetail icon={<MapPin className="h-5 w-5" />} label="Location" value={user.location} />
-                {user.interests && user.interests.length > 0 && <ProfileDetail icon={<Stethoscope className="h-5 w-5" />} label="Medical Conditions & Interests" value={user.interests?.join(', ')} />}
-            </div>
-            {(user.bio || user.dob || user.location || user.interests) && (
-                 <p className="text-xs text-muted-foreground text-center pt-4 border-t">
-                    Your profile details help us personalize your recommendations.
-                </p>
+            {user.role === 'patient' ? (
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <ProfileDetail icon={<User className="h-5 w-5" />} label="About Me" value={user.bio} />
+                    <ProfileDetail icon={<Calendar className="h-5 w-5" />} label="Date of Birth" value={user.dob ? format(new Date(user.dob), 'PPP') : null} />
+                    <ProfileDetail icon={<MapPin className="h-5 w-5" />} label="Location" value={user.location} />
+                    {user.interests && user.interests.length > 0 && <ProfileDetail icon={<Stethoscope className="h-5 w-5" />} label="Medical Conditions & Interests" value={user.interests?.join(', ')} />}
+                </div>
+            ) : (
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <ProfileDetail icon={<Building className="h-5 w-5" />} label="Affiliation / Institution" value={user.affiliation} />
+                    <ProfileDetail icon={<User className="h-5 w-5" />} label="Bio" value={user.bio} />
+                    <ProfileDetail icon={<Stethoscope className="h-5 w-5" />} label="Specialties" value={user.specialties?.join(', ')} />
+                    <ProfileDetail icon={<BookUser className="h-5 w-5" />} label="Research Interests" value={user.researchInterests?.join(', ')} />
+                    <ProfileDetail icon={<Link2 className="h-5 w-5" />} label="ORCID iD" value={user.orcidId} />
+                    <ProfileDetail icon={<Link2 className="h-5 w-5" />} label="ResearchGate Profile" value={user.researchGateProfile ? <a href={user.researchGateProfile} target="_blank" rel="noopener noreferrer" className="text-primary underline">{user.researchGateProfile}</a> : null} />
+                </div>
             )}
         </CardContent>
       </Card>

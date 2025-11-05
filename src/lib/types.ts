@@ -5,10 +5,17 @@ export type User = {
   name: string;
   role: 'patient' | 'researcher';
   avatarUrl: string;
+  // Patient fields
   dob?: string;
   location?: string;
   bio?: string;
   interests?: string[];
+  // Researcher fields
+  affiliation?: string;
+  specialties?: string[];
+  researchInterests?: string[];
+  orcidId?: string;
+  researchGateProfile?: string;
 };
 
 export type StoredUser = User & {

@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -56,12 +57,23 @@ function DashboardApp({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    const isCreateProfilePage = pathname === '/dashboard/create-profile';
-    const profileComplete = user.interests && user.interests.length > 0;
-
-    if (user.role === 'patient' && !profileComplete && !isCreateProfilePage) {
-      router.replace('/dashboard/create-profile');
+    const isPatientCreateProfilePage = pathname === '/dashboard/create-profile';
+    const isResearcherCreateProfilePage = pathname === '/dashboard/create-researcher-profile';
+    
+    if (user.role === 'patient') {
+      const profileComplete = user.interests && user.interests.length > 0;
+      if (!profileComplete && !isPatientCreateProfilePage) {
+        router.replace('/dashboard/create-profile');
+      }
     }
+
+    if (user.role === 'researcher') {
+      const profileComplete = user.affiliation && user.specialties && user.specialties.length > 0;
+      if (!profileComplete && !isResearcherCreateProfilePage) {
+        router.replace('/dashboard/create-researcher-profile');
+      }
+    }
+
   }, [user, loading, router, pathname]);
 
   if (loading || !user) {
@@ -75,7 +87,7 @@ function DashboardApp({ children }: { children: React.ReactNode }) {
     );
   }
 
-  const isCreateProfilePage = pathname === '/dashboard/create-profile';
+  const isCreateProfilePage = pathname === '/dashboard/create-profile' || pathname === '/dashboard/create-researcher-profile';
   
   if (isCreateProfilePage) {
     return <main className="flex-1 p-4 sm:p-6 animate-fade-in">{children}</main>;

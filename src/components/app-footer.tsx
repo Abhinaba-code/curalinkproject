@@ -16,14 +16,8 @@ export function AppFooter() {
             <Link href="/about" className="hover:text-primary transition-colors">
               About
             </Link>
-            <Link href="/terms" className="hover:text-primary transition-colors">
-              Terms
-            </Link>
-            <Link href="/privacy" className="hover:text-primary transition-colors">
-              Privacy
-            </Link>
-            <Link href="/contact" className="hover:text-primary transition-colors">
-              Contact
+            <Link href="/faq" className="hover:text-primary transition-colors">
+              FAQ
             </Link>
           </div>
         </div>

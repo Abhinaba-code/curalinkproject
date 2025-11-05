@@ -82,8 +82,8 @@ const samplePosts: ForumPost[] = [
     },
 ];
 
-const getInitialSampleNotifications = (role: 'patient' | 'researcher'): Notification[] => {
-    if (role === 'patient') {
+const getInitialSampleNotifications = (user: User): Notification[] => {
+    if (user.role === 'patient') {
       return [
         {
           id: `notif-${Date.now() + 1}`,
@@ -91,7 +91,7 @@ const getInitialSampleNotifications = (role: 'patient' | 'researcher'): Notifica
           postTitle: "My Experience with Clinical Trial...",
           authorName: "Dr. Evelyn Reed",
           read: false,
-          postId: 'post-2', authorId: 'usr_researcher_evelyn', recipientId: 'usr_patient_john', senderId: 'usr_researcher_evelyn'
+          postId: 'post-2', authorId: 'usr_researcher_evelyn', recipientId: user.id, senderId: 'usr_researcher_evelyn'
         },
         {
           id: `notif-${Date.now() + 2}`,
@@ -99,7 +99,7 @@ const getInitialSampleNotifications = (role: 'patient' | 'researcher'): Notifica
           postTitle: 'Dr. Ben Carter',
           authorName: 'Dr. Sofia Hernandez',
           read: false,
-          postId: 'expert-2', authorId: 'usr_researcher_sofia', recipientId: 'usr_patient_john', senderId: 'usr_researcher_sofia',
+          postId: 'expert-2', authorId: 'usr_researcher_sofia', recipientId: user.id, senderId: 'usr_researcher_sofia',
           originalRequest: { content: "Thank you for reaching out. Please schedule a time through my assistant." } as any,
         }
       ];
@@ -180,15 +180,22 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
       }
       
       const storedNotifs = localStorage.getItem('cura-notifications');
-      if (storedNotifs) {
-          setAllNotifications(JSON.parse(storedNotifs));
-      } else if (user) {
-        // If there are no stored notifications for anyone, and a user is logged in,
-        // create the initial batch of sample notifications and store them.
-        const initialSamples = getInitialSampleNotifications(user.role);
-        setAllNotifications(initialSamples);
-        localStorage.setItem('cura-notifications', JSON.stringify(initialSamples));
+      let currentNotifs = storedNotifs ? JSON.parse(storedNotifs) : [];
+
+      if (user) {
+        // This key tracks if we've seeded notifications for this user before
+        const userNotifKey = `cura-notifs-seeded-${user.id}`;
+        const hasBeenSeeded = localStorage.getItem(userNotifKey);
+
+        if (!hasBeenSeeded) {
+          const initialSamples = getInitialSampleNotifications(user);
+          currentNotifs = [...currentNotifs, ...initialSamples];
+          localStorage.setItem(userNotifKey, 'true'); // Mark as seeded
+        }
       }
+      
+      setAllNotifications(currentNotifs);
+      localStorage.setItem('cura-notifications', JSON.stringify(currentNotifs));
 
     } catch (error) {
       console.error('Failed to parse from localStorage', error);
@@ -511,7 +518,7 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
   return (
     <ForumContext.Provider value={value}>
       {children}
-    </Forum-provider.tsxContext.Provider>
+    </ForumContext.Provider>
   );
 }
 

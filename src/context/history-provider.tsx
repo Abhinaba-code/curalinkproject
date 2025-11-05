@@ -5,7 +5,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from './auth-provider';
 
-export type ActivityType = 'trial_search' | 'publication_search' | 'expert_search';
+export type ActivityType = 'trial_search' | 'publication_search' | 'expert_search' | 'global_search';
 
 export interface HistoryItem {
   id: string;

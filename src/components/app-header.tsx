@@ -18,6 +18,7 @@ import { Textarea } from './ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
+import { useHistory } from '@/context/history-provider';
 
 function ReplyToMeetingRequestDialog({ notif, children }: { notif: Notification, children: React.ReactNode }) {
     const { addMeetingReply } = useForum();
@@ -199,11 +200,18 @@ export function AppHeader() {
   const { notifications, markNotificationsAsRead, unreadCount, clearNotifications, deleteNotification } = useForum();
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
+  const { addHistoryItem } = useHistory();
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!searchQuery.trim()) return;
-    router.push(`/dashboard/search?q=${encodeURIComponent(searchQuery.trim())}`);
+    const trimmedQuery = searchQuery.trim();
+    if (!trimmedQuery) return;
+    addHistoryItem({
+        type: 'global_search',
+        query: trimmedQuery,
+        link: `/dashboard/search?q=${encodeURIComponent(trimmedQuery)}`
+    });
+    router.push(`/dashboard/search?q=${encodeURIComponent(trimmedQuery)}`);
   };
 
   return (

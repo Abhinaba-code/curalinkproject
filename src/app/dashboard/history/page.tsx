@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -39,6 +40,8 @@ const getActivityIcon = (type: ActivityType) => {
       return <FileText className="h-5 w-5 text-primary" />;
     case 'expert_search':
       return <Users className="h-5 w-5 text-primary" />;
+    case 'global_search':
+      return <Search className="h-5 w-5 text-primary" />;
     default:
       return <Search className="h-5 w-5 text-primary" />;
   }
@@ -52,6 +55,8 @@ const getActivityDescription = (item: HistoryItem) => {
             return `Searched for publications: "${item.query}"`;
         case 'expert_search':
             return `Searched for experts: "${item.query}"`;
+        case 'global_search':
+            return `Searched all content for: "${item.query}"`;
         default:
             return `Performed an action with query: "${item.query}"`;
     }

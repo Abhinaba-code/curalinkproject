@@ -1,6 +1,3 @@
-import { config } from 'dotenv';
-config(); // Load environment variables from .env file
-
 import OpenAI from 'openai';
 import { genkit } from 'genkit';
 import { googleAI } from '@genkit-ai/google-genai';

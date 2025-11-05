@@ -70,7 +70,7 @@ export default function CreateProfilePage() {
 
   return (
     <div className="flex min-h-full items-center justify-center p-4">
-      <Card className="w-full max-w-2xl">
+      <Card className="w-full max-w-2xl animate-fade-in">
         <CardHeader>
           <CardTitle className="font-headline text-3xl">
             Create Your Patient Profile

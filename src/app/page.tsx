@@ -42,10 +42,9 @@ export default function Home() {
        <AppShellHeader>
         <PublicHeader />
       </AppShellHeader>
-      <AppShellContent>
+      <AppShellContent className="animate-fade-in">
         <main className="flex-1">
-          <section className="relative overflow-hidden py-20 md:py-32">
-            <div className="absolute inset-0 bg-gradient-to-b from-background via-blue-950/20 to-background"></div>
+          <section className="relative overflow-hidden py-20 md:py-32 bg-secondary/30">
             <div className="container mx-auto px-4">
               <div className="grid grid-cols-1 items-center gap-12 md:grid-cols-2">
                 <div className="z-10 text-center md:text-left">
@@ -81,7 +80,7 @@ export default function Home() {
                       style={{ animationDelay: '0.1s' }}
                     />
                     <Stethoscope
-                      className="h-12 w-12 animate-pulse text-accent/60"
+                      className="h-12 w-12 animate-pulse text-primary/40"
                       style={{ animationDelay: '0.3s' }}
                     />
                     <HeartPulse
@@ -89,7 +88,7 @@ export default function Home() {
                       style={{ animationDelay: '0.5s' }}
                     />
                     <Microscope
-                      className="h-16 w-16 animate-pulse text-accent/80"
+                      className="h-16 w-16 animate-pulse text-primary/60"
                       style={{ animationDelay: '0.2s' }}
                     />
                     <div
@@ -101,7 +100,7 @@ export default function Home() {
                       style={{ animationDelay: '0.6s' }}
                     />
                     <div
-                      className="h-10 w-10 rounded-full bg-accent/40 animate-pulse"
+                      className="h-10 w-10 rounded-full bg-primary/20 animate-pulse"
                       style={{ animationDelay: '0.1s' }}
                     ></div>
                     <Users
@@ -127,10 +126,7 @@ export default function Home() {
               </div>
               <div className="mt-16 grid grid-cols-1 gap-8 md:grid-cols-3">
                 {featureCards.map((feature, index) => (
-                   <Card
-                    key={index}
-                    className="transform-gpu transition-all duration-300 ease-in-out hover:-translate-y-2 hover:shadow-2xl bg-card/50 backdrop-blur-sm"
-                  >
+                   <Card key={index}>
                     <CardHeader className="items-center text-center">
                       <div className="rounded-full bg-primary/10 p-4">
                         {feature.icon}
@@ -150,7 +146,7 @@ export default function Home() {
             </div>
           </section>
 
-          <section className="py-20">
+          <section className="py-20 bg-secondary/30">
             <div className="container mx-auto text-center">
               <h2 className="font-headline text-4xl font-bold">
                 Ready to Join?

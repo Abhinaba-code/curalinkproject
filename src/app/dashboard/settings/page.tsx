@@ -37,6 +37,7 @@ import { useAuth } from '@/context/auth-provider';
 import { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
+import { useTheme } from '@/context/theme-provider';
 
 function ChangePasswordDialog() {
   const { changePassword } = useAuth();
@@ -173,7 +174,6 @@ function DeleteAccountDialog() {
     if (countdown === 0) {
         setIsDeleting(true);
         await deleteAccount();
-        // The AuthProvider will handle the redirect
     }
   }
   
@@ -231,26 +231,9 @@ function DeleteAccountDialog() {
   )
 }
 
-function ThemeSettingsCard() {
-
-    return (
-        <Card>
-            <CardHeader className="flex flex-row items-center gap-4">
-                <Palette className="h-6 w-6" />
-                <CardTitle>Theme</CardTitle>
-            </CardHeader>
-            <CardContent>
-                <CardDescription>
-                    The application is in dark mode.
-                </CardDescription>
-            </CardContent>
-        </Card>
-    )
-}
-
 export default function SettingsPage() {
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 animate-fade-in">
       <div>
         <h1 className="font-headline text-3xl font-bold">Settings</h1>
         <p className="text-muted-foreground">
@@ -259,10 +242,9 @@ export default function SettingsPage() {
       </div>
 
       <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-        {/* Profile Settings */}
-        <Card className="bg-card/50 backdrop-blur-sm">
+        <Card>
           <CardHeader className="flex flex-row items-center gap-4">
-            <User className="h-6 w-6" />
+            <User className="h-6 w-6 text-primary" />
             <CardTitle>Profile Settings</CardTitle>
           </CardHeader>
           <CardContent>
@@ -280,10 +262,9 @@ export default function SettingsPage() {
           </CardFooter>
         </Card>
 
-        {/* Account Settings */}
-        <Card className="bg-card/50 backdrop-blur-sm">
+        <Card>
           <CardHeader className="flex flex-row items-center gap-4">
-            <KeyRound className="h-6 w-6" />
+            <KeyRound className="h-6 w-6 text-primary" />
             <CardTitle>Account Settings</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -297,10 +278,9 @@ export default function SettingsPage() {
           </CardFooter>
         </Card>
 
-        {/* Notification Settings */}
-        <Card className="bg-card/50 backdrop-blur-sm">
+        <Card>
           <CardHeader className="flex flex-row items-center gap-4">
-            <Bell className="h-6 w-6" />
+            <Bell className="h-6 w-6 text-primary" />
             <CardTitle>Notifications</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -337,7 +317,6 @@ export default function SettingsPage() {
           </CardContent>
         </Card>
         
-        <ThemeSettingsCard />
       </div>
     </div>
   );

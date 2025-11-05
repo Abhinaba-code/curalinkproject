@@ -73,14 +73,14 @@ function DashboardApp({ children }: { children: React.ReactNode }) {
   const isCreateProfilePage = pathname === '/dashboard/create-profile';
   
   if (isCreateProfilePage) {
-    return <main className="flex-1 p-4 sm:p-6 bg-background/50">{children}</main>;
+    return <main className="flex-1 p-4 sm:p-6 animate-fade-in">{children}</main>;
   }
 
   return (
     <SidebarProvider>
-      <Sidebar collapsible="icon" className="bg-sidebar/80 backdrop-blur-lg border-r border-border/20">
+      <Sidebar>
         <SidebarHeader>
-          <Logo className="text-sidebar-foreground group-data-[collapsible=icon]:hidden" />
+          <Logo />
         </SidebarHeader>
         <SidebarContent>
           <SidebarMenu>
@@ -102,10 +102,10 @@ function DashboardApp({ children }: { children: React.ReactNode }) {
           </SidebarMenu>
         </SidebarContent>
       </Sidebar>
-      <SidebarInset className="bg-background flex">
+      <SidebarInset>
         <div className="flex flex-col flex-1">
           <AppHeader />
-          <main className="flex-1 p-4 sm:p-6">{children}</main>
+          <main className="flex-1 p-4 sm:p-6 animate-fade-in">{children}</main>
         </div>
       </SidebarInset>
     </SidebarProvider>

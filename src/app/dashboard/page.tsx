@@ -43,7 +43,6 @@ function PersonalizedFeed() {
         setFeed(result);
       } catch (error) {
         console.error("Failed to generate personalized feed:", error);
-        // Optionally set an error state here
       } finally {
         setLoading(false);
       }
@@ -83,7 +82,7 @@ function PersonalizedFeed() {
   return (
     <div className="space-y-4">
       {feed.feed.map((item, index) => (
-        <div key={index} className="flex gap-4 p-4 border rounded-lg">
+        <div key={index} className="flex gap-4 p-4 border rounded-lg transition-colors hover:bg-accent/50">
           <div className="mt-1">{getIcon(item.type)}</div>
           <div>
             <h4 className="font-semibold">{item.title}</h4>

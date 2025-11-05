@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
@@ -81,6 +82,42 @@ const samplePosts: ForumPost[] = [
     },
 ];
 
+const sampleNotifications: Notification[] = [
+    {
+        id: `notif-1`,
+        postId: 'post-2',
+        postTitle: 'My Experience with Clinical Trial NCT04485958 for Lung Cancer',
+        authorId: 'usr_patient_john',
+        authorName: 'John Anderson',
+        read: false,
+        type: 'new_post',
+        recipientId: 'all_researchers',
+        senderId: 'usr_patient_john',
+    },
+    {
+        id: `notif-2`,
+        postId: 'post-2',
+        postTitle: 'My Experience with Clinical Trial NCT04485958 for Lung Cancer',
+        authorId: 'usr_researcher_evelyn',
+        authorName: 'Dr. Evelyn Reed',
+        read: false,
+        type: 'new_reply',
+        recipientId: 'usr_patient_john',
+        senderId: 'usr_researcher_evelyn',
+    },
+    {
+        id: `notif-3`,
+        postId: 'expert-2',
+        postTitle: 'Dr. Ben Carter',
+        authorId: 'usr_patient_john',
+        authorName: 'John Anderson',
+        read: true,
+        type: 'nudge',
+        recipientId: 'all_researchers',
+        senderId: 'usr_patient_john',
+    }
+];
+
 interface ForumContextType {
   posts: ForumPost[];
   notifications: Notification[];
@@ -136,6 +173,9 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
       const storedNotifs = localStorage.getItem('cura-notifications');
       if (storedNotifs) {
           setAllNotifications(JSON.parse(storedNotifs));
+      } else {
+        localStorage.setItem('cura-notifications', JSON.stringify(sampleNotifications));
+        setAllNotifications(sampleNotifications);
       }
     } catch (error) {
       console.error('Failed to parse from localStorage', error);
@@ -457,5 +497,3 @@ export function useForum() {
   }
   return context;
 }
-
-    

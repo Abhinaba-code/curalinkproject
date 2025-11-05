@@ -287,6 +287,82 @@ function Announcements({ announcements }: { announcements: Announcement[] }) {
     );
 }
 
+function TrackSymptomDialog() {
+  const { toast } = useToast();
+  const [isOpen, setIsOpen] = useState(false);
+  const [symptom, setSymptom] = useState('');
+  const [notes, setNotes] = useState('');
+
+  const handleTrackSymptom = () => {
+    if (!symptom) {
+      toast({
+        variant: 'destructive',
+        title: 'Symptom name required',
+        description: 'Please enter the name of the symptom.',
+      });
+      return;
+    }
+
+    // In a real app, you would save this data to a backend.
+    // For this demo, we'll just show a success toast.
+    toast({
+      title: 'Symptom Tracked',
+      description: `Your symptom "${symptom}" has been logged.`,
+    });
+
+    setIsOpen(false);
+    setSymptom('');
+    setNotes('');
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button>
+          <PlusCircle className="mr-2 h-4 w-4" />
+          Track a new symptom
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Track a New Symptom</DialogTitle>
+          <DialogDescription>
+            Log a new symptom you are experiencing. This information is for your personal tracking.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-4 py-4">
+          <div className="space-y-2">
+            <Label htmlFor="symptom-name">Symptom Name</Label>
+            <Input
+              id="symptom-name"
+              value={symptom}
+              onChange={(e) => setSymptom(e.target.value)}
+              placeholder="e.g., Headache, Fatigue"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="symptom-notes">Notes (Optional)</Label>
+            <Textarea
+              id="symptom-notes"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="Describe the symptom, its severity, frequency, etc."
+              className="min-h-[100px]"
+            />
+          </div>
+        </div>
+        <DialogFooter>
+          <DialogClose asChild>
+            <Button variant="outline">Cancel</Button>
+          </DialogClose>
+          <Button onClick={handleTrackSymptom}>Log Symptom</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+
 export default function DashboardPage() {
   const { user } = useAuth();
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
@@ -314,10 +390,7 @@ export default function DashboardPage() {
         {user?.role === 'researcher' ? (
             <NewPublicationDialog onAnnounce={handleAnnounce} />
         ) : (
-            <Button>
-              <PlusCircle className="mr-2 h-4 w-4" />
-              Track a new symptom
-            </Button>
+            <TrackSymptomDialog />
         )}
       </div>
 

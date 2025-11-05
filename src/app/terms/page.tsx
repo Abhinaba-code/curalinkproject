@@ -1,3 +1,4 @@
+
 import { FileText } from 'lucide-react';
 import { AppFooter } from '@/components/app-footer';
 import { AppShell, AppShellHeader, AppShellContent } from '@/components/app-shell';
@@ -22,7 +23,7 @@ export default function TermsPage() {
               </div>
               <div className="prose lg:prose-lg max-w-none mx-auto mt-12 text-muted-foreground">
                 <h2>1. Agreement to Terms</h2>
-                <p>By using our services, you agree to be bound by these Terms. If you do not agree to be bound by these Terms, do not use the services. This is a demonstration project and should not be used for actual medical decisions.</p>
+                <p>By using our services, you agree to be bound by these Terms. If you do not agree to be bound by these Terms, do not use the services. This is a demonstration project developed by Abhinaba roy pradhan and should not be used for actual medical decisions.</p>
 
                 <h2>2. Content</h2>
                 <p>Our Service allows you to post, link, store, share and otherwise make available certain information, text, graphics, videos, or other material. You are responsible for the Content that you post on or through the Service, including its legality, reliability, and appropriateness.</p>
@@ -43,7 +44,7 @@ export default function TermsPage() {
                 <p>We reserve the right, at our sole discretion, to modify or replace these Terms at any time. If a revision is material we will provide at least 30 days' notice prior to any new terms taking effect.</p>
 
                 <h2>Contact Us</h2>
-                <p>If you have any questions about these Terms, please contact us at: <a href="mailto:abhinabapradhan@gmail.com" className="text-primary">abhinabapradhan@gmail.com</a></p>
+                <p>If you have any questions about these Terms, please contact the project developer, Abhinaba roy pradhan, at: <a href="mailto:abhinabapradhan@gmail.com" className="text-primary">abhinabapradhan@gmail.com</a></p>
               </div>
             </div>
           </section>

@@ -1,3 +1,4 @@
+
 import { Shield } from 'lucide-react';
 import { AppFooter } from '@/components/app-footer';
 import { AppShell, AppShellHeader, AppShellContent } from '@/components/app-shell';
@@ -21,7 +22,7 @@ export default function PrivacyPage() {
                 <p className="text-sm text-muted-foreground mt-2">Last updated: {new Date().toLocaleDateString()}</p>
               </div>
               <div className="prose lg:prose-lg max-w-none mx-auto mt-12 text-muted-foreground">
-                <p>Welcome to CuraLink. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our platform. Please read this privacy policy carefully. If you do not agree with the terms of this privacy policy, please do not access the site.</p>
+                <p>Welcome to CuraLink, a demonstration project developed by Abhinaba roy pradhan. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our platform. Please read this privacy policy carefully. If you do not agree with the terms of this privacy policy, please do not access the site.</p>
                 
                 <h2>Collection of Your Information</h2>
                 <p>We may collect information about you in a variety of ways. The information we may collect on the Site includes personally identifiable information, such as your name, shipping address, email address, and telephone number, and demographic information, such as your age, gender, hometown, and interests, that you voluntarily give to us when you register with the Site or when you choose to participate in various activities related to the Site.</p>
@@ -41,7 +42,7 @@ export default function PrivacyPage() {
                 <p>We use administrative, technical, and physical security measures to help protect your personal information. While we have taken reasonable steps to secure the personal information you provide to us, please be aware that despite our efforts, no security measures are perfect or impenetrable, and no method of data transmission can be guaranteed against any interception or other type of misuse.</p>
 
                 <h2>Contact Us</h2>
-                <p>If you have questions or comments about this Privacy Policy, please contact us at: <a href="mailto:abhinabapradhan@gmail.com" className="text-primary">abhinabapradhan@gmail.com</a></p>
+                <p>If you have questions or comments about this Privacy Policy, please contact the project developer, Abhinaba roy pradhan, at: <a href="mailto:abhinabapradhan@gmail.com" className="text-primary">abhinabapradhan@gmail.com</a></p>
               </div>
             </div>
           </section>

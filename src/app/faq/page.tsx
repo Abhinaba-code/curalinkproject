@@ -1,3 +1,4 @@
+
 import {
   Accordion,
   AccordionContent,
@@ -28,6 +29,11 @@ const faqItems = [
     question: 'How much does it cost?',
     answer:
       'Creating an account and using the basic features of CuraLink is completely free for patients, caregivers, and researchers. We may introduce premium features in the future.',
+  },
+  {
+    question: 'Who developed this project?',
+    answer:
+      'CuraLink is a demonstration project conceived and built by Abhinaba roy pradhan.',
   },
 ];
 

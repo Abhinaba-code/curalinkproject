@@ -1,3 +1,4 @@
+
 import { Phone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AppFooter } from '@/components/app-footer';
@@ -22,7 +23,7 @@ export default function ContactPage() {
                     <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
                     We'd love to hear from you. Whether you have a question,
                     feedback, or a partnership inquiry, please don't hesitate to
-                    reach out. This project is maintained by Abhinaba Roy Pradhan.
+                    reach out. This project is developed and maintained by Abhinaba roy pradhan.
                     </p>
                     <div className="mt-8">
                     <Button size="lg" asChild>

@@ -1,3 +1,4 @@
+
 import { User } from 'lucide-react';
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
@@ -24,8 +25,8 @@ export default function AboutPage() {
                         About This Project
                     </h1>
                     <p className="mt-4 text-lg text-muted-foreground">
-                        CuraLink is a demonstration project built by Abhinaba Roy
-                        Pradhan to showcase the power of modern web technologies in
+                        CuraLink is a demonstration project built by Abhinaba roy
+                        pradhan to showcase the power of modern web technologies in
                         the healthcare space. It was founded on the principle that
                         the path to medical breakthroughs is paved with
                         collaboration. We believe in empowering patients with
@@ -64,7 +65,7 @@ export default function AboutPage() {
                     Get In Touch
                     </h2>
                     <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
-                    This project is maintained by Abhinaba Roy Pradhan.
+                    This project is maintained by Abhinaba roy pradhan.
                     </p>
                     <div className="mt-8">
                     <a

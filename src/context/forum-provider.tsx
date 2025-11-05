@@ -84,7 +84,9 @@ interface ForumContextType {
   posts: ForumPost[];
   notifications: Notification[];
   addPost: (post: Omit<ForumPost, 'id' | 'upvotes' | 'replies' | 'reactions'>) => void;
+  deletePost: (postId: string) => void;
   addReply: (postId: string, content: string) => void;
+  deleteReply: (postId: string, replyId: string) => void;
   togglePostReaction: (postId: string, emoji: string) => void;
   toggleReplyReaction: (postId: string, replyId: string, emoji: string) => void;
   sendNudgeNotification: (expert: Expert) => void;
@@ -178,6 +180,21 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const deletePost = (postId: string) => {
+    if (!user) return;
+
+    const postToDelete = posts.find(p => p.id === postId);
+    if (postToDelete?.author.id !== user.id) {
+        console.error("User is not authorized to delete this post.");
+        return;
+    }
+    
+    const updatedPosts = posts.filter(p => p.id !== postId);
+    setPosts(updatedPosts);
+    localStorage.setItem('cura-posts', JSON.stringify(updatedPosts));
+  };
+
+
   const addReply = (postId: string, content: string) => {
     if (!user) return;
 
@@ -221,6 +238,28 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
     setPosts(updatedPosts);
     localStorage.setItem('cura-posts', JSON.stringify(updatedPosts));
   };
+
+  const deleteReply = (postId: string, replyId: string) => {
+    if (!user) return;
+
+    const updatedPosts = posts.map(p => {
+        if (p.id === postId) {
+            const replyToDelete = p.replies.find(r => r.id === replyId);
+            if (replyToDelete?.author.id !== user.id) {
+                console.error("User is not authorized to delete this reply.");
+                return p;
+            }
+            return {
+                ...p,
+                replies: p.replies.filter(r => r.id !== replyId)
+            };
+        }
+        return p;
+    });
+
+    setPosts(updatedPosts);
+    localStorage.setItem('cura-posts', JSON.stringify(updatedPosts));
+  };
   
   const toggleReaction = (currentReactions: Reactions, userId: string, emoji: string): Reactions => {
     const reactions = { ...currentReactions };
@@ -231,6 +270,14 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
         delete reactions[emoji];
       }
     } else { // User wants to add a reaction
+      // Ensure user can only have one reaction
+      Object.keys(reactions).forEach(key => {
+        reactions[key] = reactions[key].filter(id => id !== userId);
+        if (reactions[key].length === 0) {
+            delete reactions[key];
+        }
+      });
+
       if (!reactions[emoji]) {
         reactions[emoji] = [];
       }
@@ -302,7 +349,7 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
         if (!user) return;
 
         const updatedNotifs = allNotifications.filter(
-        n => !(n.type === 'nudge' && n.postId === expertId && n.authorId === user.id)
+        n => !(n.type === 'nudge' && n.postId === expertId && n.senderId === user.id)
         );
         
         setAllNotifications(updatedNotifs);
@@ -330,7 +377,7 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
     const removeMeetingRequest = (expertId: string) => {
         if (!user) return;
         const updatedNotifs = allNotifications.filter(
-            (n) => !(n.type === 'meeting_request' && n.postId === expertId && n.authorId === user.id)
+            (n) => !(n.type === 'meeting_request' && n.postId === expertId && n.senderId === user.id)
         );
         setAllNotifications(updatedNotifs);
         localStorage.setItem('cura-notifications', JSON.stringify(updatedNotifs));
@@ -344,7 +391,7 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
             postId: originalNotification.postId, // ID of the expert
             postTitle: originalNotification.postTitle, // Name of the expert
             authorId: user.id,
-            authorName: user.name,
+            authorName: user.name || 'Anonymous',
             read: false,
             type: 'meeting_reply',
             recipientId: originalNotification.authorId, // The patient who made the request
@@ -373,7 +420,7 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem('cura-notifications', JSON.stringify(updatedNotifications));
   }
 
-  const value = { posts, notifications, addPost, addReply, sendNudgeNotification, removeNudgeNotification, sendMeetingRequest, addMeetingReply, removeMeetingRequest, markNotificationsAsRead, unreadCount, togglePostReaction, toggleReplyReaction };
+  const value = { posts, notifications, addPost, deletePost, addReply, deleteReply, sendNudgeNotification, removeNudgeNotification, sendMeetingRequest, addMeetingReply, removeMeetingRequest, markNotificationsAsRead, unreadCount, togglePostReaction, toggleReplyReaction };
 
   return (
     <ForumContext.Provider value={value}>

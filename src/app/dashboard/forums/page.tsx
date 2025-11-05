@@ -17,8 +17,20 @@ import {
   PlusCircle,
   CornerDownRight,
   Smile,
+  Trash2,
 } from 'lucide-react';
 import { useState } from 'react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import {
   Dialog,
   DialogContent,
@@ -107,9 +119,19 @@ function EmojiReactions({
 
 function ReplyCard({ reply, postId }: { reply: PostReply; postId: string }) {
   const { user } = useAuth();
-  const { toggleReplyReaction } = useForum();
+  const { toggleReplyReaction, deleteReply } = useForum();
+  const { toast } = useToast();
 
   const canReact = user?.role === 'patient' && reply.author.role === 'researcher';
+  const canDelete = user?.id === reply.author.id;
+  
+  const handleDelete = () => {
+    deleteReply(postId, reply.id);
+    toast({
+        title: 'Reply Deleted',
+        description: 'Your reply has been permanently removed.'
+    });
+  }
 
   return (
     <div className="flex items-start gap-3 pl-8 mt-4 border-l-2 border-primary/20">
@@ -120,9 +142,32 @@ function ReplyCard({ reply, postId }: { reply: PostReply; postId: string }) {
         </AvatarFallback>
       </Avatar>
       <div className="flex-1">
-        <div className="flex items-center gap-2">
-            <p className="font-semibold text-sm">{reply.author.name}</p>
-            <p className="text-xs text-muted-foreground">{reply.author.role}</p>
+        <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+                <p className="font-semibold text-sm">{reply.author.name}</p>
+                <p className="text-xs text-muted-foreground">{reply.author.role}</p>
+            </div>
+            {canDelete && (
+                <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-7 w-7">
+                            <Trash2 className="h-4 w-4 text-muted-foreground hover:text-destructive"/>
+                        </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                                This action cannot be undone. This will permanently delete your reply.
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
+            )}
         </div>
         <p className="text-sm text-muted-foreground whitespace-pre-wrap">{reply.content}</p>
         <div className="mt-2">
@@ -139,7 +184,7 @@ function ReplyCard({ reply, postId }: { reply: PostReply; postId: string }) {
 
 
 function PostCard({ post }: { post: ForumPost }) {
-  const { addReply, togglePostReaction } = useForum();
+  const { addReply, togglePostReaction, deletePost } = useForum();
   const { user } = useAuth();
   const [replyContent, setReplyContent] = useState('');
   const [showReplyInput, setShowReplyInput] = useState(false);
@@ -156,25 +201,58 @@ function PostCard({ post }: { post: ForumPost }) {
     });
   };
 
+  const handleDeletePost = () => {
+    deletePost(post.id);
+    toast({
+      variant: 'destructive',
+      title: 'Post Deleted',
+      description: 'Your post has been permanently removed from the forum.',
+    });
+  };
+
   const canReactToPost = user?.role === 'researcher' && post.author.role === 'patient';
+  const canDeletePost = user?.id === post.author.id;
 
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-center gap-4">
-          <Avatar>
-            <AvatarImage src={post.author.avatarUrl} alt={post.author.name} />
-            <AvatarFallback>
-              {post.author.name
-                .split(' ')
-                .map((n) => n[0])
-                .join('')}
-            </AvatarFallback>
-          </Avatar>
-          <div>
-            <p className="font-semibold">{post.author.name}</p>
-            <p className="text-sm text-muted-foreground">{post.author.role}</p>
+        <div className="flex items-start justify-between">
+          <div className="flex items-center gap-4">
+            <Avatar>
+              <AvatarImage src={post.author.avatarUrl} alt={post.author.name} />
+              <AvatarFallback>
+                {post.author.name
+                  .split(' ')
+                  .map((n) => n[0])
+                  .join('')}
+              </AvatarFallback>
+            </Avatar>
+            <div>
+              <p className="font-semibold">{post.author.name}</p>
+              <p className="text-sm text-muted-foreground">{post.author.role}</p>
+            </div>
           </div>
+           {canDeletePost && (
+            <AlertDialog>
+                <AlertDialogTrigger asChild>
+                    <Button variant="ghost" size="icon">
+                        <Trash2 className="h-5 w-5 text-muted-foreground hover:text-destructive"/>
+                    </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            This action cannot be undone. This will permanently delete your post and all its replies.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleDeletePost}>Delete Post</AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+          )}
         </div>
       </CardHeader>
       <CardContent>
@@ -217,7 +295,7 @@ function PostCard({ post }: { post: ForumPost }) {
             <Share2 className="h-5 w-5" />
             </Button>
         </div>
-        {showReplyInput && user?.role === 'researcher' && (
+        {showReplyInput && (user?.role === 'researcher' || user?.id === post.author.id) && (
             <div className="w-full pl-10 flex gap-2">
                 <Textarea 
                     placeholder={`Replying to ${post.author.name}...`}

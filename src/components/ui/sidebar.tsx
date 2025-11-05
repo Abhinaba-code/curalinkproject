@@ -193,7 +193,7 @@ const Sidebar = React.forwardRef<
     <div
       ref={ref}
       className={cn(
-        'group peer hidden text-sidebar-foreground md:block transition-[width] duration-300 ease-in-out',
+        'group peer hidden bg-sidebar text-sidebar-foreground md:block transition-[width] duration-300 ease-in-out',
         state === 'expanded' ? 'w-[--sidebar-width]' : 'w-[--sidebar-width-icon]',
         className
       )}
@@ -205,9 +205,8 @@ const Sidebar = React.forwardRef<
       <div
         data-sidebar="sidebar"
         className={cn(
-          'flex h-full flex-col bg-sidebar text-sidebar-foreground',
-          side === 'left' ? 'border-r' : 'border-l',
-          className
+          'flex h-full flex-col',
+          side === 'left' ? 'border-r' : 'border-l'
         )}
       >
         {children}

@@ -25,6 +25,18 @@ export function PublicHeader() {
         >
           Contact
         </Link>
+        <Link
+          href="/terms"
+          className="text-sm font-medium text-muted-foreground hover:text-primary"
+        >
+          Terms
+        </Link>
+        <Link
+          href="/privacy"
+          className="text-sm font-medium text-muted-foreground hover:text-primary"
+        >
+          Privacy
+        </Link>
       </nav>
       <nav className="flex items-center gap-4">
         <Button variant="ghost" asChild>

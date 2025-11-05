@@ -40,7 +40,7 @@ import { cn } from '@/lib/utils';
 const EMOJIS = ['👍', '❤️', '😂', '😮', '😢'];
 
 function EmojiReactions({
-  reactions,
+  reactions = {},
   onSelect,
   canReact,
 }: {

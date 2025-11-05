@@ -72,6 +72,33 @@ function ReplyToMeetingRequestDialog({ notif, children }: { notif: Notification,
     );
 }
 
+function MeetingReplyDialog({ notif, children }: { notif: Notification, children: React.ReactNode }) {
+    return (
+        <Dialog>
+            <DialogTrigger asChild>{children}</DialogTrigger>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Update on Your Meeting Request</DialogTitle>
+                    <DialogDescription>
+                        A researcher has responded to your request regarding {notif.postTitle}.
+                    </DialogDescription>
+                </DialogHeader>
+                <div className="py-4 space-y-2">
+                    <p className="font-semibold text-sm">Researcher's Message:</p>
+                    <div className="text-sm text-muted-foreground border p-3 rounded-md bg-secondary/50">
+                        <p>{notif.originalRequest?.content}</p>
+                    </div>
+                </div>
+                <DialogFooter>
+                    <DialogClose asChild>
+                        <Button>Close</Button>
+                    </DialogClose>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
+    );
+}
+
 
 function NotificationItem({ notif }: { notif: Notification }) {
     const { user } = useAuth();
@@ -106,7 +133,7 @@ function NotificationItem({ notif }: { notif: Notification }) {
             Icon = Calendar;
             text = `Update on your meeting request`;
             subtext = `From: ${notif.authorName} re: ${notif.postTitle}`;
-            link = '#'; // Informational
+            link = '#'; // Informational, handled by dialog for patient
             break;
         default:
             return null;
@@ -134,6 +161,9 @@ function NotificationItem({ notif }: { notif: Notification }) {
     const Wrapper = ({ children }: { children: React.ReactNode }) => {
         if (notif.type === 'meeting_request' && user?.role === 'researcher') {
             return <ReplyToMeetingRequestDialog notif={notif}>{children}</ReplyToMeetingRequestDialog>;
+        }
+        if (notif.type === 'meeting_reply' && user?.role === 'patient') {
+            return <MeetingReplyDialog notif={notif}>{children}</MeetingReplyDialog>;
         }
         if (link === '#') {
             return <div className="w-full cursor-default">{children}</div>;

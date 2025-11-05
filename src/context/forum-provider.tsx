@@ -41,7 +41,7 @@ export interface Notification {
   read: boolean;
   type: 'new_post' | 'new_reply' | 'nudge' | 'meeting_request' | 'meeting_reply';
   recipientId: string; // Can be a user ID or 'all_researchers'
-  originalRequest?: Notification; // Used for replies to link back
+  originalRequest?: Notification & { content?: string };
   senderId?: string; // ID of the user who triggered the notification
 }
 
@@ -348,7 +348,7 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
             read: false,
             type: 'meeting_reply',
             recipientId: originalNotification.authorId, // The patient who made the request
-            originalRequest: originalNotification,
+            originalRequest: {...originalNotification, content: replyContent },
             senderId: user.id,
         };
         const updatedNotifs = [newReplyNotification, ...allNotifications];

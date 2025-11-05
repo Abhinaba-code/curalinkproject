@@ -1,51 +1,62 @@
 import Link from 'next/link';
 import { Button } from './ui/button';
 import { Logo } from './logo';
+import { Sheet, SheetContent, SheetTrigger } from './ui/sheet';
+import { Menu } from 'lucide-react';
+
+const navLinks = [
+  { href: '/about', label: 'About' },
+  { href: '/faq', label: 'FAQ' },
+  { href: '/contact', label: 'Contact' },
+  { href: '/terms', label: 'Terms' },
+  { href: '/privacy', label: 'Privacy' },
+];
 
 export function PublicHeader() {
   return (
     <div className="container mx-auto flex h-20 items-center justify-between px-4">
       <Logo />
-      <nav className="hidden md:flex items-center gap-6">
-        <Link
-          href="/about"
-          className="text-sm font-medium text-muted-foreground hover:text-primary"
-        >
-          About
-        </Link>
-        <Link
-          href="/faq"
-          className="text-sm font-medium text-muted-foreground hover:text-primary"
-        >
-          FAQ
-        </Link>
-        <Link
-          href="/contact"
-          className="text-sm font-medium text-muted-foreground hover:text-primary"
-        >
-          Contact
-        </Link>
-        <Link
-          href="/terms"
-          className="text-sm font-medium text-muted-foreground hover:text-primary"
-        >
-          Terms
-        </Link>
-        <Link
-          href="/privacy"
-          className="text-sm font-medium text-muted-foreground hover:text-primary"
-        >
-          Privacy
-        </Link>
+      <nav className="hidden items-center gap-6 md:flex">
+        {navLinks.map((link) => (
+          <Link
+            key={link.href}
+            href={link.href}
+            className="text-sm font-medium text-muted-foreground hover:text-primary"
+          >
+            {link.label}
+          </Link>
+        ))}
       </nav>
-      <nav className="flex items-center gap-4">
+      <div className="flex items-center gap-4">
         <Button variant="ghost" asChild>
           <Link href="/auth/login">Log In</Link>
         </Button>
         <Button asChild>
           <Link href="/auth/signup">Get Started</Link>
         </Button>
-      </nav>
+        <Sheet>
+          <SheetTrigger asChild>
+            <Button variant="outline" size="icon" className="md:hidden">
+              <Menu className="h-5 w-5" />
+              <span className="sr-only">Open menu</span>
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="right">
+            <nav className="grid gap-6 text-lg font-medium pt-10">
+              <Logo />
+              {navLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="text-muted-foreground hover:text-foreground"
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </nav>
+          </SheetContent>
+        </Sheet>
+      </div>
     </div>
   );
 }

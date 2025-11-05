@@ -76,47 +76,47 @@
   }
 
   .sunset {
-    --background: 20 14.3% 4.1%;
-    --foreground: 210 40% 98%;
-    --card: 20 14.3% 4.1%;
-    --card-foreground: 210 40% 98%;
-    --popover: 20 14.3% 4.1%;
-    --popover-foreground: 210 40% 98%;
+    --background: 24 9.8% 95.9%;
+    --foreground: 20 14.3% 4.1%;
+    --card: 24 9.8% 95.9%;
+    --card-foreground: 20 14.3% 4.1%;
+    --popover: 24 9.8% 95.9%;
+    --popover-foreground: 20 14.3% 4.1%;
     --primary: 22.3 93.3% 53.1%;
     --primary-foreground: 210 40% 98%;
-    --secondary: 12.2 62.6% 12.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 12.2 62.6% 12.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 12.2 62.6% 12.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 85.7% 97.3%;
-    --border: 12.2 62.6% 12.5%;
-    --input: 12.2 62.6% 12.5%;
+    --secondary: 20 24% 90%;
+    --secondary-foreground: 20 14.3% 4.1%;
+    --muted: 20 24% 90%;
+    --muted-foreground: 24 5.4% 45.1%;
+    --accent: 20 24% 90%;
+    --accent-foreground: 20 14.3% 4.1%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 20 5.9% 90%;
+    --input: 20 5.9% 90%;
     --ring: 22.3 93.3% 53.1%;
   }
   
   .forest {
-    --background: 220 25% 10%;
-    --foreground: 120 10% 95%;
-    --card: 220 25% 15%;
-    --card-foreground: 120 10% 95%;
-    --popover: 220 25% 15%;
-    --popover-foreground: 120 10% 95%;
-    --primary: 150 70% 40%;
+    --background: 120 15% 96%;
+    --foreground: 120 25% 10%;
+    --card: 120 15% 96%;
+    --card-foreground: 120 25% 10%;
+    --popover: 120 15% 96%;
+    --popover-foreground: 120 25% 10%;
+    --primary: 150 70% 35%;
     --primary-foreground: 150 20% 98%;
-    --secondary: 210 20% 25%;
-    --secondary-foreground: 120 10% 95%;
-    --muted: 210 20% 25%;
-    --muted-foreground: 120 10% 65%;
-    --accent: 210 20% 25%;
-    --accent-foreground: 120 10% 95%;
+    --secondary: 130 30% 92%;
+    --secondary-foreground: 120 25% 15%;
+    --muted: 130 30% 92%;
+    --muted-foreground: 120 10% 45%;
+    --accent: 130 30% 92%;
+    --accent-foreground: 120 25% 15%;
     --destructive: 0 70% 50%;
     --destructive-foreground: 0 85.7% 97.3%;
-    --border: 210 20% 25%;
-    --input: 210 20% 25%;
-    --ring: 150 70% 40%;
+    --border: 130 20% 88%;
+    --input: 130 20% 88%;
+    --ring: 150 70% 35%;
   }
 
   .rose {

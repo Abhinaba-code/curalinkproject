@@ -238,8 +238,8 @@ function ThemeSelector() {
     { name: 'light', colors: ['#e2e8f0', '#3b82f6', '#ec4899'] },
     { name: 'dark', colors: ['#334155', '#60a5fa', '#f472b6'] },
     { name: 'ocean', colors: ['#cbd5e1', '#38bdf8', '#34d399'] },
-    { name: 'sunset', colors: ['#94a3b8', '#f97316', '#d946ef'] },
-    { name: 'forest', colors: ['#a3b894', '#4d7c0f', '#84cc16'] },
+    { name: 'sunset', colors: ['#fde68a', '#f97316', '#d946ef'] },
+    { name: 'forest', colors: ['#dcfce7', '#4d7c0f', '#84cc16'] },
     { name: 'rose', colors: ['#fecdd3', '#f43f5e', '#fb7185'] },
   ];
 

@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -19,6 +20,7 @@ import { useForum } from '@/context/forum-provider';
 import { useAuth } from '@/context/auth-provider';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { useHistory } from '@/context/history-provider';
 
 
 const PAGE_SIZE = 12;
@@ -285,6 +287,7 @@ export default function ExpertsPage() {
     const [currentQuery, setCurrentQuery] = useState('Cardiology');
     const [currentPage, setCurrentPage] = useState(1);
     const [totalResults, setTotalResults] = useState(0);
+    const { addHistoryItem } = useHistory();
 
     const totalPages = Math.ceil(totalResults / PAGE_SIZE);
     
@@ -328,14 +331,26 @@ export default function ExpertsPage() {
     
     const handleSearch = (e?: React.FormEvent) => {
         e?.preventDefault();
+        const finalQuery = searchTerm || 'Cardiology';
         setCurrentPage(1);
-        setCurrentQuery(searchTerm || 'Cardiology');
+        setCurrentQuery(finalQuery);
+
+        addHistoryItem({
+            type: 'expert_search',
+            query: finalQuery,
+            link: '/dashboard/experts'
+        });
     };
 
     const handleCategoryClick = (category: string) => {
         setSearchTerm(category);
         setCurrentPage(1);
         setCurrentQuery(category);
+        addHistoryItem({
+            type: 'expert_search',
+            query: category,
+            link: '/dashboard/experts'
+        });
     }
 
     const handlePageChange = (newPage: number) => {
@@ -492,5 +507,3 @@ export default function ExpertsPage() {
         </div>
     );
 }
-
-    

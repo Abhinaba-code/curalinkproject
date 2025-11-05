@@ -13,6 +13,7 @@ import { summarizeMedicalPublication } from '@/ai/flows/ai-summarize-medical-pub
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { useFavorites } from '@/context/favorites-provider';
 import { useToast } from '@/hooks/use-toast';
+import { useHistory } from '@/context/history-provider';
 
 function PublicationCard({ pub }: { pub: Publication }) {
     const [summary, setSummary] = useState('');
@@ -136,6 +137,7 @@ export default function PublicationsPage() {
     const [searchQuery, setSearchQuery] = useState('health');
     const [city, setCity] = useState('');
     const [country, setCountry] = useState('');
+    const { addHistoryItem } = useHistory();
 
     useEffect(() => {
         async function fetchPublications() {
@@ -156,7 +158,14 @@ export default function PublicationsPage() {
         e.preventDefault();
         const location = [city, country].filter(Boolean).join(', ');
         const fullQuery = [searchTerm, location].filter(Boolean).join(' ');
-        setSearchQuery(fullQuery || 'health');
+        const finalQuery = fullQuery || 'health';
+        setSearchQuery(finalQuery);
+
+        addHistoryItem({
+            type: 'publication_search',
+            query: finalQuery,
+            link: '/dashboard/publications'
+        });
     };
 
     return (

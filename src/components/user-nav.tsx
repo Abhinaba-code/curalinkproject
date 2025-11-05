@@ -22,6 +22,7 @@ import {
   Info,
   HelpCircle,
   Mail,
+  History,
 } from 'lucide-react';
 
 export function UserNav() {
@@ -82,6 +83,12 @@ export function UserNav() {
             <Link href="/dashboard/profile">
               <Users className="mr-2 h-4 w-4" />
               <span>Followers</span>
+            </Link>
+          </DropdownMenuItem>
+           <DropdownMenuItem asChild>
+            <Link href="/dashboard/history">
+              <History className="mr-2 h-4 w-4" />
+              <span>History</span>
             </Link>
           </DropdownMenuItem>
         </DropdownMenuGroup>

@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent } from '@/components/ui/card';
+import { useHistory } from '@/context/history-provider';
 
 type RecruitmentStatus = 'Recruiting' | 'Active, not recruiting' | 'Completed';
 const ALL_STATUSES: RecruitmentStatus[] = ['Recruiting', 'Active, not recruiting', 'Completed'];
@@ -29,6 +30,7 @@ export default function TrialsPage() {
   const [searchQuery, setSearchQuery] = useState('health');
   const [city, setCity] = useState('');
   const [country, setCountry] = useState('');
+  const { addHistoryItem } = useHistory();
   
   const [locationQuery, setLocationQuery] = useState('');
   const [statuses, setStatuses] = useState<RecruitmentStatus[]>(['Recruiting']);
@@ -45,10 +47,17 @@ export default function TrialsPage() {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    setSearchQuery(searchTerm || 'health');
+    const finalQuery = searchTerm || 'health';
+    setSearchQuery(finalQuery);
     
     const locationParts = [city, country].filter(Boolean);
     setLocationQuery(locationParts.join(', '));
+
+    addHistoryItem({
+      type: 'trial_search',
+      query: finalQuery,
+      link: '/dashboard/trials'
+    });
   };
 
   const handleStatusChange = (status: RecruitmentStatus, checked: boolean) => {

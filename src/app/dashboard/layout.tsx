@@ -18,6 +18,7 @@ import {
   FileText,
   Star,
   Loader2,
+  History,
 } from 'lucide-react';
 import { Logo } from '@/components/logo';
 import { AppHeader } from '@/components/app-header';
@@ -28,6 +29,7 @@ import { FavoritesProvider } from '@/context/favorites-provider';
 import { ForumProvider } from '@/context/forum-provider';
 import { FollowProvider } from '@/context/follow-provider';
 import { Chatbot } from '@/components/chatbot';
+import { HistoryProvider } from '@/context/history-provider';
 
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -36,6 +38,7 @@ const navItems = [
   { href: '/dashboard/experts', label: 'Health Experts', icon: Users },
   { href: '/dashboard/forums', label: 'Forums', icon: HeartPulse },
   { href: '/dashboard/favorites', label: 'Favorites', icon: Star },
+  { href: '/dashboard/history', label: 'History', icon: History },
 ];
 
 function DashboardApp({ children }: { children: React.ReactNode }) {
@@ -118,12 +121,14 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <FavoritesProvider>
-      <FollowProvider>
-        <ForumProvider>
-          <DashboardApp>{children}</DashboardApp>
-        </ForumProvider>
-      </FollowProvider>
-    </FavoritesProvider>
+    <HistoryProvider>
+      <FavoritesProvider>
+        <FollowProvider>
+          <ForumProvider>
+            <DashboardApp>{children}</DashboardApp>
+          </ForumProvider>
+        </FollowProvider>
+      </FavoritesProvider>
+    </HistoryProvider>
   );
 }

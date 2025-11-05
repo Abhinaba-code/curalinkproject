@@ -1,3 +1,4 @@
+
 'use client';
 
 import { SidebarTrigger } from '@/components/ui/sidebar';
@@ -103,8 +104,20 @@ function MeetingReplyDialog({ notif, children }: { notif: Notification, children
 
 function NotificationItem({ notif }: { notif: Notification }) {
     const { user } = useAuth();
+    const { deleteNotification } = useForum();
+    const { toast } = useToast();
     let Icon, text, subtext, link;
     
+    const handleDelete = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        e.preventDefault();
+        deleteNotification(notif.id);
+        toast({
+            title: "Notification Removed",
+            duration: 2000,
+        });
+    }
+
     switch (notif.type) {
         case 'new_post':
             Icon = MessageSquare;
@@ -141,11 +154,11 @@ function NotificationItem({ notif }: { notif: Notification }) {
     }
 
     const content = (
-         <div className="flex items-start gap-3 rounded-lg p-2 hover:bg-accent cursor-pointer w-full">
+         <div className="group flex items-start gap-3 rounded-lg p-2 hover:bg-accent cursor-pointer w-full relative">
             <div className="mt-1">
                 <Icon className="h-4 w-4 text-primary" />
             </div>
-            <div className="grid gap-1 flex-1">
+            <div className="grid gap-1 flex-1 pr-8">
                 <p className="text-sm font-medium leading-none">
                     {text}
                 </p>
@@ -156,6 +169,14 @@ function NotificationItem({ notif }: { notif: Notification }) {
             {!notif.read && (
                 <div className="mt-1 h-2 w-2 rounded-full bg-primary" />
             )}
+            <Button
+                variant="ghost"
+                size="icon"
+                className="absolute top-1/2 right-1 -translate-y-1/2 h-7 w-7 opacity-0 group-hover:opacity-100"
+                onClick={handleDelete}
+            >
+                <Trash2 className="h-4 w-4 text-muted-foreground" />
+            </Button>
         </div>
     );
 

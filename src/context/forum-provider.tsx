@@ -134,6 +134,7 @@ interface ForumContextType {
   addMeetingReply: (originalNotification: Notification, replyContent: string) => void;
   markNotificationsAsRead: () => void;
   clearNotifications: () => void;
+  deleteNotification: (notificationId: string) => void;
   unreadCount: number;
 }
 
@@ -536,7 +537,24 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
     });
   };
 
-  const value = { posts, notifications: finalNotifications, addPost, deletePost, addReply, deleteReply, sendNudgeNotification, removeNudgeNotification, sendMeetingRequest, addMeetingReply, removeMeetingRequest, markNotificationsAsRead, unreadCount, togglePostReaction, toggleReplyReaction, clearNotifications };
+  const deleteNotification = (notificationId: string) => {
+    // We can't delete fake notifications as they don't exist in the main state
+    if (notificationId.startsWith('fake-')) {
+        toast({
+            variant: 'destructive',
+            title: "Cannot Delete",
+            description: "This is a sample notification and cannot be deleted.",
+        });
+        return;
+    }
+
+    const updatedNotifications = allNotifications.filter(n => n.id !== notificationId);
+    setAllNotifications(updatedNotifications);
+    localStorage.setItem('cura-notifications', JSON.stringify(updatedNotifications));
+  };
+
+
+  const value = { posts, notifications: finalNotifications, addPost, deletePost, addReply, deleteReply, sendNudgeNotification, removeNudgeNotification, sendMeetingRequest, addMeetingReply, removeMeetingRequest, markNotificationsAsRead, unreadCount, togglePostReaction, toggleReplyReaction, clearNotifications, deleteNotification };
 
   return (
     <ForumContext.Provider value={value}>

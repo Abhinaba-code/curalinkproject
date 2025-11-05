@@ -27,7 +27,6 @@ export async function summarizeClinicalTrial(input: SummarizeClinicalTrialInput)
 
 const prompt = ai.definePrompt({
   name: 'summarizeClinicalTrialPrompt',
-  model: googleAI('gemini-pro'),
   input: {schema: SummarizeClinicalTrialInputSchema},
   output: {schema: SummarizeClinicalTrialOutputSchema},
   prompt: `You are an AI expert in summarizing clinical trials for patients.
@@ -35,7 +34,7 @@ const prompt = ai.definePrompt({
   Given the following clinical trial details, provide a concise and easy-to-understand summary that helps patients quickly assess the trial's relevance to their needs.
 
   Clinical Trial Details:
-  {{trialDetails}}
+  {{{trialDetails}}}
   `,
 });
 
@@ -44,6 +43,7 @@ const summarizeClinicalTrialFlow = ai.defineFlow(
     name: 'summarizeClinicalTrialFlow',
     inputSchema: SummarizeClinicalTrialInputSchema,
     outputSchema: SummarizeClinicalTrialOutputSchema,
+    model: googleAI('gemini-pro'),
   },
   async input => {
     const {output} = await prompt(input);

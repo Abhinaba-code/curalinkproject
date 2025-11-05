@@ -28,7 +28,6 @@ export async function summarizeMedicalPublication(input: SummarizeMedicalPublica
 
 const summarizeMedicalPublicationPrompt = ai.definePrompt({
   name: 'summarizeMedicalPublicationPrompt',
-  model: googleAI('gemini-pro'),
   input: {schema: SummarizeMedicalPublicationInputSchema},
   output: {schema: SummarizeMedicalPublicationOutputSchema},
   prompt: `You are an expert at summarizing complex medical research papers for a general audience.
@@ -43,6 +42,7 @@ const summarizeMedicalPublicationFlow = ai.defineFlow(
     name: 'summarizeMedicalPublicationFlow',
     inputSchema: SummarizeMedicalPublicationInputSchema,
     outputSchema: SummarizeMedicalPublicationOutputSchema,
+    model: googleAI('gemini-pro'),
   },
   async input => {
     const {output} = await summarizeMedicalPublicationPrompt(input);

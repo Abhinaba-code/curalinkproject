@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview AI-powered summarization of clinical trials.
@@ -29,6 +30,7 @@ const prompt = ai.definePrompt({
   name: 'summarizeClinicalTrialPrompt',
   input: {schema: SummarizeClinicalTrialInputSchema},
   output: {schema: SummarizeClinicalTrialOutputSchema},
+  model: googleAI('gemini-pro'),
   prompt: `You are an AI expert in summarizing clinical trials for patients.
 
   Given the following clinical trial details, provide a concise and easy-to-understand summary that helps patients quickly assess the trial's relevance to their needs.
@@ -45,12 +47,7 @@ const summarizeClinicalTrialFlow = ai.defineFlow(
     outputSchema: SummarizeClinicalTrialOutputSchema,
   },
   async input => {
-    const llmResponse = await ai.generate({
-      model: googleAI('gemini-pro'),
-      prompt: prompt.template,
-      input,
-      output: { schema: SummarizeClinicalTrialOutputSchema },
-    });
-    return llmResponse.output!;
+    const {output} = await prompt(input);
+    return output!;
   }
 );

@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview Generates a personalized feed for a user based on their interests.
@@ -38,6 +39,7 @@ const prompt = ai.definePrompt({
   name: 'personalizedFeedPrompt',
   input: { schema: GeneratePersonalizedFeedInputSchema },
   output: { schema: GeneratePersonalizedFeedOutputSchema },
+  model: googleAI('gemini-pro'),
   system: `You are an AI assistant for CuraLink, a platform that connects patients and researchers.
   Your task is to generate a personalized feed of content for a user based on their stated interests.
   The feed should contain a mix of relevant clinical trials, medical publications, and health experts.
@@ -64,12 +66,7 @@ const personalizedFeedFlow = ai.defineFlow(
     outputSchema: GeneratePersonalizedFeedOutputSchema,
   },
   async (input) => {
-    const { output } = await ai.generate({
-        model: googleAI('gemini-pro'),
-        prompt: prompt.template,
-        input,
-        output: { schema: GeneratePersonalizedFeedOutputSchema },
-    });
+    const { output } = await prompt(input);
     return output!;
   }
 );

@@ -1,3 +1,4 @@
+
 'use server';
 
 /**
@@ -40,6 +41,7 @@ const prompt = ai.definePrompt({
   name: 'expertRecommendationsPrompt',
   input: {schema: ExpertRecommendationsInputSchema},
   output: {schema: ExpertRecommendationsOutputSchema},
+  model: googleAI('gemini-pro'),
   prompt: `You are an AI assistant helping researchers find potential collaborators.
 
   Based on the researcher's stated research interests, recommend health experts who may be good collaborators.
@@ -58,12 +60,7 @@ const expertRecommendationsFlow = ai.defineFlow(
     outputSchema: ExpertRecommendationsOutputSchema,
   },
   async input => {
-    const {output} = await ai.generate({
-        model: googleAI('gemini-pro'),
-        prompt: prompt.template,
-        input,
-        output: { schema: ExpertRecommendationsOutputSchema },
-    });
+    const {output} = await prompt(input);
     return output!;
   }
 );

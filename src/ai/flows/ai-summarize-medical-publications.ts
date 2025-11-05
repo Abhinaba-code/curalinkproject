@@ -30,6 +30,7 @@ const summarizeMedicalPublicationPrompt = ai.definePrompt({
   name: 'summarizeMedicalPublicationPrompt',
   input: {schema: SummarizeMedicalPublicationInputSchema},
   output: {schema: SummarizeMedicalPublicationOutputSchema},
+  model: googleAI('gemini-pro'),
   prompt: `You are an expert at summarizing complex medical research papers for a general audience.
   
   Summarize the following medical publication content, focusing on the key findings, methodology, and significance. Explain it in a way that a patient or non-specialist can understand.
@@ -44,12 +45,7 @@ const summarizeMedicalPublicationFlow = ai.defineFlow(
     outputSchema: SummarizeMedicalPublicationOutputSchema,
   },
   async input => {
-    const {output} = await ai.generate({
-        model: googleAI('gemini-pro'),
-        prompt: summarizeMedicalPublicationPrompt.template,
-        input,
-        output: { schema: SummarizeMedicalPublicationOutputSchema },
-    });
+    const {output} = await summarizeMedicalPublicationPrompt(input);
     return output!;
   }
 );

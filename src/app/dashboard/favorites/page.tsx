@@ -22,10 +22,8 @@ export default function FavoritesPage() {
 
   const renderItem = (fav: any) => {
     const { item, type } = fav;
-    let internalLink = '';
-    if (type === 'trial') internalLink = '/dashboard/trials';
-    else if (type === 'publication') internalLink = '/dashboard/publications';
-    else if (type === 'expert') internalLink = '/dashboard/experts';
+    const internalLink = `/dashboard/${type}s`;
+    const itemUrl = item.url || '#';
 
     return (
       <div
@@ -43,7 +41,7 @@ export default function FavoritesPage() {
         </Button>
         
         <Link
-            href={internalLink || '#'}
+            href={internalLink}
             className="font-semibold text-base truncate pr-8 block hover:underline"
         >
             {item.title || item.name}
@@ -61,7 +59,7 @@ export default function FavoritesPage() {
           <p className="text-sm text-muted-foreground">{item.specialty}</p>
         )}
         <Link
-          href={item.url || '#'}
+          href={itemUrl}
           target="_blank"
           rel="noopener noreferrer"
           className="text-sm text-primary hover:underline flex items-center gap-1 mt-2"

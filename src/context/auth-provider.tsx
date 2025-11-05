@@ -10,8 +10,7 @@ type ProfileData = Omit<User, 'id' | 'email' | 'role' | 'avatarUrl'>;
 
 interface AuthContextType {
   user: User | null;
-  signup: (email: string, password: string, role: 'patient' | 'researcher') => Promise<string>;
-  verifyOtpAndCompleteSignup: (email: string, password: string, role: 'patient' | 'researcher', otp: string) => Promise<void>;
+  signup: (email: string, password: string, role: 'patient' | 'researcher') => Promise<void>;
   login: (email: string, password: string, role: 'patient' | 'researcher') => Promise<void>;
   logout: () => void;
   updateUserProfile: (profileData: ProfileData) => Promise<void>;
@@ -28,7 +27,6 @@ const FAVORITES_KEY = 'cura-favorites';
 const FOLLOW_STORAGE_KEY = 'cura-followed';
 const POSTS_KEY = 'cura-posts';
 const NOTIFICATIONS_KEY = 'cura-notifications';
-const PENDING_SIGNUP_KEY = 'cura-pending-signup';
 
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -74,77 +72,43 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       localStorage.setItem(USERS_DB_KEY, JSON.stringify(users));
   }
 
-  const signup = async (email: string, password: string, role: 'patient' | 'researcher'): Promise<string> => {
-    return new Promise<string>((resolve, reject) => {
+  const signup = async (email: string, password: string, role: 'patient' | 'researcher') => {
+    return new Promise<void>((resolve, reject) => {
       const users = getUsers();
       if (users.find(u => u.email === email)) {
         return reject(new Error('An account with this email already exists.'));
       }
-
-      // In a real app, you would send the OTP via email.
-      // For this demo, we'll generate a mock OTP and store it with the pending user data.
-      const mockOtp = Math.floor(100000 + Math.random() * 900000).toString();
-
-      const pendingSignupData = { email, password, role, mockOtp };
-      localStorage.setItem(PENDING_SIGNUP_KEY, JSON.stringify(pendingSignupData));
       
-      // Return the mock OTP so it can be displayed to the user for the demo.
-      resolve(mockOtp);
+      const newUser: StoredUser = {
+        id: `usr_${Date.now()}`,
+        email,
+        password, // In a real app, this should be hashed
+        name: email.split('@')[0],
+        role,
+        avatarUrl: `https://picsum.photos/seed/${email}/200/200`,
+      };
+
+      users.push(newUser);
+      setUsers(users);
+
+      const { password: _, ...userToStore } = newUser;
+      localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(userToStore));
+      setUser(userToStore);
+
+      // Add default favorites for new users
+      const defaultFavorites = [
+        { type: 'publication', item: mockPublications[0] },
+        { type: 'expert', item: mockExperts[0] }
+      ];
+      localStorage.setItem(FAVORITES_KEY, JSON.stringify(defaultFavorites));
+
+      if (role === 'patient') {
+        router.push('/dashboard/create-profile');
+      } else {
+        router.push('/dashboard');
+      }
+      resolve();
     });
-  };
-
-  const verifyOtpAndCompleteSignup = async (email: string, password: string, role: 'patient' | 'researcher', otp: string) => {
-      return new Promise<void>((resolve, reject) => {
-          const pendingDataString = localStorage.getItem(PENDING_SIGNUP_KEY);
-          if (!pendingDataString) {
-              return reject(new Error('No pending signup found. Please try again.'));
-          }
-
-          const pendingData = JSON.parse(pendingDataString);
-          if (pendingData.email !== email) {
-              return reject(new Error('Signup data does not match. Please start over.'));
-          }
-
-          if (pendingData.mockOtp !== otp) {
-              return reject(new Error('Invalid OTP. Please try again.'));
-          }
-
-          // OTP is valid, proceed with creating the user.
-          const users = getUsers();
-          const newUser: StoredUser = {
-            id: `usr_${Date.now()}`,
-            email,
-            password, // In a real app, this should be hashed
-            name: email.split('@')[0],
-            role,
-            avatarUrl: `https://picsum.photos/seed/${email}/200/200`,
-          };
-    
-          users.push(newUser);
-          setUsers(users);
-    
-          // Clean up pending signup data
-          localStorage.removeItem(PENDING_SIGNUP_KEY);
-
-          // Automatically log in the user after signup
-          const { password: _, ...userToStore } = newUser;
-          localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(userToStore));
-          setUser(userToStore);
-          
-          // Add default favorites for new users
-          const defaultFavorites = [
-            { type: 'publication', item: mockPublications[0] },
-            { type: 'expert', item: mockExperts[0] }
-          ];
-          localStorage.setItem(FAVORITES_KEY, JSON.stringify(defaultFavorites));
-    
-          if (role === 'patient') {
-            router.push('/dashboard/create-profile');
-          } else {
-            router.push('/dashboard');
-          }
-          resolve();
-      });
   };
 
   const login = async (email: string, password: string, role: 'patient' | 'researcher') => {
@@ -268,7 +232,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
   };
 
-  const value = { user, signup, verifyOtpAndCompleteSignup, login, logout, updateUserProfile, changePassword, deleteAccount, loading };
+  const value = { user, signup, login, logout, updateUserProfile, changePassword, deleteAccount, loading };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

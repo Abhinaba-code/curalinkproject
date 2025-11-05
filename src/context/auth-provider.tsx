@@ -13,7 +13,7 @@ type ProfileData = Partial<Omit<User, 'id' | 'email' | 'role' | 'avatarUrl'>>;
 interface AuthContextType {
   user: User | null;
   signup: (email: string, password: string, role: 'patient' | 'researcher') => Promise<void>;
-  login: (email: string, password: string, role: 'patient' | 'researcher') => Promise<void>;
+  login: (email: string, password: string, role: 'patient' | 'researcher') => Promise<User | null>;
   logout: () => void;
   updateUserProfile: (profileData: ProfileData) => Promise<void>;
   changePassword: (currentPassword: string, newPassword: string) => Promise<void>;
@@ -118,28 +118,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const login = async (email: string, password: string, role: 'patient' | 'researcher') => {
-    return new Promise<void>((resolve, reject) => {
+    return new Promise<User | null>((resolve) => {
       const users = getUsers();
       const foundUser = users.find(u => u.email === email);
 
-      if (!foundUser) {
-        return reject(new Error('No account found with this email.'));
-      }
-
-      if (foundUser.role !== role) {
-        return reject(new Error(`This email is registered as a ${foundUser.role}, not a ${role}.`));
-      }
-
-      if (foundUser.password !== password) {
-        // In a real app, use a secure comparison
-        return reject(new Error('Incorrect password.'));
+      if (!foundUser || foundUser.role !== role || foundUser.password !== password) {
+        return resolve(null);
       }
       
       const { password: _, ...userToStore } = foundUser;
       localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(userToStore));
       setUser(userToStore);
       router.push('/dashboard');
-      resolve();
+      resolve(userToStore);
     });
   };
 

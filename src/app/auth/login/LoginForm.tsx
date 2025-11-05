@@ -39,7 +39,14 @@ export default function LoginForm() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await login(email, password, role);
+      const user = await login(email, password, role);
+      if (!user) {
+        toast({
+            variant: 'destructive',
+            title: 'Login Failed',
+            description: 'Invalid email, password, or role.'
+        });
+      }
     } catch (error: any) {
       toast({
         variant: 'destructive',

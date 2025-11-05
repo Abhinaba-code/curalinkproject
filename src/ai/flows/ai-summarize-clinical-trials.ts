@@ -8,12 +8,10 @@
  * - SummarizeClinicalTrialOutput - The return type for the summarizeClinicalTrial function, containing the AI-generated summary.
  */
 
-import { z } from 'genkit';
+import { z } from 'zod';
 import OpenAI from 'openai';
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+const openai = new OpenAI();
 
 const SummarizeClinicalTrialInputSchema = z.object({
   trialDetails: z.string().describe('The detailed text of a clinical trial, including title, description, and eligibility criteria.'),

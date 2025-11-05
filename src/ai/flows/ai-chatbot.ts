@@ -8,12 +8,10 @@
  * - CuraLinkAssistantOutput - The output type for the assistant.
  */
 
-import { z } from 'genkit';
+import { z } from 'zod';
 import OpenAI from 'openai';
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+const openai = new OpenAI();
 
 const ChatHistorySchema = z.object({
   role: z.enum(['user', 'model']),

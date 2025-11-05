@@ -8,12 +8,10 @@
  * - SummarizeMedicalPublicationOutput - The return type for the summarizeMedicalPublication function.
  */
 
-import { z } from 'genkit';
+import { z } from 'zod';
 import OpenAI from 'openai';
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+const openai = new OpenAI();
 
 
 const SummarizeMedicalPublicationInputSchema = z.object({

@@ -61,8 +61,8 @@ export default function SignupPage() {
   const otherRole = role === 'patient' ? 'researcher' : 'patient';
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-background to-teal-50/50 p-4">
-      <Card className="w-full max-w-md shadow-2xl bg-card/80 backdrop-blur-lg">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-background to-blue-950/20 p-4">
+      <Card className="w-full max-w-md shadow-2xl bg-card/80 backdrop-blur-lg border-border/20">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
             <Logo />

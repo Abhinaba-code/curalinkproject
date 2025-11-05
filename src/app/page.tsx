@@ -45,7 +45,7 @@ export default function Home() {
       <AppShellContent>
         <main className="flex-1">
           <section className="relative overflow-hidden py-20 md:py-32">
-            <div className="absolute inset-0 bg-gradient-to-b from-background via-blue-50/50 to-background"></div>
+            <div className="absolute inset-0 bg-gradient-to-b from-background via-blue-950/20 to-background"></div>
             <div className="container mx-auto px-4">
               <div className="grid grid-cols-1 items-center gap-12 md:grid-cols-2">
                 <div className="z-10 text-center md:text-left">
@@ -127,9 +127,9 @@ export default function Home() {
               </div>
               <div className="mt-16 grid grid-cols-1 gap-8 md:grid-cols-3">
                 {featureCards.map((feature, index) => (
-                  <Card
+                   <Card
                     key={index}
-                    className="transform-gpu transition-all duration-300 ease-in-out hover:-translate-y-2 hover:shadow-2xl"
+                    className="transform-gpu transition-all duration-300 ease-in-out hover:-translate-y-2 hover:shadow-2xl bg-card/50 backdrop-blur-sm"
                   >
                     <CardHeader className="items-center text-center">
                       <div className="rounded-full bg-primary/10 p-4">

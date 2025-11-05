@@ -155,7 +155,7 @@ export function AppHeader() {
             <Input
               type="search"
               placeholder="Search trials, publications..."
-              className="pl-8 sm:w-[300px] md:w-[200px] lg:w-[300px]"
+              className="pl-8 sm:w-[300px] md:w-[200px] lg:w-[300px] bg-background/50"
             />
           </div>
         </form>

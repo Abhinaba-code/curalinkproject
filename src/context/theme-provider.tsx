@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
-type Theme = 'default' | 'dark' | 'ocean' | 'sunset' | 'forest';
+type Theme = 'dark';
 
 interface ThemeProviderState {
   theme: Theme;
@@ -14,7 +14,7 @@ const ThemeContext = createContext<ThemeProviderState | undefined>(undefined);
 const THEME_STORAGE_KEY = 'cura-theme';
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>('default');
+  const [theme, setThemeState] = useState<Theme>('dark');
 
   useEffect(() => {
     const storedTheme = localStorage.getItem(THEME_STORAGE_KEY) as Theme | null;
@@ -30,14 +30,10 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   
   useEffect(() => {
     const root = window.document.documentElement;
-    
-    // Remove old theme classes
-    root.classList.remove('dark', 'theme-ocean', 'theme-sunset', 'theme-forest');
+    root.classList.remove('dark');
 
-    if (theme === 'default') {
-      // default is just no class
-    } else {
-       root.classList.add(theme === 'dark' ? 'dark' : `theme-${theme}`);
+    if (theme === 'dark') {
+      root.classList.add('dark');
     }
   }, [theme]);
 

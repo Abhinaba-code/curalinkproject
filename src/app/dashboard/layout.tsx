@@ -73,13 +73,12 @@ function DashboardApp({ children }: { children: React.ReactNode }) {
   const isCreateProfilePage = pathname === '/dashboard/create-profile';
   
   if (isCreateProfilePage) {
-    return <main className="flex-1 p-4 sm:p-6 bg-secondary/30">{children}</main>;
+    return <main className="flex-1 p-4 sm:p-6 bg-background/50">{children}</main>;
   }
 
   return (
     <SidebarProvider>
-      <Chatbot />
-      <Sidebar collapsible="icon" className="bg-sidebar">
+      <Sidebar collapsible="icon" className="bg-sidebar/80 backdrop-blur-lg border-r border-border/20">
         <SidebarHeader>
           <Logo className="text-sidebar-foreground group-data-[collapsible=icon]:hidden" />
         </SidebarHeader>

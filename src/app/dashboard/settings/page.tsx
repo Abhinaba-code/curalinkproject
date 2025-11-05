@@ -23,17 +23,6 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import Link from 'next/link';
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
-import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -47,7 +36,6 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/context/auth-provider';
 import { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
-import { useTheme } from '@/context/theme-provider';
 import { cn } from '@/lib/utils';
 
 function ChangePasswordDialog() {
@@ -243,16 +231,7 @@ function DeleteAccountDialog() {
   )
 }
 
-const themes = [
-  { name: 'default', label: 'Default', colors: ['#2563eb', '#f1f5f9'] },
-  { name: 'ocean', label: 'Ocean', colors: ['#0ea5e9', '#e0f2fe'] },
-  { name: 'sunset', label: 'Sunset', colors: ['#f97316', '#fff7ed'] },
-  { name: 'forest', label: 'Forest', colors: ['#16a34a', '#f0fdf4'] },
-  { name: 'dark', label: 'Dark', colors: ['#60a5fa', '#1e293b'] },
-];
-
 function ThemeSettingsCard() {
-    const { theme, setTheme } = useTheme();
 
     return (
         <Card>
@@ -262,22 +241,8 @@ function ThemeSettingsCard() {
             </CardHeader>
             <CardContent>
                 <CardDescription>
-                    Choose a color scheme for the application.
+                    The application is in dark mode.
                 </CardDescription>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mt-6">
-                    {themes.map((t) => (
-                        <button key={t.name} onClick={() => setTheme(t.name)} className={cn("rounded-lg border-2 p-2 flex flex-col items-center gap-2 transition-all", theme === t.name ? "border-primary ring-2 ring-primary" : "border-muted hover:border-muted-foreground/50")}>
-                            <div className="flex gap-1">
-                                <div className="h-8 w-8 rounded-md" style={{ backgroundColor: t.colors[0] }}></div>
-                                <div className="h-8 w-8 rounded-md" style={{ backgroundColor: t.colors[1] }}></div>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <span className="text-sm font-medium">{t.label}</span>
-                                {theme === t.name && <Check className="h-4 w-4 text-primary" />}
-                            </div>
-                        </button>
-                    ))}
-                </div>
             </CardContent>
         </Card>
     )
@@ -295,7 +260,7 @@ export default function SettingsPage() {
 
       <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
         {/* Profile Settings */}
-        <Card>
+        <Card className="bg-card/50 backdrop-blur-sm">
           <CardHeader className="flex flex-row items-center gap-4">
             <User className="h-6 w-6" />
             <CardTitle>Profile Settings</CardTitle>
@@ -316,7 +281,7 @@ export default function SettingsPage() {
         </Card>
 
         {/* Account Settings */}
-        <Card>
+        <Card className="bg-card/50 backdrop-blur-sm">
           <CardHeader className="flex flex-row items-center gap-4">
             <KeyRound className="h-6 w-6" />
             <CardTitle>Account Settings</CardTitle>
@@ -333,7 +298,7 @@ export default function SettingsPage() {
         </Card>
 
         {/* Notification Settings */}
-        <Card>
+        <Card className="bg-card/50 backdrop-blur-sm">
           <CardHeader className="flex flex-row items-center gap-4">
             <Bell className="h-6 w-6" />
             <CardTitle>Notifications</CardTitle>

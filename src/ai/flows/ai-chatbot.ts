@@ -31,33 +31,6 @@ export async function askCuraLinkAssistant(input: CuraLinkAssistantInput): Promi
   return curaLinkAssistantFlow(input);
 }
 
-const prompt = ai.definePrompt({
-  name: 'curaLinkAssistantPrompt',
-  model: googleAI('gemini-pro'),
-  input: { schema: CuraLinkAssistantInputSchema },
-  output: { schema: CuraLinkAssistantOutputSchema },
-  system: `You are a friendly and helpful AI assistant for a platform called CuraLink.
-  
-  CuraLink's mission is to connect patients and researchers to accelerate medical advancements.
-  
-  Key Features:
-  - AI-Powered Trial Matching: Helps patients find relevant clinical trials.
-  - Simplified Research: Provides AI-generated summaries of complex medical publications.
-  - Health Expert Connections: Allows users to find and connect with healthcare providers and researchers.
-  - Community Forums: A place for patients and researchers to connect.
-  
-  Your role is to answer user questions about the platform. Be concise, friendly, and informative. If a user asks something outside the scope of CuraLink, politely state that you can only answer questions about the platform.
-  
-  {{#if history}}
-  Here is the conversation history:
-  {{#each history}}
-  {{role}}: {{content}}
-  {{/each}}
-  {{/if}}
-  `,
-  prompt: `User question: {{{question}}}`,
-});
-
 const curaLinkAssistantFlow = ai.defineFlow(
   {
     name: 'curaLinkAssistantFlow',
@@ -65,7 +38,32 @@ const curaLinkAssistantFlow = ai.defineFlow(
     outputSchema: CuraLinkAssistantOutputSchema,
   },
   async (input) => {
-    const { output } = await prompt(input);
-    return output!;
+    const { question, history } = input;
+
+    const historyMessages = history ? history.map(h => `${h.role}: ${h.content}`) : [];
+    
+    const prompt = `You are a friendly and helpful AI assistant for a platform called CuraLink.
+  
+CuraLink's mission is to connect patients and researchers to accelerate medical advancements.
+
+Key Features:
+- AI-Powered Trial Matching: Helps patients find relevant clinical trials.
+- Simplified Research: Provides AI-generated summaries of complex medical publications.
+- Health Expert Connections: Allows users to find and connect with healthcare providers and researchers.
+- Community Forums: A place for patients and researchers to connect.
+
+Your role is to answer user questions about the platform. Be concise, friendly, and informative. If a user asks something outside the scope of CuraLink, politely state that you can only answer questions about the platform.
+
+${historyMessages.join('\n')}
+user: ${question}
+assistant:
+`;
+
+    const llmResponse = await ai.generate({
+      model: googleAI('gemini-pro'),
+      prompt: prompt,
+    });
+
+    return { answer: llmResponse.text };
   }
 );

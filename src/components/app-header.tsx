@@ -36,7 +36,9 @@ function ReplyToMeetingRequestDialog({ notif, children }: { notif: Notification,
     
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
-            <DialogTrigger asChild>{children}</DialogTrigger>
+            <DialogTrigger asChild>
+                <div className="flex items-start gap-3 rounded-lg p-2 hover:bg-accent cursor-pointer">{children}</div>
+            </DialogTrigger>
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle>Reply to {notif.authorName || 'Anonymous'}</DialogTitle>

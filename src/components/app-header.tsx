@@ -39,7 +39,7 @@ function ReplyToMeetingRequestDialog({ notif, children }: { notif: Notification,
             <DialogTrigger asChild>{children}</DialogTrigger>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>Reply to {notif.authorName}</DialogTitle>
+                    <DialogTitle>Reply to {notif.authorName || 'Anonymous'}</DialogTitle>
                     <DialogDescription>
                         Replying to a meeting request regarding expert: {notif.postTitle}. 
                         The patient will be notified of your response.

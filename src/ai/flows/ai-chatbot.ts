@@ -1,17 +1,15 @@
 
 'use server';
 /**
- * @fileOverview An AI assistant for the CuraLink platform using OpenAI.
+ * @fileOverview An AI assistant for the CuraLink platform.
  *
  * - askCuraLinkAssistant - A function that answers questions about CuraLink.
  * - CuraLinkAssistantInput - The input type for the assistant.
  * - CuraLinkAssistantOutput - The output type for the assistant.
  */
 
-import { z } from 'zod';
-import OpenAI from 'openai';
-
-const openai = new OpenAI();
+import { ai } from '@/ai/genkit';
+import { z } from 'genkit';
 
 const ChatHistorySchema = z.object({
   role: z.enum(['user', 'model']),
@@ -44,26 +42,23 @@ Key Features:
 
 Your role is to answer user questions about the platform. Be concise, friendly, and informative. If a user asks something outside the scope of CuraLink, politely state that you can only answer questions about the platform.`;
 
-  const messages: OpenAI.Chat.ChatCompletionMessageParam[] = [
-    { role: 'system', content: systemPrompt },
-    ...history.map((msg) => ({
-      role: msg.role === 'model' ? 'assistant' : 'user',
-      content: msg.content,
-    })),
-    { role: 'user', content: question },
-  ];
-
   try {
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
-      messages: messages,
+    const llmResponse = await ai.generate({
+        model: 'gemini-pro',
+        prompt: question,
+        history: history,
+        config: {
+            // Prepend the system prompt to the conversation history.
+            // This is a common pattern for guiding the model's behavior.
+            systemPrompt: systemPrompt,
+        }
     });
 
-    const answer = completion.choices[0]?.message?.content || "Sorry, I couldn't generate a response.";
+    const answer = llmResponse.text;
     return { answer };
 
   } catch (error) {
-    console.error('Error calling OpenAI for chatbot:', error);
+    console.error('Error calling Genkit for chatbot:', error);
     return { answer: "Sorry, I'm having trouble connecting to the AI service right now." };
   }
 }

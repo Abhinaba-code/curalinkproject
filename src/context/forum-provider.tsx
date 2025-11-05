@@ -145,6 +145,49 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
   const [posts, setPosts] = useState<ForumPost[]>([]);
   const [allNotifications, setAllNotifications] = useState<Notification[]>([]);
   
+  const generateFakeNotificationsForUser = (role: 'patient' | 'researcher'): Notification[] => {
+    if (role === 'patient') {
+      return [
+        {
+          id: 'fake-patient-1',
+          type: 'new_reply',
+          postTitle: "My Experience with Clinical Trial...",
+          authorName: "Dr. Evelyn Reed",
+          read: false,
+          postId: 'post-2', authorId: 'usr_researcher_evelyn', recipientId: 'usr_patient_john', senderId: 'usr_researcher_evelyn'
+        },
+        {
+          id: 'fake-patient-2',
+          type: 'meeting_reply',
+          postTitle: 'Dr. Ben Carter',
+          authorName: 'Dr. Sofia Hernandez',
+          read: false,
+          postId: 'expert-2', authorId: 'usr_researcher_sofia', recipientId: 'usr_patient_john', senderId: 'usr_researcher_sofia',
+          originalRequest: { content: "Thank you for reaching out. Please schedule a time through my assistant." } as any,
+        }
+      ];
+    } else { // researcher
+      return [
+        {
+          id: 'fake-researcher-1',
+          type: 'new_post',
+          postTitle: "My Experience with Clinical Trial...",
+          authorName: "John Anderson",
+          read: false,
+          postId: 'post-2', authorId: 'usr_patient_john', recipientId: 'all_researchers', senderId: 'usr_patient_john'
+        },
+        {
+          id: 'fake-researcher-2',
+          type: 'nudge',
+          postTitle: "Dr. Ben Carter",
+          authorName: "A Patient",
+          read: true,
+          postId: 'expert-2', authorId: 'usr_patient_john', recipientId: 'all_researchers', senderId: 'usr_patient_john'
+        }
+      ];
+    }
+  }
+
   // Derived state: notifications for the current user
   const notifications = user 
     ? allNotifications
@@ -154,9 +197,19 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
             const isNotSender = n.senderId ? n.senderId !== user.id : true;
             return isRecipient && isNotSender;
         })
-        .sort((a, b) => parseInt(b.id.split('-')[1]) - parseInt(a.id.split('-')[1]))
+        .sort((a, b) => {
+             // Handle fake IDs which don't have a timestamp
+            if (a.id.startsWith('fake-') && b.id.startsWith('fake-')) return 0;
+            if (a.id.startsWith('fake-')) return -1;
+            if (b.id.startsWith('fake-')) return 1;
+            return parseInt(b.id.split('-')[1]) - parseInt(a.id.split('-')[1])
+        })
     : [];
-  const unreadCount = notifications.filter(n => !n.read).length;
+    
+  // If the user has no notifications, show them the fake ones.
+  const finalNotifications = notifications.length === 0 && user ? generateFakeNotificationsForUser(user.role) : notifications;
+  
+  const unreadCount = finalNotifications.filter(n => !n.read).length;
 
 
   // Load data from localStorage on mount
@@ -452,7 +505,8 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
   const markNotificationsAsRead = () => {
     if (!user || unreadCount === 0) return;
     
-    const currentUserNotifIds = notifications.map(n => n.id);
+    const currentUserNotifIds = finalNotifications.map(n => n.id).filter(id => !id.startsWith('fake-'));
+
 
     const updatedNotifications = allNotifications.map(n => {
         if (currentUserNotifIds.includes(n.id) && !n.read) {
@@ -468,7 +522,8 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
   const clearNotifications = () => {
     if (!user) return;
     
-    const currentUserNotifIds = notifications.map(n => n.id);
+    const currentUserNotifIds = finalNotifications.map(n => n.id).filter(id => !id.startsWith('fake-'));
+
 
     const updatedNotifications = allNotifications.filter(n => !currentUserNotifIds.includes(n.id));
     
@@ -481,7 +536,7 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
     });
   };
 
-  const value = { posts, notifications, addPost, deletePost, addReply, deleteReply, sendNudgeNotification, removeNudgeNotification, sendMeetingRequest, addMeetingReply, removeMeetingRequest, markNotificationsAsRead, unreadCount, togglePostReaction, toggleReplyReaction, clearNotifications };
+  const value = { posts, notifications: finalNotifications, addPost, deletePost, addReply, deleteReply, sendNudgeNotification, removeNudgeNotification, sendMeetingRequest, addMeetingReply, removeMeetingRequest, markNotificationsAsRead, unreadCount, togglePostReaction, toggleReplyReaction, clearNotifications };
 
   return (
     <ForumContext.Provider value={value}>

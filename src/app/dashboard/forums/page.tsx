@@ -332,12 +332,6 @@ export default function ForumsPage() {
     }
 
     addPost({
-      author: {
-        id: user.id,
-        name: user.name || 'Anonymous',
-        avatarUrl: user.avatarUrl,
-        role: user.role,
-      },
       title,
       content,
       tags: tags.split(',').map(tag => tag.trim()).filter(Boolean),

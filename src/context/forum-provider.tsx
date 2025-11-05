@@ -61,7 +61,7 @@ const samplePosts: ForumPost[] = [
       upvotes: 128,
       tags: ['Glioblastoma', 'Immunotherapy', 'Clinical Trial'],
       replies: [],
-      reactions: {},
+      reactions: { '👍': ['usr_patient_john'] },
     },
     {
       id: 'post-2',
@@ -77,14 +77,14 @@ const samplePosts: ForumPost[] = [
       upvotes: 256,
       tags: ['Lung Cancer', 'Patient Story', 'Targeted Therapy'],
       replies: [],
-      reactions: {},
+      reactions: { '❤️': ['usr_researcher_evelyn'] },
     },
 ];
 
 interface ForumContextType {
   posts: ForumPost[];
   notifications: Notification[];
-  addPost: (post: Omit<ForumPost, 'id' | 'upvotes' | 'replies' | 'reactions'>) => void;
+  addPost: (post: Omit<ForumPost, 'id' | 'upvotes' | 'replies' | 'reactions' | 'author'> & { author?: Partial<ForumPostAuthor> }) => void;
   deletePost: (postId: string) => void;
   addReply: (postId: string, content: string) => void;
   deleteReply: (postId: string, replyId: string) => void;
@@ -144,7 +144,7 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  const addPost = (postData: Omit<ForumPost, 'id' | 'upvotes' | 'replies' | 'reactions'>) => {
+  const addPost = (postData: Omit<ForumPost, 'id' | 'upvotes' | 'replies' | 'reactions' | 'author'> & { author?: Partial<ForumPostAuthor> }) => {
     if (!user) return;
 
     const newPost: ForumPost = {
@@ -154,8 +154,10 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
       replies: [],
       reactions: {},
       author: {
-          ...postData.author,
-          name: postData.author.name || 'Anonymous'
+        id: user.id,
+        name: user.name || 'Anonymous',
+        avatarUrl: user.avatarUrl,
+        role: user.role,
       }
     };
 

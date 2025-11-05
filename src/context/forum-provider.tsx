@@ -82,41 +82,49 @@ const samplePosts: ForumPost[] = [
     },
 ];
 
-const sampleNotifications: Notification[] = [
-    {
-        id: `notif-1`,
-        postId: 'post-2',
-        postTitle: 'My Experience with Clinical Trial NCT04485958 for Lung Cancer',
-        authorId: 'usr_patient_john',
-        authorName: 'John Anderson',
-        read: false,
-        type: 'new_post',
-        recipientId: 'all_researchers',
-        senderId: 'usr_patient_john',
-    },
-    {
-        id: `notif-2`,
-        postId: 'post-2',
-        postTitle: 'My Experience with Clinical Trial NCT04485958 for Lung Cancer',
-        authorId: 'usr_researcher_evelyn',
-        authorName: 'Dr. Evelyn Reed',
-        read: false,
-        type: 'new_reply',
-        recipientId: 'usr_patient_john',
-        senderId: 'usr_researcher_evelyn',
-    },
-    {
-        id: `notif-3`,
-        postId: 'expert-2',
-        postTitle: 'Dr. Ben Carter',
-        authorId: 'usr_patient_john',
-        authorName: 'John Anderson',
-        read: true,
-        type: 'nudge',
-        recipientId: 'all_researchers',
-        senderId: 'usr_patient_john',
+const getInitialSampleNotifications = (role: 'patient' | 'researcher'): Notification[] => {
+    if (role === 'patient') {
+      return [
+        {
+          id: `notif-${Date.now() + 1}`,
+          type: 'new_reply',
+          postTitle: "My Experience with Clinical Trial...",
+          authorName: "Dr. Evelyn Reed",
+          read: false,
+          postId: 'post-2', authorId: 'usr_researcher_evelyn', recipientId: 'usr_patient_john', senderId: 'usr_researcher_evelyn'
+        },
+        {
+          id: `notif-${Date.now() + 2}`,
+          type: 'meeting_reply',
+          postTitle: 'Dr. Ben Carter',
+          authorName: 'Dr. Sofia Hernandez',
+          read: false,
+          postId: 'expert-2', authorId: 'usr_researcher_sofia', recipientId: 'usr_patient_john', senderId: 'usr_researcher_sofia',
+          originalRequest: { content: "Thank you for reaching out. Please schedule a time through my assistant." } as any,
+        }
+      ];
+    } else { // researcher
+      return [
+        {
+          id: `notif-${Date.now() + 3}`,
+          type: 'new_post',
+          postTitle: "My Experience with Clinical Trial...",
+          authorName: "John Anderson",
+          read: false,
+          postId: 'post-2', authorId: 'usr_patient_john', recipientId: 'all_researchers', senderId: 'usr_patient_john'
+        },
+        {
+          id: `notif-${Date.now() + 4}`,
+          type: 'nudge',
+          postTitle: "Dr. Ben Carter",
+          authorName: "A Patient",
+          read: true,
+          postId: 'expert-2', authorId: 'usr_patient_john', recipientId: 'all_researchers', senderId: 'usr_patient_john'
+        }
+      ];
     }
-];
+  }
+
 
 interface ForumContextType {
   posts: ForumPost[];
@@ -146,71 +154,18 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
   const [posts, setPosts] = useState<ForumPost[]>([]);
   const [allNotifications, setAllNotifications] = useState<Notification[]>([]);
   
-  const generateFakeNotificationsForUser = (role: 'patient' | 'researcher'): Notification[] => {
-    if (role === 'patient') {
-      return [
-        {
-          id: 'fake-patient-1',
-          type: 'new_reply',
-          postTitle: "My Experience with Clinical Trial...",
-          authorName: "Dr. Evelyn Reed",
-          read: false,
-          postId: 'post-2', authorId: 'usr_researcher_evelyn', recipientId: 'usr_patient_john', senderId: 'usr_researcher_evelyn'
-        },
-        {
-          id: 'fake-patient-2',
-          type: 'meeting_reply',
-          postTitle: 'Dr. Ben Carter',
-          authorName: 'Dr. Sofia Hernandez',
-          read: false,
-          postId: 'expert-2', authorId: 'usr_researcher_sofia', recipientId: 'usr_patient_john', senderId: 'usr_researcher_sofia',
-          originalRequest: { content: "Thank you for reaching out. Please schedule a time through my assistant." } as any,
-        }
-      ];
-    } else { // researcher
-      return [
-        {
-          id: 'fake-researcher-1',
-          type: 'new_post',
-          postTitle: "My Experience with Clinical Trial...",
-          authorName: "John Anderson",
-          read: false,
-          postId: 'post-2', authorId: 'usr_patient_john', recipientId: 'all_researchers', senderId: 'usr_patient_john'
-        },
-        {
-          id: 'fake-researcher-2',
-          type: 'nudge',
-          postTitle: "Dr. Ben Carter",
-          authorName: "A Patient",
-          read: true,
-          postId: 'expert-2', authorId: 'usr_patient_john', recipientId: 'all_researchers', senderId: 'usr_patient_john'
-        }
-      ];
-    }
-  }
-
   // Derived state: notifications for the current user
   const notifications = user 
     ? allNotifications
         .filter(n => {
             const isRecipient = n.recipientId === user.id || (user.role === 'researcher' && n.recipientId === 'all_researchers');
-            // Exclude notifications sent by the user themselves
             const isNotSender = n.senderId ? n.senderId !== user.id : true;
             return isRecipient && isNotSender;
         })
-        .sort((a, b) => {
-             // Handle fake IDs which don't have a timestamp
-            if (a.id.startsWith('fake-') && b.id.startsWith('fake-')) return 0;
-            if (a.id.startsWith('fake-')) return -1;
-            if (b.id.startsWith('fake-')) return 1;
-            return parseInt(b.id.split('-')[1]) - parseInt(a.id.split('-')[1])
-        })
+        .sort((a, b) => parseInt(b.id.split('-')[1]) - parseInt(a.id.split('-')[1]))
     : [];
     
-  // If the user has no notifications, show them the fake ones.
-  const finalNotifications = notifications.length === 0 && user ? generateFakeNotificationsForUser(user.role) : notifications;
-  
-  const unreadCount = finalNotifications.filter(n => !n.read).length;
+  const unreadCount = notifications.filter(n => !n.read).length;
 
 
   // Load data from localStorage on mount
@@ -227,16 +182,20 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
       const storedNotifs = localStorage.getItem('cura-notifications');
       if (storedNotifs) {
           setAllNotifications(JSON.parse(storedNotifs));
-      } else {
-        localStorage.setItem('cura-notifications', JSON.stringify(sampleNotifications));
-        setAllNotifications(sampleNotifications);
+      } else if (user) {
+        // If there are no stored notifications for anyone, and a user is logged in,
+        // create the initial batch of sample notifications and store them.
+        const initialSamples = getInitialSampleNotifications(user.role);
+        setAllNotifications(initialSamples);
+        localStorage.setItem('cura-notifications', JSON.stringify(initialSamples));
       }
+
     } catch (error) {
       console.error('Failed to parse from localStorage', error);
       localStorage.removeItem('cura-posts');
       localStorage.removeItem('cura-notifications');
     }
-  }, []);
+  }, [user]);
 
   const addPost = (postData: Omit<ForumPost, 'id' | 'upvotes' | 'replies' | 'reactions' | 'author'>) => {
     if (!user) return;
@@ -506,8 +465,7 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
   const markNotificationsAsRead = () => {
     if (!user || unreadCount === 0) return;
     
-    const currentUserNotifIds = finalNotifications.map(n => n.id).filter(id => !id.startsWith('fake-'));
-
+    const currentUserNotifIds = notifications.map(n => n.id);
 
     const updatedNotifications = allNotifications.map(n => {
         if (currentUserNotifIds.includes(n.id) && !n.read) {
@@ -523,8 +481,7 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
   const clearNotifications = () => {
     if (!user) return;
     
-    const currentUserNotifIds = finalNotifications.map(n => n.id).filter(id => !id.startsWith('fake-'));
-
+    const currentUserNotifIds = notifications.map(n => n.id);
 
     const updatedNotifications = allNotifications.filter(n => !currentUserNotifIds.includes(n.id));
     
@@ -538,16 +495,6 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
   };
 
   const deleteNotification = (notificationId: string) => {
-    // We can't delete fake notifications as they don't exist in the main state
-    if (notificationId.startsWith('fake-')) {
-        toast({
-            variant: 'destructive',
-            title: "Cannot Delete",
-            description: "This is a sample notification and cannot be deleted.",
-        });
-        return;
-    }
-
     const updatedNotifications = allNotifications.filter(n => n.id !== notificationId);
     setAllNotifications(updatedNotifications);
     localStorage.setItem('cura-notifications', JSON.stringify(updatedNotifications));
@@ -559,12 +506,12 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
   };
 
 
-  const value = { posts, notifications: finalNotifications, addPost, deletePost, addReply, deleteReply, sendNudgeNotification, removeNudgeNotification, sendMeetingRequest, addMeetingReply, removeMeetingRequest, markNotificationsAsRead, unreadCount, togglePostReaction, toggleReplyReaction, clearNotifications, deleteNotification };
+  const value = { posts, notifications: notifications, addPost, deletePost, addReply, deleteReply, sendNudgeNotification, removeNudgeNotification, sendMeetingRequest, addMeetingReply, removeMeetingRequest, markNotificationsAsRead, unreadCount, togglePostReaction, toggleReplyReaction, clearNotifications, deleteNotification };
 
   return (
     <ForumContext.Provider value={value}>
       {children}
-    </ForumContext.Provider>
+    </Forum-provider.tsxContext.Provider>
   );
 }
 

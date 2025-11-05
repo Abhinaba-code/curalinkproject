@@ -236,7 +236,7 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
             postId: expert.id,
             postTitle: expert.name, // Expert's name
             authorId: fromUser.id,
-            authorName: fromUser.name,
+            authorName: fromUser.name || 'Anonymous',
             read: false,
             type: 'meeting_request',
             recipientId: 'all_researchers',

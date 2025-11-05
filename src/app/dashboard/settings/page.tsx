@@ -231,6 +231,50 @@ function DeleteAccountDialog() {
   )
 }
 
+function ThemeSelector() {
+  const { theme, setTheme } = useTheme();
+
+  const themes = [
+    { name: 'light', colors: ['#e2e8f0', '#3b82f6', '#ec4899'] },
+    { name: 'dark', colors: ['#334155', '#60a5fa', '#f472b6'] },
+    { name: 'ocean', colors: ['#cbd5e1', '#38bdf8', '#34d399'] },
+    { name: 'sunset', colors: ['#94a3b8', '#f97316', '#d946ef'] },
+  ];
+
+  return (
+    <div className="grid grid-cols-2 gap-4">
+      {themes.map((t) => (
+        <button
+          key={t.name}
+          onClick={() => setTheme(t.name as any)}
+          className={cn(
+            'relative rounded-lg border-2 p-4 transition-all focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
+            theme === t.name ? 'border-primary' : 'border-transparent'
+          )}
+        >
+          <div className="flex gap-2">
+            {t.colors.map((color, index) => (
+              <div
+                key={index}
+                className="h-8 w-full rounded"
+                style={{ backgroundColor: color }}
+              />
+            ))}
+          </div>
+          <span className="mt-2 block text-center text-sm capitalize">
+            {t.name}
+          </span>
+          {theme === t.name && (
+            <div className="absolute top-2 right-2 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-primary-foreground">
+              <Check className="h-4 w-4" />
+            </div>
+          )}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 export default function SettingsPage() {
   return (
     <div className="space-y-8 animate-fade-in">
@@ -315,6 +359,19 @@ export default function SettingsPage() {
               <Switch id="newsletter" defaultChecked />
             </div>
           </CardContent>
+        </Card>
+
+        <Card className="lg:col-span-3">
+            <CardHeader className="flex flex-row items-center gap-4">
+                <Palette className="h-6 w-6 text-primary" />
+                <CardTitle>Appearance</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <CardDescription className="mb-4">
+                    Choose a theme to personalize the look and feel of the application.
+                </CardDescription>
+                <ThemeSelector />
+            </CardContent>
         </Card>
         
       </div>

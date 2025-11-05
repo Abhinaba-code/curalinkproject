@@ -13,12 +13,6 @@ export function AppFooter() {
             </p>
           </div>
           <div className="flex items-center gap-6 text-sm text-muted-foreground">
-            <Link href="/about" className="hover:text-primary transition-colors">
-              About
-            </Link>
-            <Link href="/faq" className="hover:text-primary transition-colors">
-              FAQ
-            </Link>
           </div>
         </div>
       </div>

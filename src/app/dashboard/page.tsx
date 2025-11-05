@@ -18,6 +18,7 @@ import {
   Bot,
   Loader2,
   ExternalLink,
+  Trash2,
 } from 'lucide-react';
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from 'recharts';
 import {
@@ -48,7 +49,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import type { Publication } from '@/lib/types';
-
+import { format } from 'date-fns';
 
 const chartData = [
   { month: 'January', desktop: 186 },
@@ -287,7 +288,14 @@ function Announcements({ announcements }: { announcements: Announcement[] }) {
     );
 }
 
-function TrackSymptomDialog() {
+interface TrackedSymptom {
+  id: string;
+  name: string;
+  notes: string;
+  date: string;
+}
+
+function TrackSymptomDialog({ onSymptomTracked }: { onSymptomTracked: (symptom: TrackedSymptom) => void }) {
   const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
   const [symptom, setSymptom] = useState('');
@@ -303,8 +311,15 @@ function TrackSymptomDialog() {
       return;
     }
 
-    // In a real app, you would save this data to a backend.
-    // For this demo, we'll just show a success toast.
+    const newSymptom: TrackedSymptom = {
+        id: `symp-${Date.now()}`,
+        name: symptom,
+        notes,
+        date: new Date().toISOString(),
+    };
+    
+    onSymptomTracked(newSymptom);
+
     toast({
       title: 'Symptom Tracked',
       description: `Your symptom "${symptom}" has been logged.`,
@@ -362,15 +377,60 @@ function TrackSymptomDialog() {
   );
 }
 
+function SymptomLog({ symptoms, onClearSymptom }: { symptoms: TrackedSymptom[], onClearSymptom: (id: string) => void }) {
+  if (symptoms.length === 0) {
+    return (
+      <div className="text-center text-muted-foreground border-2 border-dashed rounded-lg p-8">
+        <p>No symptoms logged yet.</p>
+        <p className="text-sm">Click "Track a new symptom" to get started.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      {symptoms.map((symptom) => (
+        <Card key={symptom.id} className="hover:shadow-lg transition-shadow relative group">
+          <CardHeader>
+            <CardTitle className="flex justify-between items-start">
+              <span>{symptom.name}</span>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                onClick={() => onClearSymptom(symptom.id)}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </CardTitle>
+            <CardDescription>{format(new Date(symptom.date), 'PPP p')}</CardDescription>
+          </CardHeader>
+          {symptom.notes && (
+            <CardContent>
+              <p className="text-sm text-muted-foreground">{symptom.notes}</p>
+            </CardContent>
+          )}
+        </Card>
+      ))}
+    </div>
+  );
+}
+
 
 export default function DashboardPage() {
   const { user } = useAuth();
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+  const [symptoms, setSymptoms] = useState<TrackedSymptom[]>([]);
 
   useEffect(() => {
     const storedAnnouncements = localStorage.getItem('cura-announcements');
     if (storedAnnouncements) {
       setAnnouncements(JSON.parse(storedAnnouncements));
+    }
+
+    const storedSymptoms = localStorage.getItem('cura-symptoms');
+    if (storedSymptoms) {
+      setSymptoms(JSON.parse(storedSymptoms));
     }
   }, []);
 
@@ -380,6 +440,17 @@ export default function DashboardPage() {
     localStorage.setItem('cura-announcements', JSON.stringify(updatedAnnouncements));
   };
 
+  const handleSymptomTracked = (newSymptom: TrackedSymptom) => {
+    const updatedSymptoms = [newSymptom, ...symptoms];
+    setSymptoms(updatedSymptoms);
+    localStorage.setItem('cura-symptoms', JSON.stringify(updatedSymptoms));
+  };
+  
+  const handleClearSymptom = (id: string) => {
+    const updatedSymptoms = symptoms.filter(s => s.id !== id);
+    setSymptoms(updatedSymptoms);
+    localStorage.setItem('cura-symptoms', JSON.stringify(updatedSymptoms));
+  };
 
   return (
     <div className="space-y-6">
@@ -390,7 +461,7 @@ export default function DashboardPage() {
         {user?.role === 'researcher' ? (
             <NewPublicationDialog onAnnounce={handleAnnounce} />
         ) : (
-            <TrackSymptomDialog />
+            <TrackSymptomDialog onSymptomTracked={handleSymptomTracked} />
         )}
       </div>
 
@@ -432,6 +503,20 @@ export default function DashboardPage() {
             <PersonalizedFeed />
           </CardContent>
         </Card>
+
+        {user?.role === 'patient' && (
+            <Card className="lg:col-span-3">
+                <CardHeader>
+                    <CardTitle>Symptom Log</CardTitle>
+                    <CardDescription>
+                        A log of the symptoms you have tracked over time.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <SymptomLog symptoms={symptoms} onClearSymptom={handleClearSymptom} />
+                </CardContent>
+            </Card>
+        )}
 
         {user?.role === 'researcher' && (
              <Card className="lg:col-span-3">

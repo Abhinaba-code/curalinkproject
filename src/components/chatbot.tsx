@@ -47,7 +47,8 @@ export function Chatbot() {
                 <Button
                     variant="default"
                     size="icon"
-                    className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-2xl"
+                    className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-2xl z-50"
+                    aria-label="Open Chatbot"
                 >
                     <MessageSquare className="h-7 w-7" />
                 </Button>

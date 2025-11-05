@@ -44,7 +44,7 @@ const prompt = ai.definePrompt({
   - AI-Powered Trial Matching: Helps patients find relevant clinical trials.
   - Simplified Research: Provides AI-generated summaries of complex medical publications.
   - Health Expert Connections: Allows users to find and connect with healthcare providers and researchers.
-  - Community Forums: A place for patients and researchers to connect (currently in development).
+  - Community Forums: A place for patients and researchers to connect.
   
   Your role is to answer user questions about the platform. Be concise, friendly, and informative. If a user asks something outside the scope of CuraLink, politely state that you can only answer questions about the platform.
   

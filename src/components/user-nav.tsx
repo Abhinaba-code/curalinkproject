@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -28,7 +29,6 @@ import {
 export function UserNav() {
   const { user, logout } = useAuth();
 
-  // The layout now guarantees the user object is present, so this check is for safety.
   if (!user) {
     return null;
   }
@@ -39,6 +39,8 @@ export function UserNav() {
         .map((n) => n[0])
         .join('')
     : 'U';
+    
+  const editProfileLink = user.role === 'patient' ? '/dashboard/create-profile' : '/dashboard/create-researcher-profile';
 
   return (
     <DropdownMenu>
@@ -68,7 +70,7 @@ export function UserNav() {
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
-            <Link href="/dashboard/create-profile">
+            <Link href={editProfileLink}>
               <Edit className="mr-2 h-4 w-4" />
               <span>Edit Profile</span>
             </Link>

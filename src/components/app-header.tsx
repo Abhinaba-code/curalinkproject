@@ -3,7 +3,7 @@
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { UserNav } from '@/components/user-nav';
 import { Input } from './ui/input';
-import { Search, Star, Bell, MessageSquare, CornerDownRight, Users, Calendar, Send } from 'lucide-react';
+import { Search, Star, Bell, MessageSquare, CornerDownRight, Users, Calendar, Send, CheckCircle } from 'lucide-react';
 import { Logo } from './logo';
 import { Button } from './ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
@@ -15,6 +15,7 @@ import { useState } from 'react';
 import { Label } from './ui/label';
 import { Textarea } from './ui/textarea';
 import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
 
 function ReplyToMeetingRequestDialog({ notif, children }: { notif: Notification, children: React.ReactNode }) {
     const { addMeetingReply } = useForum();
@@ -37,7 +38,7 @@ function ReplyToMeetingRequestDialog({ notif, children }: { notif: Notification,
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>
-                <div className="flex items-start gap-3 rounded-lg p-2 hover:bg-accent cursor-pointer">{children}</div>
+                <div className="w-full">{children}</div>
             </DialogTrigger>
             <DialogContent>
                 <DialogHeader>
@@ -111,22 +112,12 @@ function NotificationItem({ notif }: { notif: Notification }) {
             return null;
     }
 
-    const Wrapper = ({ children }: { children: React.ReactNode }) => {
-        if (notif.type === 'meeting_request' && user?.role === 'researcher') {
-            return <ReplyToMeetingRequestDialog notif={notif}>{children}</ReplyToMeetingRequestDialog>;
-        }
-        if (link === '#') {
-            return <div className="flex items-start gap-3 rounded-lg p-2 hover:bg-accent cursor-default">{children}</div>;
-        }
-        return <Link href={link} className="flex items-start gap-3 rounded-lg p-2 hover:bg-accent">{children}</Link>;
-    };
-
-    return (
-        <Wrapper>
+    const content = (
+         <div className="flex items-start gap-3 rounded-lg p-2 hover:bg-accent cursor-pointer w-full">
             <div className="mt-1">
                 <Icon className="h-4 w-4 text-primary" />
             </div>
-            <div className="grid gap-1">
+            <div className="grid gap-1 flex-1">
                 <p className="text-sm font-medium leading-none">
                     {text}
                 </p>
@@ -134,6 +125,25 @@ function NotificationItem({ notif }: { notif: Notification }) {
                     {subtext}
                 </p>
             </div>
+            {!notif.read && (
+                <div className="mt-1 h-2 w-2 rounded-full bg-primary" />
+            )}
+        </div>
+    );
+
+    const Wrapper = ({ children }: { children: React.ReactNode }) => {
+        if (notif.type === 'meeting_request' && user?.role === 'researcher') {
+            return <ReplyToMeetingRequestDialog notif={notif}>{children}</ReplyToMeetingRequestDialog>;
+        }
+        if (link === '#') {
+            return <div className="w-full cursor-default">{children}</div>;
+        }
+        return <Link href={link} className="w-full">{children}</Link>;
+    };
+
+    return (
+        <Wrapper>
+            {content}
         </Wrapper>
     );
 }
@@ -166,7 +176,7 @@ export function AppHeader() {
               <Star className="h-4 w-4" />
             </Link>
         </Button>
-        <Popover onOpenChange={(open) => { if (!open) markNotificationsAsRead() }}>
+        <Popover onOpenChange={(open) => { if (open) markNotificationsAsRead() }}>
             <PopoverTrigger asChild>
                 <Button variant="outline" size="icon" className="relative">
                     <Bell className="h-4 w-4" />
@@ -177,14 +187,14 @@ export function AppHeader() {
                     )}
                 </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-80" align="end">
+            <PopoverContent className="w-80 p-0" align="end">
                 <div className="p-4">
                     <h4 className="font-medium leading-none">Notifications</h4>
                     <p className="text-sm text-muted-foreground">
                         Recent updates and interactions.
                     </p>
                 </div>
-                <div className="grid gap-2 p-2">
+                <div className="grid gap-1 p-2 max-h-96 overflow-y-auto">
                     {notifications.length > 0 ? (
                         notifications.map((notif) => (
                            <NotificationItem key={notif.id} notif={notif} />
@@ -195,6 +205,20 @@ export function AppHeader() {
                         </div>
                     )}
                 </div>
+                {notifications.length > 0 && (
+                    <div className="border-t p-2">
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            className="w-full"
+                            onClick={markNotificationsAsRead}
+                            disabled={unreadCount === 0}
+                        >
+                            <CheckCircle className="mr-2 h-4 w-4" />
+                            Mark all as read
+                        </Button>
+                    </div>
+                )}
             </PopoverContent>
         </Popover>
         <UserNav />

@@ -279,9 +279,10 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
   const markNotificationsAsRead = () => {
     if (!user || unreadCount === 0) return;
     
+    const currentUserNotifIds = notifications.map(n => n.id);
+
     const updatedNotifications = allNotifications.map(n => {
-        const isRecipient = n.recipientId === user.id || (user.role === 'researcher' && n.recipientId === 'all_researchers');
-        if (isRecipient && !n.read) {
+        if (currentUserNotifIds.includes(n.id) && !n.read) {
             return {...n, read: true};
         }
         return n;

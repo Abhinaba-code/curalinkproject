@@ -7,6 +7,7 @@ import {
   CardHeader,
   CardTitle,
   CardDescription,
+  CardFooter,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
@@ -44,9 +45,10 @@ import {
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { useForum } from '@/context/forum-provider';
 import { useToast } from '@/hooks/use-toast';
-import { useRouter } from 'next/navigation';
+import { Badge } from '@/components/ui/badge';
+import type { Publication } from '@/lib/types';
+
 
 const chartData = [
   { month: 'January', desktop: 186 },
@@ -150,11 +152,13 @@ function PersonalizedFeed() {
   );
 }
 
-function NewPublicationDialog() {
+interface Announcement extends Publication {
+  tags?: string[];
+}
+
+function NewPublicationDialog({ onAnnounce }: { onAnnounce: (announcement: Announcement) => void }) {
   const { user } = useAuth();
-  const { addPost } = useForum();
   const { toast } = useToast();
-  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [title, setTitle] = useState('');
   const [abstract, setAbstract] = useState('');
@@ -170,28 +174,29 @@ function NewPublicationDialog() {
       return;
     }
 
-    addPost({
-      author: {
-        id: user.id,
-        name: user.name || 'Anonymous Researcher',
-        avatarUrl: user.avatarUrl,
-        role: user.role,
-      },
-      title,
-      content: abstract,
-      tags: ['New Publication', ...tags.split(',').map((t) => t.trim()).filter(Boolean)],
-    });
+    const newAnnouncement: Announcement = {
+        id: `pub-${Date.now()}`,
+        title,
+        abstract,
+        authors: [user.name || 'Anonymous Researcher'],
+        journal: 'CuraLink Announcements',
+        year: new Date().getFullYear(),
+        doi: '',
+        url: '#',
+        tags: tags.split(',').map((t) => t.trim()).filter(Boolean),
+    };
+
+    onAnnounce(newAnnouncement);
 
     toast({
-      title: 'Publication Shared!',
-      description: 'Your new publication has been posted to the community forum.',
+      title: 'Publication Announced!',
+      description: 'Your new publication has been posted to the dashboard.',
     });
 
     setIsOpen(false);
     setTitle('');
     setAbstract('');
     setTags('');
-    router.push('/dashboard/forums');
   };
 
   return (
@@ -206,7 +211,7 @@ function NewPublicationDialog() {
         <DialogHeader>
           <DialogTitle>Announce a New Publication</DialogTitle>
           <DialogDescription>
-            Share your latest research with the CuraLink community. This will create a post in the forums.
+            Share your latest research with the CuraLink community. This will create a post on the dashboard.
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
@@ -243,15 +248,62 @@ function NewPublicationDialog() {
           <DialogClose asChild>
             <Button variant="outline">Cancel</Button>
           </DialogClose>
-          <Button onClick={handlePublish}>Publish to Forum</Button>
+          <Button onClick={handlePublish}>Publish to Dashboard</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
   );
 }
 
+function Announcements({ announcements }: { announcements: Announcement[] }) {
+    if (announcements.length === 0) {
+        return (
+            <div className="text-center text-muted-foreground border-2 border-dashed rounded-lg p-8">
+                <p>No announcements yet.</p>
+                <p className="text-sm">Researchers can announce publications from the dashboard.</p>
+            </div>
+        );
+    }
+
+    return (
+        <div className="space-y-4">
+            {announcements.map((ann) => (
+                <Card key={ann.id} className="hover:shadow-lg transition-shadow">
+                    <CardHeader>
+                        <CardTitle>{ann.title}</CardTitle>
+                        <CardDescription>{ann.authors.join(', ')} &middot; {ann.journal}, {ann.year}</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="text-sm text-muted-foreground">{ann.abstract}</p>
+                        {ann.tags && ann.tags.length > 0 && (
+                            <div className="mt-4 flex flex-wrap gap-2">
+                                {ann.tags.map(tag => <Badge key={tag} variant="secondary">{tag}</Badge>)}
+                            </div>
+                        )}
+                    </CardContent>
+                </Card>
+            ))}
+        </div>
+    );
+}
+
 export default function DashboardPage() {
   const { user } = useAuth();
+  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+
+  useEffect(() => {
+    const storedAnnouncements = localStorage.getItem('cura-announcements');
+    if (storedAnnouncements) {
+      setAnnouncements(JSON.parse(storedAnnouncements));
+    }
+  }, []);
+
+  const handleAnnounce = (newAnnouncement: Announcement) => {
+    const updatedAnnouncements = [newAnnouncement, ...announcements];
+    setAnnouncements(updatedAnnouncements);
+    localStorage.setItem('cura-announcements', JSON.stringify(updatedAnnouncements));
+  };
+
 
   return (
     <div className="space-y-6">
@@ -260,7 +312,7 @@ export default function DashboardPage() {
           Welcome back, {user?.name || 'User'}!
         </h1>
         {user?.role === 'researcher' ? (
-            <NewPublicationDialog />
+            <NewPublicationDialog onAnnounce={handleAnnounce} />
         ) : (
             <Button>
               <PlusCircle className="mr-2 h-4 w-4" />
@@ -307,6 +359,20 @@ export default function DashboardPage() {
             <PersonalizedFeed />
           </CardContent>
         </Card>
+
+        {user?.role === 'researcher' && (
+             <Card className="lg:col-span-3">
+                <CardHeader>
+                    <CardTitle>Recent Announcements</CardTitle>
+                    <CardDescription>
+                        Latest publications announced by researchers on CuraLink.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <Announcements announcements={announcements} />
+                </CardContent>
+            </Card>
+        )}
 
         <Card className="lg:col-span-3">
           <CardHeader>

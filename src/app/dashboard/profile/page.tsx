@@ -103,7 +103,7 @@ export default function ProfilePage() {
                 <ProfileDetail icon={<User className="h-5 w-5" />} label="About Me" value={user.bio} />
                 <ProfileDetail icon={<Calendar className="h-5 w-5" />} label="Date of Birth" value={user.dob ? format(new Date(user.dob), 'PPP') : null} />
                 <ProfileDetail icon={<MapPin className="h-5 w-5" />} label="Location" value={user.location} />
-                <ProfileDetail icon={<Stethoscope className="h-5 w-5" />} label="Medical Conditions & Interests" value={user.interests?.join(', ')} />
+                {user.interests && user.interests.length > 0 && <ProfileDetail icon={<Stethoscope className="h-5 w-5" />} label="Medical Conditions & Interests" value={user.interests?.join(', ')} />}
             </div>
             {(user.bio || user.dob || user.location || user.interests) && (
                  <p className="text-xs text-muted-foreground text-center pt-4 border-t">

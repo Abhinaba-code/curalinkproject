@@ -38,7 +38,6 @@ export async function getExpertRecommendations(
 
 const prompt = ai.definePrompt({
   name: 'expertRecommendationsPrompt',
-  model: googleAI('gemini-pro'),
   input: {schema: ExpertRecommendationsInputSchema},
   output: {schema: ExpertRecommendationsOutputSchema},
   prompt: `You are an AI assistant helping researchers find potential collaborators.
@@ -59,7 +58,12 @@ const expertRecommendationsFlow = ai.defineFlow(
     outputSchema: ExpertRecommendationsOutputSchema,
   },
   async input => {
-    const {output} = await prompt(input);
+    const {output} = await ai.generate({
+        model: googleAI('gemini-pro'),
+        prompt: prompt.template,
+        input,
+        output: { schema: ExpertRecommendationsOutputSchema },
+    });
     return output!;
   }
 );

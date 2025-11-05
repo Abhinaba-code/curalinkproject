@@ -36,7 +36,6 @@ export async function generatePersonalizedFeed(input: GeneratePersonalizedFeedIn
 
 const prompt = ai.definePrompt({
   name: 'personalizedFeedPrompt',
-  model: googleAI('gemini-pro'),
   input: { schema: GeneratePersonalizedFeedInputSchema },
   output: { schema: GeneratePersonalizedFeedOutputSchema },
   system: `You are an AI assistant for CuraLink, a platform that connects patients and researchers.
@@ -65,7 +64,12 @@ const personalizedFeedFlow = ai.defineFlow(
     outputSchema: GeneratePersonalizedFeedOutputSchema,
   },
   async (input) => {
-    const { output } = await prompt(input);
+    const { output } = await ai.generate({
+        model: googleAI('gemini-pro'),
+        prompt: prompt.template,
+        input,
+        output: { schema: GeneratePersonalizedFeedOutputSchema },
+    });
     return output!;
   }
 );

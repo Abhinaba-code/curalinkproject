@@ -34,8 +34,6 @@ export async function askCuraLinkAssistant(input: CuraLinkAssistantInput): Promi
 const curaLinkAssistantPrompt = ai.definePrompt(
   {
     name: 'curaLinkAssistantPrompt',
-    model: googleAI('gemini-pro'),
-    input: { schema: z.object({ question: z.string() }) },
     system: `You are a friendly and helpful AI assistant for a platform called CuraLink.
   
 CuraLink's mission is to connect patients and researchers to accelerate medical advancements.
@@ -60,8 +58,9 @@ const curaLinkAssistantFlow = ai.defineFlow(
   async (input) => {
     const { question, history } = input;
 
-    const llmResponse = await curaLinkAssistantPrompt.generate({
-      input: { question },
+    const llmResponse = await ai.generate({
+      model: googleAI('gemini-pro'),
+      prompt: question,
       history: history,
     });
 

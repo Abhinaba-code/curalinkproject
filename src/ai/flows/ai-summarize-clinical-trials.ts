@@ -43,10 +43,14 @@ const summarizeClinicalTrialFlow = ai.defineFlow(
     name: 'summarizeClinicalTrialFlow',
     inputSchema: SummarizeClinicalTrialInputSchema,
     outputSchema: SummarizeClinicalTrialOutputSchema,
-    model: googleAI('gemini-pro'),
   },
   async input => {
-    const {output} = await prompt(input);
-    return output!;
+    const llmResponse = await ai.generate({
+      model: googleAI('gemini-pro'),
+      prompt: prompt.template,
+      input,
+      output: { schema: SummarizeClinicalTrialOutputSchema },
+    });
+    return llmResponse.output!;
   }
 );

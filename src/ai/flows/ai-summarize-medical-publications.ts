@@ -42,10 +42,14 @@ const summarizeMedicalPublicationFlow = ai.defineFlow(
     name: 'summarizeMedicalPublicationFlow',
     inputSchema: SummarizeMedicalPublicationInputSchema,
     outputSchema: SummarizeMedicalPublicationOutputSchema,
-    model: googleAI('gemini-pro'),
   },
   async input => {
-    const {output} = await summarizeMedicalPublicationPrompt(input);
+    const {output} = await ai.generate({
+        model: googleAI('gemini-pro'),
+        prompt: summarizeMedicalPublicationPrompt.template,
+        input,
+        output: { schema: SummarizeMedicalPublicationOutputSchema },
+    });
     return output!;
   }
 );

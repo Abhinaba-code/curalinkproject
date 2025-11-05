@@ -1,14 +1,31 @@
+import Link from 'next/link';
 import { Logo } from './logo';
 
 export function AppFooter() {
   return (
-    <footer className="bg-slate-900 text-slate-100">
-      <div className="container mx-auto flex justify-between items-center px-4 py-8">
-        <div>
-          <Logo className="text-white" />
-          <p className="text-sm text-slate-300 mt-2">
-            &copy; {new Date().getFullYear()} CuraLink. All rights reserved.
-          </p>
+    <footer className="bg-secondary/50 border-t">
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+          <div className="text-center md:text-left">
+            <Logo />
+            <p className="text-sm text-muted-foreground mt-2">
+              &copy; {new Date().getFullYear()} CuraLink. All rights reserved.
+            </p>
+          </div>
+          <div className="flex items-center gap-6 text-sm text-muted-foreground">
+            <Link href="/about" className="hover:text-primary transition-colors">
+              About
+            </Link>
+            <Link href="/terms" className="hover:text-primary transition-colors">
+              Terms
+            </Link>
+            <Link href="/privacy" className="hover:text-primary transition-colors">
+              Privacy
+            </Link>
+            <Link href="/contact" className="hover:text-primary transition-colors">
+              Contact
+            </Link>
+          </div>
         </div>
       </div>
     </footer>

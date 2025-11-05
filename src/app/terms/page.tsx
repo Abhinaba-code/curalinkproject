@@ -34,7 +34,7 @@ export default function TermsPage() {
                 <p>The Service and its original content, features and functionality are and will remain the exclusive property of CuraLink and its licensors. The Service is protected by copyright, trademark, and other laws of both the United States and foreign countries.</p>
 
                 <h2>5. Disclaimer</h2>
-                <p>The service is provided on an "AS IS" and "AS AVAILABLE" basis. The service is provided without warranties of any kind, whether express or implied, including, but not limited to, implied warranties of merchantability, fitness for a particular purpose, non-infringement or course of performance. Information provided on CuraLink is not a substitute for professional medical advice.</p>
+                <p>The service is provided on an "AS IS" and "AS AVAILABLE" basis. The service is provided without warranties of any kind, whether express or implied, including, but not to, implied warranties of merchantability, fitness for a particular purpose, non-infringement or course of performance. Information provided on CuraLink is not a substitute for professional medical advice.</p>
                 
                 <h2>6. Governing Law</h2>
                 <p>These Terms shall be governed and construed in accordance with the laws of the United States, without regard to its conflict of law provisions.</p>

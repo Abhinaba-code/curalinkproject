@@ -16,6 +16,7 @@ import {
   Share2,
   PlusCircle,
   CornerDownRight,
+  Smile,
 } from 'lucide-react';
 import { useState } from 'react';
 import {
@@ -30,11 +31,86 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { useForum, type ForumPost, type PostReply } from '@/context/forum-provider';
+import { useForum, type ForumPost, type PostReply, type Reactions } from '@/context/forum-provider';
 import { useAuth } from '@/context/auth-provider';
 import { useToast } from '@/hooks/use-toast';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { cn } from '@/lib/utils';
 
-function ReplyCard({ reply }: { reply: PostReply }) {
+const EMOJIS = ['👍', '❤️', '😂', '😮', '😢'];
+
+function EmojiReactions({
+  reactions,
+  onSelect,
+  canReact,
+}: {
+  reactions: Reactions;
+  onSelect: (emoji: string) => void;
+  canReact: boolean;
+}) {
+  const { user } = useAuth();
+  if (!user) return null;
+
+  const reactionEntries = Object.entries(reactions);
+
+  return (
+    <div className="flex items-center gap-2">
+      {reactionEntries.length > 0 &&
+        reactionEntries.map(([emoji, userIds]) =>
+          userIds.length > 0 ? (
+            <button
+              key={emoji}
+              onClick={() => canReact && onSelect(emoji)}
+              className={cn(
+                'flex items-center gap-1 rounded-full border bg-secondary/50 px-2 py-0.5 text-xs transition-colors hover:bg-secondary',
+                userIds.includes(user.id) &&
+                  'border-primary bg-primary/10 text-primary',
+                !canReact && 'cursor-not-allowed'
+              )}
+            >
+              <span>{emoji}</span>
+              <span>{userIds.length}</span>
+            </button>
+          ) : null
+        )}
+
+      {canReact && (
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7 rounded-full"
+            >
+              <Smile className="h-4 w-4 text-muted-foreground" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-1">
+            <div className="flex gap-1">
+              {EMOJIS.map((emoji) => (
+                <button
+                  key={emoji}
+                  onClick={() => onSelect(emoji)}
+                  className="rounded-md p-2 text-xl transition-transform hover:scale-125"
+                >
+                  {emoji}
+                </button>
+              ))}
+            </div>
+          </PopoverContent>
+        </Popover>
+      )}
+    </div>
+  );
+}
+
+
+function ReplyCard({ reply, postId }: { reply: PostReply; postId: string }) {
+  const { user } = useAuth();
+  const { toggleReplyReaction } = useForum();
+
+  const canReact = user?.role === 'patient' && reply.author.role === 'researcher';
+
   return (
     <div className="flex items-start gap-3 pl-8 mt-4 border-l-2 border-primary/20">
       <Avatar className="h-8 w-8">
@@ -49,6 +125,13 @@ function ReplyCard({ reply }: { reply: PostReply }) {
             <p className="text-xs text-muted-foreground">{reply.author.role}</p>
         </div>
         <p className="text-sm text-muted-foreground whitespace-pre-wrap">{reply.content}</p>
+        <div className="mt-2">
+           <EmojiReactions
+            reactions={reply.reactions}
+            onSelect={(emoji) => toggleReplyReaction(postId, reply.id, emoji)}
+            canReact={!!canReact}
+          />
+        </div>
       </div>
     </div>
   );
@@ -56,7 +139,7 @@ function ReplyCard({ reply }: { reply: PostReply }) {
 
 
 function PostCard({ post }: { post: ForumPost }) {
-  const { addReply } = useForum();
+  const { addReply, togglePostReaction } = useForum();
   const { user } = useAuth();
   const [replyContent, setReplyContent] = useState('');
   const [showReplyInput, setShowReplyInput] = useState(false);
@@ -72,6 +155,8 @@ function PostCard({ post }: { post: ForumPost }) {
         description: 'Your reply has been added to the post.'
     });
   };
+
+  const canReactToPost = user?.role === 'researcher' && post.author.role === 'patient';
 
   return (
     <Card>
@@ -102,9 +187,16 @@ function PostCard({ post }: { post: ForumPost }) {
             </div>
           ))}
         </div>
+        <div className="mt-4">
+           <EmojiReactions
+            reactions={post.reactions}
+            onSelect={(emoji) => togglePostReaction(post.id, emoji)}
+            canReact={!!canReactToPost}
+          />
+        </div>
         <div className="mt-6 space-y-4">
             {post.replies?.map(reply => (
-                <ReplyCard key={reply.id} reply={reply} />
+                <ReplyCard key={reply.id} reply={reply} postId={post.id} />
             ))}
         </div>
 
@@ -163,6 +255,7 @@ export default function ForumsPage() {
 
     addPost({
       author: {
+        id: user.id,
         name: user.name || 'Anonymous',
         avatarUrl: user.avatarUrl,
         role: user.role,

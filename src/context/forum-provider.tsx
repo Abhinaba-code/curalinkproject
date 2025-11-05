@@ -12,10 +12,13 @@ export interface ForumPostAuthor {
   role: 'patient' | 'researcher';
 }
 
+export type Reactions = { [emoji: string]: string[] }; // emoji: user_id[]
+
 export interface PostReply {
   id: string;
   author: ForumPostAuthor;
   content: string;
+  reactions: Reactions;
 }
 
 export interface ForumPost {
@@ -26,6 +29,7 @@ export interface ForumPost {
   upvotes: number;
   tags: string[];
   replies: PostReply[];
+  reactions: Reactions;
 }
 
 export interface Notification {
@@ -56,6 +60,7 @@ const samplePosts: ForumPost[] = [
       upvotes: 128,
       tags: ['Glioblastoma', 'Immunotherapy', 'Clinical Trial'],
       replies: [],
+      reactions: {},
     },
     {
       id: 'post-2',
@@ -71,14 +76,17 @@ const samplePosts: ForumPost[] = [
       upvotes: 256,
       tags: ['Lung Cancer', 'Patient Story', 'Targeted Therapy'],
       replies: [],
+      reactions: {},
     },
 ];
 
 interface ForumContextType {
   posts: ForumPost[];
   notifications: Notification[];
-  addPost: (post: Omit<ForumPost, 'id' | 'upvotes' | 'replies'>) => void;
+  addPost: (post: Omit<ForumPost, 'id' | 'upvotes' | 'replies' | 'reactions'>) => void;
   addReply: (postId: string, content: string) => void;
+  togglePostReaction: (postId: string, emoji: string) => void;
+  toggleReplyReaction: (postId: string, replyId: string, emoji: string) => void;
   sendNudgeNotification: (expert: Expert) => void;
   removeNudgeNotification: (expertId: string) => void;
   sendMeetingRequest: (expert: Expert, fromUser: User, reason: string) => Notification;
@@ -131,7 +139,7 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  const addPost = (postData: Omit<ForumPost, 'id' | 'upvotes' | 'replies'>) => {
+  const addPost = (postData: Omit<ForumPost, 'id' | 'upvotes' | 'replies' | 'reactions'>) => {
     if (!user) return;
 
     const newPost: ForumPost = {
@@ -139,6 +147,7 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
       id: `post-${Date.now()}`,
       upvotes: 0,
       replies: [],
+      reactions: {},
       author: {
           ...postData.author,
           name: postData.author.name || 'Anonymous'
@@ -183,6 +192,7 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
                     role: user.role,
                 },
                 content,
+                reactions: {},
             };
             const updatedReplies = p.replies ? [...p.replies, newReply] : [newReply];
             
@@ -211,6 +221,62 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
     setPosts(updatedPosts);
     localStorage.setItem('cura-posts', JSON.stringify(updatedPosts));
   };
+  
+  const toggleReaction = (currentReactions: Reactions, userId: string, emoji: string): Reactions => {
+    const reactions = { ...currentReactions };
+    // User wants to remove their reaction
+    if (reactions[emoji]?.includes(userId)) {
+      reactions[emoji] = reactions[emoji].filter(id => id !== userId);
+      if (reactions[emoji].length === 0) {
+        delete reactions[emoji];
+      }
+    } else { // User wants to add a reaction
+      if (!reactions[emoji]) {
+        reactions[emoji] = [];
+      }
+      reactions[emoji].push(userId);
+    }
+    return reactions;
+  };
+  
+  const togglePostReaction = (postId: string, emoji: string) => {
+    if (!user) return;
+    const updatedPosts = posts.map(p => {
+      if (p.id === postId) {
+        return {
+          ...p,
+          reactions: toggleReaction(p.reactions, user.id, emoji),
+        };
+      }
+      return p;
+    });
+    setPosts(updatedPosts);
+    localStorage.setItem('cura-posts', JSON.stringify(updatedPosts));
+  };
+
+  const toggleReplyReaction = (postId: string, replyId: string, emoji: string) => {
+    if (!user) return;
+    const updatedPosts = posts.map(p => {
+      if (p.id === postId) {
+        return {
+          ...p,
+          replies: p.replies.map(r => {
+            if (r.id === replyId) {
+              return {
+                ...r,
+                reactions: toggleReaction(r.reactions, user.id, emoji),
+              };
+            }
+            return r;
+          }),
+        };
+      }
+      return p;
+    });
+    setPosts(updatedPosts);
+    localStorage.setItem('cura-posts', JSON.stringify(updatedPosts));
+  };
+
 
   const sendNudgeNotification = (expert: Expert) => {
     if (!user) return;
@@ -307,7 +373,7 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem('cura-notifications', JSON.stringify(updatedNotifications));
   }
 
-  const value = { posts, notifications, addPost, addReply, sendNudgeNotification, removeNudgeNotification, sendMeetingRequest, addMeetingReply, removeMeetingRequest, unreadCount, markNotificationsAsRead };
+  const value = { posts, notifications, addPost, addReply, sendNudgeNotification, removeNudgeNotification, sendMeetingRequest, addMeetingReply, removeMeetingRequest, markNotificationsAsRead, unreadCount, togglePostReaction, toggleReplyReaction };
 
   return (
     <ForumContext.Provider value={value}>

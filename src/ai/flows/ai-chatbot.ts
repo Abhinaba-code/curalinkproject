@@ -12,7 +12,7 @@ import { z } from 'genkit';
 import { googleAI } from '@genkit-ai/google-genai';
 
 const ChatHistorySchema = z.object({
-  role: z.enum(['user', 'assistant']),
+  role: z.enum(['user', 'model']),
   content: z.string(),
 });
 
@@ -31,18 +31,12 @@ export async function askCuraLinkAssistant(input: CuraLinkAssistantInput): Promi
   return curaLinkAssistantFlow(input);
 }
 
-const curaLinkAssistantFlow = ai.defineFlow(
+const curaLinkAssistantPrompt = ai.definePrompt(
   {
-    name: 'curaLinkAssistantFlow',
-    inputSchema: CuraLinkAssistantInputSchema,
-    outputSchema: CuraLinkAssistantOutputSchema,
-  },
-  async (input) => {
-    const { question, history } = input;
-
-    const historyMessages = history ? history.map(h => `${h.role}: ${h.content}`) : [];
-    
-    const prompt = `You are a friendly and helpful AI assistant for a platform called CuraLink.
+    name: 'curaLinkAssistantPrompt',
+    model: googleAI('gemini-pro'),
+    input: { schema: z.object({ question: z.string() }) },
+    system: `You are a friendly and helpful AI assistant for a platform called CuraLink.
   
 CuraLink's mission is to connect patients and researchers to accelerate medical advancements.
 
@@ -52,16 +46,23 @@ Key Features:
 - Health Expert Connections: Allows users to find and connect with healthcare providers and researchers.
 - Community Forums: A place for patients and researchers to connect.
 
-Your role is to answer user questions about the platform. Be concise, friendly, and informative. If a user asks something outside the scope of CuraLink, politely state that you can only answer questions about the platform.
+Your role is to answer user questions about the platform. Be concise, friendly, and informative. If a user asks something outside the scope of CuraLink, politely state that you can only answer questions about the platform.`,
+  }
+);
 
-${historyMessages.join('\n')}
-user: ${question}
-assistant:
-`;
 
-    const llmResponse = await ai.generate({
-      model: googleAI('gemini-pro'),
-      prompt: prompt,
+const curaLinkAssistantFlow = ai.defineFlow(
+  {
+    name: 'curaLinkAssistantFlow',
+    inputSchema: CuraLinkAssistantInputSchema,
+    outputSchema: CuraLinkAssistantOutputSchema,
+  },
+  async (input) => {
+    const { question, history } = input;
+
+    const llmResponse = await curaLinkAssistantPrompt.generate({
+      input: { question },
+      history: history,
     });
 
     return { answer: llmResponse.text };

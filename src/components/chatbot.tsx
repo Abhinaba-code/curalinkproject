@@ -9,7 +9,7 @@ import { askCuraLinkAssistant } from '@/ai/flows/ai-chatbot';
 import { ScrollArea } from './ui/scroll-area';
 
 interface ChatMessage {
-    role: 'user' | 'assistant';
+    role: 'user' | 'model';
     content: string;
 }
 
@@ -30,10 +30,10 @@ export function Chatbot() {
         try {
             const history = messages.map(m => ({ role: m.role, content: m.content }));
             const result = await askCuraLinkAssistant({ question: input, history });
-            const assistantMessage: ChatMessage = { role: 'assistant', content: result.answer };
+            const assistantMessage: ChatMessage = { role: 'model', content: result.answer };
             setMessages(prev => [...prev, assistantMessage]);
         } catch (error) {
-            const errorMessage: ChatMessage = { role: 'assistant', content: "Sorry, I'm having trouble connecting. Please try again later." };
+            const errorMessage: ChatMessage = { role: 'model', content: "Sorry, I'm having trouble connecting. Please try again later." };
             setMessages(prev => [...prev, errorMessage]);
             console.error("Chatbot error:", error);
         } finally {

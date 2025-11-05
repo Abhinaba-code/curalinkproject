@@ -16,6 +16,7 @@ import { Label } from './ui/label';
 import { Textarea } from './ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { useRouter } from 'next/navigation';
 
 function ReplyToMeetingRequestDialog({ notif, children }: { notif: Notification, children: React.ReactNode }) {
     const { addMeetingReply } = useForum();
@@ -181,6 +182,14 @@ function NotificationItem({ notif }: { notif: Notification }) {
 export function AppHeader() {
   const { user } = useAuth();
   const { notifications, markNotificationsAsRead, unreadCount, clearNotifications } = useForum();
+  const router = useRouter();
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!searchQuery.trim()) return;
+    router.push(`/dashboard/search?q=${encodeURIComponent(searchQuery.trim())}`);
+  };
 
   return (
     <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-background/80 backdrop-blur-lg px-4 md:px-6">
@@ -191,13 +200,15 @@ export function AppHeader() {
         </div>
       </div>
       <div className="flex flex-1 items-center gap-4 md:ml-auto md:gap-2 lg:gap-4">
-        <form className="ml-auto flex-1 sm:flex-initial">
+        <form className="ml-auto flex-1 sm:flex-initial" onSubmit={handleSearch}>
           <div className="relative">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
               type="search"
               placeholder="Search trials, publications..."
               className="pl-8 sm:w-[300px] md:w-[200px] lg:w-[300px] bg-background/50"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
         </form>

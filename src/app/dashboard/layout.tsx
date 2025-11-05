@@ -19,6 +19,7 @@ import {
   Star,
   Loader2,
   History,
+  Search,
 } from 'lucide-react';
 import { Logo } from '@/components/logo';
 import { AppHeader } from '@/components/app-header';
@@ -33,6 +34,7 @@ import { HistoryProvider } from '@/context/history-provider';
 
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/dashboard/search', label: 'Search', icon: Search },
   { href: '/dashboard/trials', label: 'Clinical Trials', icon: FlaskConical },
   { href: '/dashboard/publications', label: 'Publications', icon: FileText },
   { href: '/dashboard/experts', label: 'Health Experts', icon: Users },

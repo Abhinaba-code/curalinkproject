@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useAuth } from '@/context/auth-provider';
@@ -7,7 +8,6 @@ import {
   CardHeader,
   CardTitle,
   CardDescription,
-  CardFooter,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
@@ -16,7 +16,6 @@ import {
   PlusCircle,
   Users,
   Bot,
-  Loader2,
   ExternalLink,
   Trash2,
 } from 'lucide-react';
@@ -26,7 +25,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from '@/components/ui/chart';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import {
   generatePersonalizedFeed,
   type GeneratePersonalizedFeedOutput,
@@ -422,34 +421,50 @@ export default function DashboardPage() {
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [symptoms, setSymptoms] = useState<TrackedSymptom[]>([]);
 
+  const getStorageKey = useCallback((type: 'announcements' | 'symptoms') => {
+    if (!user) return null;
+    return `cura-${type}-${user.id}`;
+  }, [user]);
+
   useEffect(() => {
-    const storedAnnouncements = localStorage.getItem('cura-announcements');
-    if (storedAnnouncements) {
-      setAnnouncements(JSON.parse(storedAnnouncements));
+    const announcementsKey = getStorageKey('announcements');
+    const symptomsKey = getStorageKey('symptoms');
+
+    if (announcementsKey) {
+      const storedAnnouncements = localStorage.getItem(announcementsKey);
+      if (storedAnnouncements) setAnnouncements(JSON.parse(storedAnnouncements));
+      else setAnnouncements([]);
     }
 
-    const storedSymptoms = localStorage.getItem('cura-symptoms');
-    if (storedSymptoms) {
-      setSymptoms(JSON.parse(storedSymptoms));
+    if (symptomsKey) {
+      const storedSymptoms = localStorage.getItem(symptomsKey);
+      if (storedSymptoms) setSymptoms(JSON.parse(storedSymptoms));
+      else setSymptoms([]);
     }
-  }, []);
+  }, [user, getStorageKey]);
 
   const handleAnnounce = (newAnnouncement: Announcement) => {
+    const announcementsKey = getStorageKey('announcements');
+    if (!announcementsKey) return;
     const updatedAnnouncements = [newAnnouncement, ...announcements];
     setAnnouncements(updatedAnnouncements);
-    localStorage.setItem('cura-announcements', JSON.stringify(updatedAnnouncements));
+    localStorage.setItem(announcementsKey, JSON.stringify(updatedAnnouncements));
   };
 
   const handleSymptomTracked = (newSymptom: TrackedSymptom) => {
+    const symptomsKey = getStorageKey('symptoms');
+    if (!symptomsKey) return;
     const updatedSymptoms = [newSymptom, ...symptoms];
     setSymptoms(updatedSymptoms);
-    localStorage.setItem('cura-symptoms', JSON.stringify(updatedSymptoms));
+    localStorage.setItem(symptomsKey, JSON.stringify(updatedSymptoms));
   };
   
   const handleClearSymptom = (id: string) => {
+    const symptomsKey = getStorageKey('symptoms');
+    if (!symptomsKey) return;
     const updatedSymptoms = symptoms.filter(s => s.id !== id);
     setSymptoms(updatedSymptoms);
-    localStorage.setItem('cura-symptoms', JSON.stringify(updatedSymptoms));
+    localStorage.setItem(symptomsKey, JSON.stringify(updatedSymptoms));
   };
 
   return (
@@ -561,5 +576,7 @@ export default function DashboardPage() {
     </div>
   );
 }
+
+    
 
     

@@ -1,8 +1,10 @@
+
 'use client';
 
 import type { Expert } from '@/lib/types';
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from './auth-provider';
 
 interface FollowContextType {
   followedExperts: Expert[];
@@ -12,29 +14,48 @@ interface FollowContextType {
 
 const FollowContext = createContext<FollowContextType | undefined>(undefined);
 
-const FOLLOW_STORAGE_KEY = 'cura-followed';
+const FOLLOW_STORAGE_KEY_PREFIX = 'cura-followed';
 
 export function FollowProvider({ children }: { children: React.ReactNode }) {
   const [followedExperts, setFollowedExperts] = useState<Expert[]>([]);
   const { toast } = useToast();
+  const { user } = useAuth();
+
+  const getStorageKey = useCallback(() => {
+    return user ? `${FOLLOW_STORAGE_KEY_PREFIX}-${user.id}` : null;
+  }, [user]);
 
   useEffect(() => {
+    const storageKey = getStorageKey();
+    if (!storageKey) {
+        setFollowedExperts([]); // Clear follows if no user
+        return;
+    }
     try {
-      const storedFollows = localStorage.getItem(FOLLOW_STORAGE_KEY);
+      const storedFollows = localStorage.getItem(storageKey);
       if (storedFollows) {
         setFollowedExperts(JSON.parse(storedFollows));
+      } else {
+        setFollowedExperts([]);
       }
     } catch (error) {
       console.error('Failed to parse followed experts from localStorage', error);
-      localStorage.removeItem(FOLLOW_STORAGE_KEY);
+      const key = getStorageKey();
+      if(key) localStorage.removeItem(key);
     }
-  }, []);
+  }, [user, getStorageKey]);
 
   const isFollowing = (id: string) => {
     return followedExperts.some((expert) => expert.id === id);
   };
 
   const toggleFollow = (expert: Expert) => {
+    const storageKey = getStorageKey();
+    if (!storageKey) {
+        toast({ variant: 'destructive', title: 'You must be logged in to follow experts.' });
+        return;
+    }
+
     let updatedFollows: Expert[];
     const isAlreadyFollowing = isFollowing(expert.id);
 
@@ -55,7 +76,7 @@ export function FollowProvider({ children }: { children: React.ReactNode }) {
     }
 
     setFollowedExperts(updatedFollows);
-    localStorage.setItem(FOLLOW_STORAGE_KEY, JSON.stringify(updatedFollows));
+    localStorage.setItem(storageKey, JSON.stringify(updatedFollows));
   };
 
   const value = {

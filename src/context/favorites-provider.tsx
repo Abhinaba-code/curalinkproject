@@ -1,8 +1,10 @@
+
 'use client';
 
-import type { User, ClinicalTrial, Publication, Expert } from '@/lib/types';
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import type { ClinicalTrial, Publication, Expert } from '@/lib/types';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from './auth-provider';
 
 type FavoriteItemType = 'trial' | 'publication' | 'expert';
 type FavoriteItem =
@@ -23,21 +25,36 @@ const FavoritesContext = createContext<FavoritesContextType | undefined>(
   undefined
 );
 
+const FAVORITES_KEY_PREFIX = 'cura-favorites';
+
 export function FavoritesProvider({ children }: { children: React.ReactNode }) {
   const [favorites, setFavorites] = useState<FavoriteItem[]>([]);
   const { toast } = useToast();
+  const { user } = useAuth();
+
+  const getStorageKey = useCallback(() => {
+    return user ? `${FAVORITES_KEY_PREFIX}-${user.id}` : null;
+  }, [user]);
 
   useEffect(() => {
+    const storageKey = getStorageKey();
+    if (!storageKey) {
+      setFavorites([]); // Clear favorites if no user
+      return;
+    }
     try {
-      const storedFavorites = localStorage.getItem('cura-favorites');
+      const storedFavorites = localStorage.getItem(storageKey);
       if (storedFavorites) {
         setFavorites(JSON.parse(storedFavorites));
+      } else {
+        setFavorites([]);
       }
     } catch (error) {
       console.error('Failed to parse favorites from localStorage', error);
-      localStorage.removeItem('cura-favorites');
+      const key = getStorageKey();
+      if(key) localStorage.removeItem(key);
     }
-  }, []);
+  }, [user, getStorageKey]);
 
   const isFavorite = (id: string) => {
     return favorites.some((fav) => fav.item.id === id);
@@ -47,6 +64,12 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
     item: ClinicalTrial | Publication | Expert,
     type: FavoriteItemType
   ) => {
+    const storageKey = getStorageKey();
+    if (!storageKey) {
+        toast({ variant: 'destructive', title: 'You must be logged in to save favorites.' });
+        return;
+    }
+
     let updatedFavorites: FavoriteItem[];
     const favoriteExists = isFavorite(item.id);
 
@@ -65,7 +88,7 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
     }
     
     setFavorites(updatedFavorites);
-    localStorage.setItem('cura-favorites', JSON.stringify(updatedFavorites));
+    localStorage.setItem(storageKey, JSON.stringify(updatedFavorites));
   };
 
   const value = {
@@ -88,3 +111,5 @@ export function useFavorites() {
   }
   return context;
 }
+
+    

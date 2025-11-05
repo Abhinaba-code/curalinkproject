@@ -1,15 +1,16 @@
 
 'use server';
 /**
- * @fileOverview AI-powered summarization of clinical trials using OpenAI.
+ * @fileOverview AI-powered summarization of clinical trials.
  *
  * - summarizeClinicalTrial - A function that takes clinical trial details and returns an AI-generated summary.
- * - SummarizeClinicalTrialInput - The input type for the summarizeClinicalTrial function, including the trial details.
+ * - SummarizeClinicalTrialInput - The input type for the summarizeClinicalTrial function.
  * - SummarizeClinicalTrialOutput - The return type for the summarizeClinicalTrial function, containing the AI-generated summary.
  */
 
-import { openai } from '@/ai/genkit';
-import { z } from 'zod';
+import { ai } from '@/ai/genkit';
+import { z } from 'genkit';
+import { googleAI } from '@genkit-ai/google-genai';
 
 const SummarizeClinicalTrialInputSchema = z.object({
   trialDetails: z.string().describe('The detailed text of a clinical trial.'),
@@ -21,26 +22,36 @@ const SummarizeClinicalTrialOutputSchema = z.object({
 });
 export type SummarizeClinicalTrialOutput = z.infer<typeof SummarizeClinicalTrialOutputSchema>;
 
-const SYSTEM_PROMPT = `You are an AI expert in summarizing clinical trials for patients.
+const summarizeClinicalTrialPrompt = ai.definePrompt(
+    {
+        name: 'summarizeClinicalTrialPrompt',
+        input: { schema: SummarizeClinicalTrialInputSchema },
+        output: { schema: SummarizeClinicalTrialOutputSchema },
+        model: googleAI('gemini-pro'),
+        system: `You are an AI expert in summarizing clinical trials for patients.
 
-Given the following clinical trial details, provide a concise and easy-to-understand summary that helps patients quickly assess the trial's relevance to their needs.`;
+Given the following clinical trial details, provide a concise and easy-to-understand summary that helps patients quickly assess the trial's relevance to their needs.`,
+        prompt: `{{{trialDetails}}}`,
+    }
+);
+
+const summarizeClinicalTrialFlow = ai.defineFlow(
+    {
+        name: 'summarizeClinicalTrialFlow',
+        inputSchema: SummarizeClinicalTrialInputSchema,
+        outputSchema: SummarizeClinicalTrialOutputSchema,
+    },
+    async (input) => {
+        try {
+            const { output } = await summarizeClinicalTrialPrompt(input);
+            return output!;
+        } catch (error) {
+            console.error('Error in summarizeClinicalTrialFlow:', error);
+            throw new Error('Failed to generate AI summary.');
+        }
+    }
+);
 
 export async function summarizeClinicalTrial(input: SummarizeClinicalTrialInput): Promise<SummarizeClinicalTrialOutput> {
-  const { trialDetails } = input;
-  try {
-    const response = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
-      messages: [
-        { role: 'system', content: SYSTEM_PROMPT },
-        { role: 'user', content: trialDetails },
-      ],
-    });
-
-    const aiSummary = response.choices[0]?.message?.content || "Could not generate summary.";
-
-    return { aiSummary };
-  } catch (error) {
-    console.error('Error calling OpenAI for trial summary:', error);
-    throw new Error('Failed to generate AI summary.');
-  }
+  return summarizeClinicalTrialFlow(input);
 }

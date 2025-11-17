@@ -12,20 +12,16 @@ export async function summarizeMedicalPublication(input: SummarizeMedicalPublica
     console.log('API Key exists:', !!apiKey);
     console.log('API Key first 10 chars:', apiKey?.substring(0, 10));
 
-    const prompt = `You are an expert medical writer. Your task is to summarize the provided medical publication abstract for a general audience.
-        Explain the key findings and why they are important in simple terms. The summary should be clear, concise, and easy to understand for someone without a scientific background.
-
-        Please summarize the following publication content:
-        ---
+    const prompt = `
+        Summarize the following medical publication:
         ${input.publicationContent}
-        ---
-        `;
+    `;
 
     const { object } = await generateObject({
-        model: google('models/gemini-pro'),
+        model: google('gemini-1.5-flash-latest'),
         schema: SummarizeMedicalPublicationOutputSchema,
         prompt: prompt,
     });
-
+    
     return object;
 }

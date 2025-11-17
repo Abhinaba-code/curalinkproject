@@ -438,7 +438,7 @@ function ExpertCard({ expert, isTopMatch }: { expert: Expert, isTopMatch: boolea
                                 )
                              ) : (
                                 <>
-                                    <div className="grid grid-cols-2 gap-2">
+                                    <div className="flex flex-col gap-2">
                                         <Button variant={isNudged ? 'secondary' : 'outline'} onClick={handleNudge} disabled={isNudged} size="sm">
                                             <Bell className="mr-2 h-4 w-4" />
                                             {isNudged ? 'Nudged' : 'Nudge to Join'}
@@ -553,7 +553,7 @@ export default function ExpertsPage() {
 
     const isResearcher = user?.role === 'researcher';
     const title = isResearcher ? t('dashboard.nav.collaborators') : t('dashboard.nav.experts');
-    const description = isResearcher ? "Find researchers to collaborate with." : "Find specialists and clinical trials. Search by specialty, name, or location.";
+    const description = isResearcher ? "Find researchers to collaborate with." : "Find health experts and clinical trials. Search by specialty, name, or location.";
 
     return (
         <div className="space-y-6">

@@ -214,14 +214,7 @@ function PostCard({ post, onTagClick }: { post: ForumPost, onTagClick: (tag: str
 
   const canReactToPost = user?.role === 'researcher' && post.author.role === 'patient';
   const canDeletePost = user?.id === post.author.id;
-  const canReplyToPost = user?.role === 'researcher' || user?.id === post.author.id;
-  
-  // Specific check for premium Q&A posts
-  const isPremiumQAPost = post.tags.includes("Expert Q&A");
-  if (isPremiumQAPost && user?.role === 'patient') {
-    // Patients cannot reply to premium Q&A posts, only researchers
-    // canReplyToPost = false;
-  }
+  const canReplyToPost = user?.role === 'researcher' || (user?.role === 'patient' && user?.id === post.author.id);
 
   return (
     <Card>
@@ -390,7 +383,7 @@ export default function ForumsPage() {
               Connect with patients, caregivers, and researchers.
             </p>
           </div>
-          {user?.role === 'patient' && (
+          {user && (
             <Button onClick={() => setIsNewPostOpen(true)}>
                 <PlusCircle className="mr-2 h-4 w-4" />
                 Create New Post

@@ -24,6 +24,11 @@ import {
   TrendingUp,
   ListChecks,
   Download,
+  Stethoscope,
+  Pill,
+  Walk,
+  Utensils,
+  Tag,
 } from 'lucide-react';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
@@ -53,6 +58,8 @@ import {
 } from '@/components/ui/chart';
 import jsPDF from 'jspdf';
 import type { Symptom } from '@/ai/flows/schemas';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
 
 const levelConfig: {
   [key: string]: {
@@ -114,6 +121,10 @@ function JournalEntryDialog({
   const [pain, setPain] = useState([1]);
   const [sleep, setSleep] = useState([3]);
   const [energy, setEnergy] = useState([3]);
+  const [symptoms, setSymptoms] = useState('');
+  const [medications, setMedications] = useState('');
+  const [activities, setActivities] = useState('');
+  const [diet, setDiet] = useState('');
   const { t } = useTranslation();
 
   const handleAddEntry = () => {
@@ -123,6 +134,10 @@ function JournalEntryDialog({
       pain: pain[0],
       sleep: sleep[0],
       energy: energy[0],
+      symptoms: symptoms.split(',').map(s => s.trim()).filter(Boolean),
+      medications: medications.split(',').map(s => s.trim()).filter(Boolean),
+      activities: activities.split(',').map(s => s.trim()).filter(Boolean),
+      diet,
     };
 
     onEntryAdded(newEntry);
@@ -138,6 +153,10 @@ function JournalEntryDialog({
     setPain([1]);
     setSleep([3]);
     setEnergy([3]);
+    setSymptoms('');
+    setMedications('');
+    setActivities('');
+    setDiet('');
   };
 
   const renderSlider = (
@@ -179,14 +198,14 @@ function JournalEntryDialog({
             Record your thoughts, feelings, and symptoms for today.
           </DialogDescription>
         </DialogHeader>
-        <div className="grid gap-4 py-4">
+        <div className="grid gap-4 py-4 max-h-[70vh] overflow-y-auto px-2">
           <div className="space-y-2">
-            <Label htmlFor="journal-notes">Daily Notes</Label>
+            <Label htmlFor="journal-notes">General Notes</Label>
             <Textarea
               id="journal-notes"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              placeholder="How are you feeling today? Any new symptoms or thoughts?"
+              placeholder="How are you feeling today? Any new thoughts?"
               className="min-h-[80px]"
             />
           </div>
@@ -194,6 +213,44 @@ function JournalEntryDialog({
           {renderSlider('Pain Level', pain, setPain, 'pain')}
           {renderSlider('Sleep Quality', sleep, setSleep, 'sleep')}
           {renderSlider('Energy Level', energy, setEnergy, 'energy')}
+          
+          <div className="space-y-2">
+            <Label htmlFor="journal-symptoms">Symptoms (comma-separated)</Label>
+            <Input
+              id="journal-symptoms"
+              value={symptoms}
+              onChange={(e) => setSymptoms(e.target.value)}
+              placeholder="e.g., Headache, Nausea, Fatigue"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="journal-meds">Medications Taken (comma-separated)</Label>
+            <Input
+              id="journal-meds"
+              value={medications}
+              onChange={(e) => setMedications(e.target.value)}
+              placeholder="e.g., Metformin, Lisinopril"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="journal-activities">Activities (comma-separated)</Label>
+            <Input
+              id="journal-activities"
+              value={activities}
+              onChange={(e) => setActivities(e.target.value)}
+              placeholder="e.g., Light exercise, Social outing"
+            />
+          </div>
+           <div className="space-y-2">
+            <Label htmlFor="journal-diet">Diet / Meals</Label>
+            <Textarea
+              id="journal-diet"
+              value={diet}
+              onChange={(e) => setDiet(e.target.value)}
+              placeholder="What did you eat today?"
+              className="min-h-[80px]"
+            />
+          </div>
         </div>
         <DialogFooter>
           <DialogClose asChild>
@@ -232,6 +289,19 @@ function JournalEntryCard({
       </div>
     );
   };
+  
+  const renderDetailSection = (icon: React.ReactNode, title: string, content: React.ReactNode) => {
+    if (!content) return null;
+    return (
+        <div className="flex items-start gap-3">
+            <div className="text-muted-foreground mt-1">{icon}</div>
+            <div>
+                <h4 className="text-sm font-semibold">{title}</h4>
+                <div className="text-sm text-muted-foreground">{content}</div>
+            </div>
+        </div>
+    );
+  };
 
   return (
     <Card className="hover:shadow-lg transition-shadow relative group">
@@ -253,17 +323,54 @@ function JournalEntryCard({
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        {entry.notes && (
-          <p className="text-sm text-muted-foreground pt-4 border-t whitespace-pre-wrap">
-            {entry.notes}
-          </p>
-        )}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pb-4 border-b">
           {renderMetric('mood', entry.mood)}
           {renderMetric('pain', entry.pain)}
           {renderMetric('sleep', entry.sleep)}
           {renderMetric('energy', entry.energy)}
         </div>
+        
+        {entry.notes && (
+          <p className="text-sm text-muted-foreground pt-4 border-t whitespace-pre-wrap">
+            {entry.notes}
+          </p>
+        )}
+        
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {renderDetailSection(
+                <Stethoscope className="h-4 w-4" />,
+                "Symptoms",
+                entry.symptoms?.length ? (
+                    <div className="flex flex-wrap gap-1">
+                        {entry.symptoms.map(s => <Badge key={s} variant="secondary">{s}</Badge>)}
+                    </div>
+                ) : <p className="text-xs italic">No symptoms logged.</p>
+            )}
+            {renderDetailSection(
+                <Pill className="h-4 w-4" />,
+                "Medications",
+                 entry.medications?.length ? (
+                    <div className="flex flex-wrap gap-1">
+                        {entry.medications.map(m => <Badge key={m} variant="outline">{m}</Badge>)}
+                    </div>
+                ) : <p className="text-xs italic">No medications logged.</p>
+            )}
+            {renderDetailSection(
+                <Walk className="h-4 w-4" />,
+                "Activities",
+                entry.activities?.length ? (
+                    <div className="flex flex-wrap gap-1">
+                        {entry.activities.map(a => <Badge key={a} variant="outline">{a}</Badge>)}
+                    </div>
+                ) : <p className="text-xs italic">No activities logged.</p>
+            )}
+            {renderDetailSection(
+                <Utensils className="h-4 w-4" />,
+                "Diet",
+                entry.diet ? <p className="whitespace-pre-wrap">{entry.diet}</p> : <p className="text-xs italic">No diet notes.</p>
+            )}
+        </div>
+        
       </CardContent>
     </Card>
   );

@@ -13,6 +13,10 @@ export interface JournalEntry {
   sleep: number;
   energy: number;
   date: string;
+  symptoms?: string[];
+  medications?: string[];
+  activities?: string[];
+  diet?: string;
 }
 
 interface JournalContextType {

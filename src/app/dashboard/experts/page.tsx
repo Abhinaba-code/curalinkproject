@@ -1,13 +1,14 @@
 
+
 'use client';
 
 import { useEffect, useState } from 'react';
-import type { Expert, ClinicalTrial } from '@/lib/types';
+import type { Expert, ClinicalTrial, Publication } from '@/lib/types';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Microscope, ExternalLink, Loader2, Search, Pin, User, Calendar, Mail, Phone, Plus, Star, Bell, Check, Send, Award, BookMarked, Medal } from 'lucide-react';
-import { searchExperts, searchClinicalTrials } from '@/lib/api';
+import { Microscope, ExternalLink, Loader2, Search, Pin, User, Calendar, Mail, Phone, Plus, Star, Bell, Check, Send, Award, BookMarked, Medal, Link as LinkIcon } from 'lucide-react';
+import { searchExperts, searchClinicalTrials, searchPublications } from '@/lib/api';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useFavorites } from '@/context/favorites-provider';
 import { useFollow } from '@/context/follow-provider';
@@ -128,20 +129,24 @@ function RequestMeetingDialog({ expert, onRequested }: { expert: Expert, onReque
 function ExpertProfileDialog({ expert, children }: { expert: Expert, children: React.ReactNode }) {
     const { t } = useTranslation();
     const initials = expert.name ? expert.name.split(' ').map(n => n[0]).join('') : '??';
-    
-    const mockPublications = [
-        "A phase 2 trial of immunotherapy in advanced melanoma.",
-        "Genomic analysis of pediatric brain tumors.",
-        "Novel therapeutic targets in heart failure.",
-    ];
+    const [publications, setPublications] = useState<Publication[]>([]);
+    const [loadingPubs, setLoadingPubs] = useState(false);
     
     const trialsOfInterest = [
         "NCT04485958: A Study of a New Drug for Lung Cancer",
         "NCT03876121: Immunotherapy for Advanced Melanoma",
     ];
 
+    const fetchExpertPublications = async () => {
+        setLoadingPubs(true);
+        const query = `${expert.name}[Author] AND (${expert.specialty.split(',').join(' OR ')})`;
+        const fetchedPublications = await searchPublications(query, 3);
+        setPublications(fetchedPublications);
+        setLoadingPubs(false);
+    };
+
     return (
-        <Dialog>
+        <Dialog onOpenChange={(open) => { if (open) fetchExpertPublications(); }}>
             <DialogTrigger asChild>{children}</DialogTrigger>
             <DialogContent className="sm:max-w-lg p-0">
                 <DialogHeader className="p-6 pb-4">
@@ -160,7 +165,7 @@ function ExpertProfileDialog({ expert, children }: { expert: Expert, children: R
                         </div>
                     </div>
                 </DialogHeader>
-                <ScrollArea className="max-h-[30vh] px-6">
+                <ScrollArea className="max-h-[40vh] px-6">
                     <div className="space-y-6 py-4">
                         <div className="space-y-4">
                             <h4 className="font-semibold text-primary">{t('profile.researcher.specialties')}</h4>
@@ -182,11 +187,28 @@ function ExpertProfileDialog({ expert, children }: { expert: Expert, children: R
                         </div>
                         <div className="space-y-4">
                             <h4 className="font-semibold text-primary">Recent Publications</h4>
-                            <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
-                                {mockPublications.map((pub, index) => (
-                                    <li key={index}>{pub}</li>
-                                ))}
-                            </ul>
+                            {loadingPubs ? (
+                                <div className="space-y-2">
+                                    <Skeleton className="h-4 w-full" />
+                                    <Skeleton className="h-4 w-5/6" />
+                                    <Skeleton className="h-4 w-full" />
+                                </div>
+                            ) : publications.length > 0 ? (
+                                <ul className="space-y-2 text-sm text-muted-foreground">
+                                    {publications.map((pub) => (
+                                        <li key={pub.id}>
+                                            <a href={pub.url} target="_blank" rel="noopener noreferrer" className="hover:text-primary group">
+                                                <span className="font-medium group-hover:underline">{pub.title}</span>
+                                                <div className="text-xs flex items-center gap-1">
+                                                     <LinkIcon className="h-3 w-3" /> {pub.journal}, {pub.year}
+                                                </div>
+                                            </a>
+                                        </li>
+                                    ))}
+                                </ul>
+                            ) : (
+                                <p className="text-sm text-muted-foreground">No recent publications found.</p>
+                            )}
                         </div>
                          <div className="space-y-4">
                             <h4 className="font-semibold text-primary">Clinical Trials of Interest</h4>

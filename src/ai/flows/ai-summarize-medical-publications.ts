@@ -18,7 +18,7 @@ export async function summarizeMedicalPublication(input: SummarizeMedicalPublica
     `;
 
     const { object } = await generateObject({
-        model: google('gemini-1.5-flash-latest'),
+        model: google('models/gemini-pro'),
         schema: SummarizeMedicalPublicationOutputSchema,
         prompt: prompt,
     });

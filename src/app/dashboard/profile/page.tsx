@@ -30,8 +30,10 @@ import {
   Loader2,
   Check,
   Mail,
+  Send,
+  ArrowRight,
 } from 'lucide-react';
-import { format } from 'date-fns';
+import { format, formatDistanceToNow } from 'date-fns';
 import { useFollow } from '@/context/follow-provider';
 import type { ClinicalTrial, Expert } from '@/lib/types';
 import { useTranslation } from '@/context/language-provider';
@@ -138,6 +140,34 @@ function ConnectionRequestCard({ request, onAccept, onDecline }: { request: Noti
     );
 }
 
+function OutgoingRequestCard({ request, onCancel }: { request: Notification, onCancel: (id: string) => void }) {
+  const recipientName = request.postTitle; // In this context, postTitle holds the recipient's name
+  const recipientAvatarUrl = `https://picsum.photos/seed/${request.postId}/200/200`;
+  const initials = recipientName ? recipientName.split(' ').map(n => n[0]).join('') : 'U';
+  const timeSince = formatDistanceToNow(new Date(parseInt(request.id.split('-')[1])), { addSuffix: true });
+
+  return (
+    <Card>
+      <CardContent className="p-3 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Avatar className="h-10 w-10">
+            <AvatarImage src={recipientAvatarUrl} alt={recipientName} />
+            <AvatarFallback>{initials}</AvatarFallback>
+          </Avatar>
+          <div>
+            <p className="text-sm font-medium">Request to {recipientName}</p>
+            <p className="text-xs text-muted-foreground">Sent {timeSince}</p>
+          </div>
+        </div>
+        <Button size="sm" variant="ghost" onClick={() => onCancel(request.id)}>
+          Cancel Request
+        </Button>
+      </CardContent>
+    </Card>
+  );
+}
+
+
 function RelevantTrialsSection() {
     const { user } = useAuth();
     const [trials, setTrials] = useState<ClinicalTrial[]>([]);
@@ -215,9 +245,18 @@ export default function ProfilePage() {
   const { toast } = useToast();
   const { t } = useTranslation();
 
-  const connectionRequests = useMemo(() => {
-    if (!user || user.role !== 'researcher') return [];
-    return notifications.filter(n => n.type === 'meeting_request' && n.recipientId === user.id);
+  const { connectionRequests, outgoingRequests } = useMemo(() => {
+    if (!user) return { connectionRequests: [], outgoingRequests: [] };
+
+    const incoming = notifications.filter(
+      (n) => n.type === 'meeting_request' && n.recipientId === user.id
+    );
+
+    const outgoing = notifications.filter(
+      (n) => n.type === 'meeting_request' && n.senderId === user.id
+    );
+
+    return { connectionRequests: incoming, outgoingRequests: outgoing };
   }, [notifications, user]);
 
   const handleAcceptRequest = (request: Notification) => {
@@ -243,6 +282,14 @@ export default function ProfilePage() {
       variant: 'destructive',
       title: "Request Declined",
       description: "The connection request has been removed."
+    });
+  };
+
+  const handleCancelRequest = (id: string) => {
+    deleteNotification(id);
+    toast({
+        title: "Request Cancelled",
+        description: "Your connection request has been withdrawn."
     });
   };
 
@@ -390,7 +437,7 @@ export default function ProfilePage() {
         <CardContent className="space-y-6">
             {isResearcher && connectionRequests.length > 0 && (
                 <div className="space-y-4">
-                    <h3 className="text-sm font-semibold text-muted-foreground">Pending Requests</h3>
+                    <h3 className="text-sm font-semibold text-muted-foreground">Pending Incoming Requests</h3>
                     <div className="grid gap-4">
                         {connectionRequests.map((req) => (
                            <ConnectionRequestCard key={req.id} request={req} onAccept={handleAcceptRequest} onDecline={handleDeclineRequest} />
@@ -399,7 +446,18 @@ export default function ProfilePage() {
                 </div>
             )}
             
-            {isResearcher && connectionRequests.length > 0 && followedExperts.length > 0 && <Separator />}
+            {outgoingRequests.length > 0 && (
+                <div className="space-y-4">
+                  <h3 className="text-sm font-semibold text-muted-foreground">Pending Outgoing Requests</h3>
+                  <div className="grid gap-4">
+                    {outgoingRequests.map((req) => (
+                        <OutgoingRequestCard key={req.id} request={req} onCancel={handleCancelRequest} />
+                    ))}
+                  </div>
+                </div>
+            )}
+
+            {(connectionRequests.length > 0 || outgoingRequests.length > 0) && followedExperts.length > 0 && <Separator />}
 
           {followedExperts.length > 0 ? (
             <div className="space-y-4">
@@ -415,7 +473,7 @@ export default function ProfilePage() {
                 </div>
             </div>
           ) : (
-             isResearcher && connectionRequests.length === 0 && (
+             isResearcher && connectionRequests.length === 0 && outgoingRequests.length === 0 && (
                 <div className="text-center text-muted-foreground border-2 border-dashed rounded-lg p-8">
                     <p>You have no connections or pending requests.</p>
                 </div>

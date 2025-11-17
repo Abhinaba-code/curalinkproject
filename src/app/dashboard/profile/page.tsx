@@ -457,11 +457,11 @@ export default function ProfilePage() {
                 </div>
             )}
 
-            {(connectionRequests.length > 0 || outgoingRequests.length > 0) && followedExperts.length > 0 && <Separator />}
+            {(isResearcher && (connectionRequests.length > 0 || outgoingRequests.length > 0)) && followedExperts.length > 0 && <Separator />}
 
           {followedExperts.length > 0 ? (
             <div className="space-y-4">
-                {isResearcher && <h3 className="text-sm font-semibold text-muted-foreground">Current Connections</h3>}
+                {isResearcher && (connectionRequests.length > 0 || outgoingRequests.length > 0) && <h3 className="text-sm font-semibold text-muted-foreground">Current Connections</h3>}
                 <div className="grid gap-4 md:grid-cols-2">
                 {followedExperts.map((expert) => (
                     <FollowedExpertCard

@@ -310,6 +310,11 @@ export default function ProfilePage() {
   const editProfileLink = isResearcher
       ? '/dashboard/create-researcher-profile'
       : '/dashboard/create-profile';
+      
+  const hasPending = isResearcher && (connectionRequests.length > 0 || outgoingRequests.length > 0);
+  const hasConnections = followedExperts.length > 0;
+  const showEmptyState = !hasPending && !hasConnections;
+
 
   return (
     <div className="space-y-6">
@@ -457,11 +462,11 @@ export default function ProfilePage() {
                 </div>
             )}
 
-            {(isResearcher && (connectionRequests.length > 0 || outgoingRequests.length > 0)) && followedExperts.length > 0 && <Separator />}
+            {hasPending && hasConnections && <Separator />}
 
-          {followedExperts.length > 0 ? (
+          {hasConnections && (
             <div className="space-y-4">
-                {isResearcher && (connectionRequests.length > 0 || outgoingRequests.length > 0) && <h3 className="text-sm font-semibold text-muted-foreground">Current Connections</h3>}
+                {hasPending && <h3 className="text-sm font-semibold text-muted-foreground">Current Connections</h3>}
                 <div className="grid gap-4 md:grid-cols-2">
                 {followedExperts.map((expert) => (
                     <FollowedExpertCard
@@ -472,25 +477,26 @@ export default function ProfilePage() {
                 ))}
                 </div>
             </div>
-          ) : (
-             isResearcher && connectionRequests.length === 0 && outgoingRequests.length === 0 && (
-                <div className="text-center text-muted-foreground border-2 border-dashed rounded-lg p-8">
-                    <p>You have no connections or pending requests.</p>
-                </div>
-            )
           )}
-
-           {!isResearcher && followedExperts.length === 0 && (
-                 <div className="text-center text-muted-foreground border-2 border-dashed rounded-lg p-8">
-                    <p>{t('profile.following.empty.title')}</p>
-                    <Button variant="link" asChild className="mt-2">
-                        <Link href="/dashboard/experts">{t('profile.following.empty.link')}</Link>
-                    </Button>
-                </div>
-           )}
+          
+          {showEmptyState && (
+            <div className="text-center text-muted-foreground border-2 border-dashed rounded-lg p-8">
+              {isResearcher ? (
+                <p>You have no connections or pending requests.</p>
+              ) : (
+                <>
+                  <p>{t('profile.following.empty.title')}</p>
+                  <Button variant="link" asChild className="mt-2">
+                    <Link href="/dashboard/experts">{t('profile.following.empty.link')}</Link>
+                  </Button>
+                </>
+              )}
+            </div>
+          )}
 
         </CardContent>
       </Card>
     </div>
   );
 }
+

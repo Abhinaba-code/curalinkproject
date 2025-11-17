@@ -11,6 +11,7 @@ import {
   SidebarMenuButton,
   SidebarInset,
   SidebarFooter,
+  SidebarCollapse,
 } from '@/components/ui/sidebar';
 import {
   FlaskConical,
@@ -120,7 +121,7 @@ function DashboardApp({ children }: { children: React.ReactNode }) {
 
   return (
     <SidebarProvider>
-      <Sidebar collapsible='none'>
+      <Sidebar>
         <SidebarHeader>
           <Logo />
         </SidebarHeader>
@@ -143,6 +144,7 @@ function DashboardApp({ children }: { children: React.ReactNode }) {
           </SidebarMenu>
         </SidebarContent>
         <SidebarFooter>
+          <SidebarCollapse />
         </SidebarFooter>
       </Sidebar>
       <SidebarInset>

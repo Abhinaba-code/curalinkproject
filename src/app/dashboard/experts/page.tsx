@@ -528,7 +528,7 @@ export default function ExpertsPage() {
         return () => {
             isMounted = false;
         };
-    }, [currentQuery, currentPage, user?.role, user?.researchInterests]);
+    }, [currentQuery, currentPage, user?.role]);
     
     const handleSearch = (e?: React.FormEvent) => {
         e?.preventDefault();
@@ -612,7 +612,7 @@ export default function ExpertsPage() {
             </form>
             
             <Tabs defaultValue="experts" className="w-full">
-                <TabsList className="grid w-full grid-cols-2">
+                <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2">
                     <TabsTrigger value="experts">{isResearcher ? 'Collaborators' : 'Health Experts'} ({totalResults})</TabsTrigger>
                     <TabsTrigger value="trials">Clinical Trials ({trials.length})</TabsTrigger>
                 </TabsList>

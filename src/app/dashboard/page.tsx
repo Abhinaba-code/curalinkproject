@@ -398,7 +398,7 @@ export default function DashboardPage() {
                 <CardTitle>Activity Snapshot</CardTitle>
                 <CardDescription>A summary of your activity on the platform.</CardDescription>
             </CardHeader>
-            <CardContent className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+            <CardContent className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 <ActivityItem icon={<Star />} label="Saved Trials" value={savedTrialsCount} />
                 <ActivityItem icon={<FileText />} label="Saved Publications" value={savedPublicationsCount} />
                 <ActivityItem icon={<Users />} label="Followed Experts" value={followedExpertsCount} />
@@ -410,7 +410,7 @@ export default function DashboardPage() {
         </Card>
 
         {user?.role === 'patient' && (
-            <div className="lg:col-span-3 grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="md:col-span-2 lg:col-span-3 grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <AiSymptomSummary symptoms={symptoms} />
                 <Card>
                     <CardHeader>

@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { Suspense, useState, useEffect, useCallback, useMemo } from 'react';
@@ -92,7 +93,7 @@ function SearchControls({
                 </div>
                 <div className="space-y-2 lg:col-span-1">
                     <Label>Radius</Label>
-                    <div className="flex justify-around gap-2">
+                    <div className="flex flex-col sm:flex-row justify-around gap-2">
                     {RADIUS_OPTIONS.map((r) => (
                         <Button
                         key={r}

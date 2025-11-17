@@ -185,7 +185,7 @@ function ReplyCard({ reply, postId }: { reply: PostReply; postId: string }) {
 }
 
 
-function PostCard({ post }: { post: ForumPost }) {
+function PostCard({ post, onTagClick }: { post: ForumPost, onTagClick: (tag: string) => void }) {
   const { addReply, togglePostReaction, deletePost } = useForum();
   const { user } = useAuth();
   const [replyContent, setReplyContent] = useState('');
@@ -270,9 +270,9 @@ function PostCard({ post }: { post: ForumPost }) {
         <p className="text-muted-foreground whitespace-pre-wrap">{post.content}</p>
         <div className="mt-4 flex flex-wrap gap-2">
           {post.tags.map((tag) => (
-            <div key={tag} className="text-xs border px-2 py-1 rounded-full">
+            <button key={tag} onClick={() => onTagClick(tag)} className="text-xs border px-2 py-1 rounded-full hover:bg-secondary">
               {tag}
-            </div>
+            </button>
           ))}
         </div>
         <div className="mt-4">
@@ -326,6 +326,7 @@ export default function ForumsPage() {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [tags, setTags] = useState('');
+  const [filterTag, setFilterTag] = useState<string | null>(null);
 
   const { posts, addPost } = useForum();
   const { user } = useAuth();
@@ -364,7 +365,18 @@ export default function ForumsPage() {
     setTags('');
     setIsNewPostOpen(false);
   };
+  
+  const handleTagClick = (tag: string) => {
+    setFilterTag(tag);
+  };
 
+  const clearFilter = () => {
+    setFilterTag(null);
+  }
+
+  const filteredPosts = filterTag
+    ? posts.filter(post => post.tags.includes(filterTag))
+    : posts;
 
   return (
     <>
@@ -386,9 +398,16 @@ export default function ForumsPage() {
           )}
         </div>
 
+        {filterTag && (
+          <div className="flex items-center gap-4 p-4 bg-secondary rounded-lg">
+            <p className="font-semibold">Filtering by tag: <span className="px-2 py-1 bg-background rounded-full text-sm">{filterTag}</span></p>
+            <Button variant="ghost" onClick={clearFilter}>Clear Filter</Button>
+          </div>
+        )}
+
         <div className="space-y-6">
-          {posts.map((post) => (
-            <PostCard key={post.id} post={post} />
+          {filteredPosts.map((post) => (
+            <PostCard key={post.id} post={post} onTagClick={handleTagClick} />
           ))}
         </div>
       </div>
@@ -397,7 +416,7 @@ export default function ForumsPage() {
           <DialogHeader className="text-left">
             <DialogTitle>Create a New Post</DialogTitle>
             <DialogDescription>
-              Share your story, ask a question, or start a discussion. Researchers will be notified.
+              Share your story, ask a question, or start a discussion. Add tags for diseases or topics to help researchers find your post.
               {user?.isPremium && <span className="font-bold text-primary block mt-1">As a premium member, your post will be prioritized for expert review.</span>}
             </DialogDescription>
           </DialogHeader>
@@ -434,7 +453,7 @@ export default function ForumsPage() {
                 id="tags"
                 value={tags}
                 onChange={e => setTags(e.target.value)}
-                placeholder="e.g., Lung Cancer, Patient Story (comma-separated)"
+                placeholder="e.g., Lung Cancer, Patient Story, Glioblastoma"
                 className="col-span-3"
               />
             </div>
@@ -450,5 +469,3 @@ export default function ForumsPage() {
     </>
   );
 }
-
-    

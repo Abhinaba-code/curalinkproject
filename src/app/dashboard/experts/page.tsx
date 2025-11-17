@@ -134,6 +134,11 @@ function ExpertProfileDialog({ expert, children }: { expert: Expert, children: R
         "Genomic analysis of pediatric brain tumors.",
         "Novel therapeutic targets in heart failure.",
     ];
+    
+    const trialsOfInterest = [
+        "NCT04485958: A Study of a New Drug for Lung Cancer",
+        "NCT03876121: Immunotherapy for Advanced Melanoma",
+    ];
 
     return (
         <Dialog>
@@ -180,6 +185,14 @@ function ExpertProfileDialog({ expert, children }: { expert: Expert, children: R
                             <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
                                 {mockPublications.map((pub, index) => (
                                     <li key={index}>{pub}</li>
+                                ))}
+                            </ul>
+                        </div>
+                         <div className="space-y-4">
+                            <h4 className="font-semibold text-primary">Clinical Trials of Interest</h4>
+                            <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
+                                {trialsOfInterest.map((trial, index) => (
+                                    <li key={index}>{trial}</li>
                                 ))}
                             </ul>
                         </div>

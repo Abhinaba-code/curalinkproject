@@ -545,8 +545,9 @@ export default function ExpertsPage() {
         }
     }
 
-    const title = user?.role === 'researcher' ? "Connect with Collaborators" : "Connect with Researchers & Specialists";
-    const description = user?.role === 'researcher' ? "Find researchers to collaborate with." : "Find specialists and clinical trials. Search by specialty, name, or location.";
+    const isResearcher = user?.role === 'researcher';
+    const title = isResearcher ? t('dashboard.nav.collaborators') : t('dashboard.nav.researchers');
+    const description = isResearcher ? "Find researchers to collaborate with." : "Find specialists and clinical trials. Search by specialty, name, or location.";
 
     return (
         <div className="space-y-6">
@@ -594,7 +595,7 @@ export default function ExpertsPage() {
             
             <Tabs defaultValue="experts" className="w-full">
                 <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="experts">{user?.role === 'researcher' ? 'Collaborators' : 'Researchers'} ({totalResults})</TabsTrigger>
+                    <TabsTrigger value="experts">{isResearcher ? 'Collaborators' : 'Researchers'} ({totalResults})</TabsTrigger>
                     <TabsTrigger value="trials">Clinical Trials ({trials.length})</TabsTrigger>
                 </TabsList>
                 <TabsContent value="experts">

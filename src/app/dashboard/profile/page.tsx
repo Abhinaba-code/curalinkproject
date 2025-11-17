@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useAuth } from '@/context/auth-provider';
@@ -316,6 +317,8 @@ export default function ProfilePage() {
   const hasConnections = followedExperts.length > 0;
   const showEmptyState = !hasIncomingRequests && !hasOutgoingRequests && !hasConnections;
 
+  const connectionsTitle = isResearcher ? t('profile.connections.title') : t('profile.following.title');
+  const connectionsDescription = isResearcher ? t('profile.connections.description') : t('profile.following.description');
 
   return (
     <div className="space-y-6">
@@ -437,8 +440,8 @@ export default function ProfilePage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>{isResearcher ? t('profile.connections.title') : t('profile.following.title')}</CardTitle>
-          <CardDescription>{isResearcher ? t('profile.connections.description') : t('profile.following.description')}</CardDescription>
+          <CardTitle>{connectionsTitle}</CardTitle>
+          <CardDescription>{connectionsDescription}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
             {hasIncomingRequests && (
@@ -500,5 +503,3 @@ export default function ProfilePage() {
     </div>
   );
 }
-
-    

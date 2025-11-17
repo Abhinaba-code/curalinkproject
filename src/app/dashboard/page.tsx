@@ -59,6 +59,7 @@ import { Slider } from '@/components/ui/slider';
 import { type ChartConfig } from '@/components/ui/chart';
 import { summarizeSymptoms } from '@/ai/flows/summarize-symptoms';
 import { useJournal } from '@/context/journal-provider';
+import { Recommendations } from '@/components/dashboard/recommendations';
 
 
 interface Announcement extends Publication {
@@ -361,6 +362,8 @@ export default function DashboardPage() {
             <NewPublicationDialog onAnnounce={handleAnnounce} />
         )}
       </div>
+
+      {user?.role === 'patient' && <Recommendations />}
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         <Card>

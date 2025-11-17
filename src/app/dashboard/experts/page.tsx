@@ -514,7 +514,10 @@ export default function ExpertsPage() {
     
     const handleSearch = (e?: React.FormEvent) => {
         e?.preventDefault();
-        const finalQuery = searchTerm || 'Cardiology';
+        const baseQuery = user?.interests?.[0] || '';
+        const combinedQuery = [searchTerm, baseQuery].filter(Boolean).join(' ');
+        const finalQuery = combinedQuery || 'Cardiology';
+        
         setCurrentPage(1);
         setCurrentQuery(finalQuery);
 

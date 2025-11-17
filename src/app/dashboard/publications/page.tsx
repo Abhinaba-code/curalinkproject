@@ -23,6 +23,7 @@ import {
   DialogClose,
   DialogTrigger
 } from '@/components/ui/dialog';
+import { useAuth } from '@/context/auth-provider';
 
 function AiSummaryDialog({ pub }: { pub: Publication }) {
     const [isOpen, setIsOpen] = useState(false);
@@ -184,6 +185,7 @@ export default function PublicationsPage() {
     const [city, setCity] = useState('');
     const [country, setCountry] = useState('');
     const { addHistoryItem } = useHistory();
+    const { user } = useAuth();
 
     useEffect(() => {
         async function fetchPublications() {
@@ -203,8 +205,10 @@ export default function PublicationsPage() {
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
         const location = [city, country].filter(Boolean).join(', ');
-        const fullQuery = [searchTerm, location].filter(Boolean).join(' ');
-        const finalQuery = fullQuery || 'health';
+        const baseQuery = user?.interests?.[0] || '';
+        const combinedQuery = [searchTerm, baseQuery, location].filter(Boolean).join(' ');
+        const finalQuery = combinedQuery || 'health';
+        
         setSearchQuery(finalQuery);
 
         addHistoryItem({

@@ -13,15 +13,14 @@ export async function chatbot(
         content: [{ text: msg.content }]
     }));
 
-    const systemPrompt = `You are a friendly and helpful AI assistant for a platform called CuraLink.
-    CuraLink connects patients with researchers to accelerate medical advancements.
-
-    Your role is to answer user questions about the platform in a concise and encouraging way.
-    If you don't know the answer, say "I'm not sure about that, but you can find more information on the CuraLink website."
+    const systemPrompt = `You are a helpful medical AI assistant.
+    You help users understand medical publications and answer health-related questions.
+    Always provide accurate, evidence-based information.
+    If you're not sure about something, say so.
     Do not make up information.`;
 
     const { text } = await generateText({
-        model: google('models/gemini-pro'),
+        model: google('gemini-1.5-flash-latest'),
         system: systemPrompt,
         prompt: `Here is the user's question: "${input.query}"`,
         // The AI SDK types don't perfectly align with the history format here, but it works.

@@ -351,7 +351,7 @@
             "researchGate": "ResearchGate Profile"
         },
         "following": {
-            "title": "Following",
+            "title": "My Connections",
             "description": "Experts you are following."
         },
         "connections": {
@@ -359,7 +359,7 @@
             "description": "Manage your professional connections and pending requests."
         },
         "following": {
-            "title": "Following",
+            "title": "My Connections",
             "description": "Experts you are following.",
             "empty": {
                 "title": "You are not following any experts yet.",
@@ -439,7 +439,7 @@
     },
     "favorites": {
         "title": "Your Favorites",
-        "description": "Your saved trials, publications, and health experts.",
+        "description": "Your saved trials, publications, and researchers.",
         "removeAria": "Remove {{title}} from favorites",
         "viewSource": "View Source",
         "empty": {
@@ -653,3 +653,5 @@
         }
     }
 }
+
+    

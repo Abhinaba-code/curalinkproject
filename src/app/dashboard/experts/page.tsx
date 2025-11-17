@@ -344,8 +344,8 @@ function ExpertCard({ expert, isTopMatch }: { expert: Expert, isTopMatch: boolea
     const favorite = isFavorite(expert.id);
     const following = isFollowing(expert.id);
 
-    const isNudged = user ? notifications.some(n => n.type === 'nudge' && n.postId === expert.id && n.senderId === user.id) : false;
-    
+    const [isNudged, setIsNudged] = useState(() => user ? notifications.some(n => n.type === 'nudge' && n.postId === expert.id && n.senderId === user.id) : false);
+
     const [meetingRequested, setMeetingRequested] = useState(user ? notifications.some(
         n => n.type === 'meeting_request' && n.postId === expert.id && n.senderId === user.id
     ) : false);
@@ -357,6 +357,7 @@ function ExpertCard({ expert, isTopMatch }: { expert: Expert, isTopMatch: boolea
     const handleNudge = () => {
         if (user?.isPremium) {
             sendNudgeNotification(expert);
+            setIsNudged(true); // UI update
             toast({
                 title: "Expert Nudged!",
                 description: `${expert.name} has been noted. Researchers will be notified of community interest.`,
@@ -418,7 +419,7 @@ function ExpertCard({ expert, isTopMatch }: { expert: Expert, isTopMatch: boolea
             </CardContent>
             {!isCurrentUser && (
                 <CardFooter>
-                    <div className="flex flex-col gap-2 w-full">
+                     <div className="flex flex-col gap-2 w-full">
                         <div className="grid grid-cols-2 gap-2 w-full">
                             <Button variant={following ? 'secondary' : 'default'} onClick={handleFollow} size="sm">
                                 <Plus className="mr-2 h-4 w-4" />
@@ -444,7 +445,7 @@ function ExpertCard({ expert, isTopMatch }: { expert: Expert, isTopMatch: boolea
                                 <RequestMeetingDialog expert={expert} onRequested={() => setMeetingRequested(true)} />
                             )
                          ) : (
-                            <div className="flex flex-col gap-2">
+                             <div className="flex flex-col gap-2">
                                 <Button variant={isNudged ? 'secondary' : 'outline'} onClick={handleNudge} disabled={isNudged} size="sm">
                                     <Bell className="mr-2 h-4 w-4" />
                                     {isNudged ? 'Nudged' : 'Nudge to Join'}

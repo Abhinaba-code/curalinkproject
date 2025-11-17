@@ -57,7 +57,6 @@ function DashboardApp({ children }: { children: React.ReactNode }) {
         { href: '/dashboard/experts', label: t('dashboard.nav.collaborators'), icon: Users },
         { href: '/dashboard/experts/map', label: t('dashboard.nav.expertsMap'), icon: Map },
         { href: '/dashboard/forums', label: t('dashboard.nav.forums'), icon: HeartPulse },
-        { href: '/dashboard/notifications', label: t('dashboard.nav.notifications'), icon: Bell },
         { href: '/dashboard/reports', label: t('dashboard.nav.reports'), icon: Download },
         { href: '/dashboard/audit-log', label: t('dashboard.nav.auditLog'), icon: Shield },
       ]
@@ -69,7 +68,6 @@ function DashboardApp({ children }: { children: React.ReactNode }) {
         { href: '/dashboard/experts', label: t('dashboard.nav.experts'), icon: Users },
         { href: '/dashboard/experts/map', label: t('dashboard.nav.expertsMap'), icon: Map },
         { href: '/dashboard/forums', label: t('dashboard.nav.forums'), icon: HeartPulse },
-        { href: '/dashboard/notifications', label: t('dashboard.nav.notifications'), icon: Bell },
         { href: '/dashboard/reports', label: t('dashboard.nav.reports'), icon: Download },
         { href: '/dashboard/audit-log', label: t('dashboard.nav.auditLog'), icon: Shield },
       ]

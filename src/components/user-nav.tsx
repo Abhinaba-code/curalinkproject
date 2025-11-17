@@ -89,7 +89,7 @@ export function UserNav() {
            <DropdownMenuItem asChild>
             <Link href="/dashboard/notifications">
               <Bell className="mr-2 h-4 w-4" />
-              <span>{t('userNav.notifications')}</span>
+              <span>{t('dashboard.nav.notifications')}</span>
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>

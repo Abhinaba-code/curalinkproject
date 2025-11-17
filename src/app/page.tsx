@@ -5,13 +5,10 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
-  Dna,
   HeartPulse,
-  Microscope,
-  Stethoscope,
   Users,
-  FileText,
   FlaskConical,
+  ArrowRight
 } from 'lucide-react';
 import Link from 'next/link';
 import { AppFooter } from '@/components/app-footer';
@@ -19,27 +16,52 @@ import { PublicHeader } from '@/components/public-header';
 import { AppShell, AppShellHeader, AppShellContent } from '@/components/app-shell';
 import { Chatbot } from '@/components/chatbot';
 import { useTranslation } from '@/context/language-provider';
+import Image from 'next/image';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 export default function Home() {
   const { t } = useTranslation();
+  const heroImage = PlaceHolderImages.find(img => img.id === 'hero-background');
+  const joinImage = PlaceHolderImages.find(img => img.id === 'join-background');
 
   const featureCards = [
     {
       icon: <FlaskConical className="h-8 w-8 text-primary" />,
       title: t('homePage.feature1Title'),
       description: t('homePage.feature1Desc'),
-    },
-    {
-      icon: <FileText className="h-8 w-8 text-primary" />,
-      title: t('homePage.feature2Title'),
-      description: t('homePage.feature2Desc'),
+      link: '/dashboard/trials'
     },
     {
       icon: <Users className="h-8 w-8 text-primary" />,
       title: t('homePage.feature3Title'),
       description: t('homePage.feature3Desc'),
+      link: '/dashboard/experts'
+    },
+    {
+      icon: <HeartPulse className="h-8 w-8 text-primary" />,
+      title: t('homePage.feature2Title'),
+      description: t('homePage.feature2Desc'),
+      link: '/dashboard/publications'
     },
   ];
+
+  const howItWorksSteps = [
+    {
+      step: 1,
+      title: 'Create Your Profile',
+      description: 'Tell us about your interests and background, whether you are a patient or a researcher.'
+    },
+    {
+      step: 2,
+      title: 'Discover & Connect',
+      description: 'Find relevant clinical trials, read the latest research, and connect with experts in the field.'
+    },
+    {
+      step: 3,
+      title: 'Accelerate Research',
+      description: 'Collaborate and share knowledge to help advance medical science and improve patient outcomes.'
+    }
+  ]
 
   return (
     <AppShell>
@@ -48,75 +70,71 @@ export default function Home() {
       </AppShellHeader>
       <AppShellContent className="animate-fade-in">
         <main className="flex-1">
-          <section className="relative overflow-hidden py-20 md:py-32 bg-secondary/30">
-            <div className="container mx-auto px-4">
-              <div className="grid grid-cols-1 items-center gap-12 md:grid-cols-2">
-                <div className="z-10 text-center md:text-left">
-                  <h1 className="font-headline text-5xl font-bold tracking-tight md:text-7xl">
-                    {t('homePage.title')}
-                  </h1>
-                  <p className="mt-4 text-lg text-muted-foreground md:text-xl">
-                    {t('homePage.subtitle')}
-                  </p>
-                  <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:justify-center md:justify-start">
-                    <Button size="lg" asChild className="font-bold">
-                      <Link href="/auth/signup?role=patient">
-                        {t('homePage.patientButton')}
-                      </Link>
-                    </Button>
-                    <Button
-                      size="lg"
-                      variant="outline"
-                      asChild
-                      className="font-bold"
-                    >
-                      <Link href="/auth/signup?role=researcher">
-                        {t('homePage.researcherButton')}
-                      </Link>
-                    </Button>
-                  </div>
-                </div>
-                <div className="relative h-64 md:h-full">
-                  <div className="absolute inset-0 grid grid-cols-3 grid-rows-3 gap-4 animate-fade-in">
-                    <Dna
-                      className="h-10 w-10 animate-pulse text-primary/50"
-                      style={{ animationDelay: '0.1s' }}
-                    />
-                    <Stethoscope
-                      className="h-12 w-12 animate-pulse text-primary/40"
-                      style={{ animationDelay: '0.3s' }}
-                    />
-                    <HeartPulse
-                      className="h-14 w-14 animate-pulse text-primary/70"
-                      style={{ animationDelay: '0.5s' }}
-                    />
-                    <Microscope
-                      className="h-16 w-16 animate-pulse text-primary/60"
-                      style={{ animationDelay: '0.2s' }}
-                    />
-                    <div
-                      className="h-8 w-8 rounded-full bg-primary/30 animate-pulse"
-                      style={{ animationDelay: '0.4s' }}
-                    ></div>
-                    <FlaskConical
-                      className="h-12 w-12 animate-pulse text-primary/60"
-                      style={{ animationDelay: '0.6s' }}
-                    />
-                    <div
-                      className="h-10 w-10 rounded-full bg-primary/20 animate-pulse"
-                      style={{ animationDelay: '0.1s' }}
-                    ></div>
-                    <Users
-                      className="h-14 w-14 animate-pulse text-primary/50"
-                      style={{ animationDelay: '0.3s' }}
-                    />
-                  </div>
-                </div>
+          {/* Hero Section */}
+          <section className="relative h-[70vh] flex items-center justify-center text-center text-white">
+             {heroImage && (
+              <Image
+                src={heroImage.imageUrl}
+                alt={heroImage.description}
+                fill
+                className="object-cover"
+                priority
+                data-ai-hint={heroImage.imageHint}
+              />
+            )}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-black/20" />
+            <div className="relative z-10 p-4">
+              <h1 className="font-headline text-5xl font-bold tracking-tight md:text-7xl drop-shadow-2xl">
+                {t('homePage.title')}
+              </h1>
+              <p className="mt-4 max-w-2xl mx-auto text-lg text-slate-200 md:text-xl drop-shadow-lg">
+                {t('homePage.subtitle')}
+              </p>
+              <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:justify-center">
+                <Button size="lg" asChild className="font-bold shadow-lg">
+                  <Link href="/auth/signup?role=patient">
+                    {t('homePage.patientButton')}
+                  </Link>
+                </Button>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  asChild
+                  className="font-bold border-white/80 text-white hover:bg-white hover:text-primary shadow-lg"
+                >
+                  <Link href="/auth/signup?role=researcher">
+                    {t('homePage.researcherButton')}
+                  </Link>
+                </Button>
               </div>
             </div>
           </section>
 
-          <section id="features" className="py-20 md:py-32">
+          {/* How It Works Section */}
+          <section id="how-it-works" className="py-20 md:py-32 bg-background">
+            <div className="container mx-auto px-4">
+              <div className="text-center">
+                  <h2 className="font-headline text-4xl font-bold">How It Works</h2>
+                  <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
+                    A simple path to connection and discovery.
+                  </p>
+              </div>
+              <div className="mt-16 grid grid-cols-1 gap-12 md:grid-cols-3">
+                {howItWorksSteps.map((step) => (
+                  <div key={step.step} className="text-center">
+                    <div className="flex items-center justify-center h-16 w-16 mx-auto mb-6 rounded-full bg-primary text-primary-foreground font-bold text-2xl shadow-lg">
+                      {step.step}
+                    </div>
+                    <h3 className="text-xl font-bold">{step.title}</h3>
+                    <p className="mt-2 text-muted-foreground">{step.description}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          {/* Features Section */}
+          <section id="features" className="py-20 md:py-32 bg-secondary/30">
             <div className="container mx-auto px-4">
               <div className="text-center">
                 <h2 className="font-headline text-4xl font-bold">
@@ -128,36 +146,52 @@ export default function Home() {
               </div>
               <div className="mt-16 grid grid-cols-1 gap-8 md:grid-cols-3">
                 {featureCards.map((feature, index) => (
-                   <Card key={index}>
-                    <CardHeader className="items-center text-center">
-                      <div className="rounded-full bg-primary/10 p-4">
+                   <Card key={index} className="group hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
+                    <CardHeader>
+                      <div className="rounded-lg bg-primary/10 p-4 w-fit">
                         {feature.icon}
                       </div>
-                      <CardTitle className="font-headline pt-4 text-2xl">
-                        {feature.title}
-                      </CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <p className="text-center text-muted-foreground">
+                      <CardTitle className="font-bold text-xl mb-2">
+                        {feature.title}
+                      </CardTitle>
+                      <p className="text-muted-foreground">
                         {feature.description}
                       </p>
                     </CardContent>
+                    <div className="p-6 pt-0">
+                       <Link href={feature.link} className="font-semibold text-primary group-hover:underline flex items-center gap-2">
+                          Learn More <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                       </Link>
+                    </div>
                   </Card>
                 ))}
               </div>
             </div>
           </section>
 
-          <section className="py-20 bg-secondary/30">
-            <div className="container mx-auto text-center">
+          {/* Join Section */}
+          <section className="relative py-20 md:py-32">
+             {joinImage && (
+              <Image
+                src={joinImage.imageUrl}
+                alt={joinImage.description}
+                fill
+                className="object-cover"
+                data-ai-hint={joinImage.imageHint}
+              />
+            )}
+            <div className="absolute inset-0 bg-primary/80" />
+            <div className="container mx-auto text-center relative z-10 text-primary-foreground">
               <h2 className="font-headline text-4xl font-bold">
                 {t('homePage.joinTitle')}
               </h2>
-              <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
+              <p className="mx-auto mt-4 max-w-2xl text-lg opacity-90">
                 {t('homePage.joinSubtitle')}
               </p>
               <div className="mt-8">
-                <Button size="lg" asChild>
+                <Button size="lg" variant="secondary" asChild>
                   <Link href="/auth/signup">{t('homePage.joinButton')}</Link>
                 </Button>
               </div>

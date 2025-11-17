@@ -1,6 +1,18 @@
 {
   "placeholderImages": [
     {
+      "id": "hero-background",
+      "description": "A researcher looking into a microscope in a brightly lit, modern laboratory setting.",
+      "imageUrl": "https://images.unsplash.com/photo-1579154215118-8779439c2e6b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxyZXNlYXJjaCUyMGxhYnxlbnwwfHx8fDE3NjIyNzY4ODN8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "research lab"
+    },
+    {
+      "id": "join-background",
+      "description": "An abstract, gentle pattern of connected nodes or cells, symbolizing network and biology.",
+      "imageUrl": "https://images.unsplash.com/photo-1522071820081-009f0129c71c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxjb21tdW5pdHklMjBuZXR3b3JrfGVufDB8fHx8MTc2MjI3NzE1MHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "community network"
+    },
+    {
       "id": "user-1",
       "description": "A smiling person in a professional setting.",
       "imageUrl": "https://images.unsplash.com/photo-1560250097-0b93528c311a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxwcm9mZXNzaW9uYWwlMjBwb3J0cmFpdHxlbnwwfHx8fDE3NjIxODc0NTd8MA&ixlib=rb-4.1.0&q=80&w=1080",

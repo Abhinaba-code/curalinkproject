@@ -360,7 +360,14 @@ function ExpertCard({ expert, isTopMatch }: { expert: Expert, isTopMatch: boolea
                         </div>
                         <div className="flex flex-col gap-2 w-full">
                              {isResearcher ? (
-                                <RequestMeetingDialog expert={expert} onRequested={() => setMeetingRequested(true)} />
+                                meetingRequested ? (
+                                    <Button variant="secondary" disabled>
+                                        <Check className="mr-2 h-4 w-4" />
+                                        Request Sent
+                                    </Button>
+                                ) : (
+                                    <RequestMeetingDialog expert={expert} onRequested={() => setMeetingRequested(true)} />
+                                )
                              ) : meetingRequested ? (
                                 <Button variant="destructive" onClick={handleCancelRequest}>
                                     <Calendar className="mr-2 h-4 w-4" />

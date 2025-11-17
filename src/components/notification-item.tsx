@@ -18,7 +18,7 @@ const notificationIcons = {
   new_post: MessageSquare,
   new_reply: CornerDownRight,
   nudge: Users,
-  meeting_request: Calendar,
+  meeting_request: Users, // Changed from Calendar for Connect feature
   meeting_reply: CheckCircle,
 };
 
@@ -48,9 +48,9 @@ function ReplyToMeetingRequestDialog({ notif, children }: { notif: Notification,
             </DialogTrigger>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>{t('notifications.meetingRequest.dialogTitle', { name: notif.authorName })}</DialogTitle>
+                    <DialogTitle>{`Reply to ${notif.authorName}`}</DialogTitle>
                     <DialogDescription>
-                        {t('notifications.meetingRequest.dialogDescription', { expertName: notif.postTitle })}
+                        {`Replying to a connection request from ${notif.authorName}. They will be notified of your response.`}
                     </DialogDescription>
                 </DialogHeader>
                 <div className="py-4 space-y-4">
@@ -59,7 +59,7 @@ function ReplyToMeetingRequestDialog({ notif, children }: { notif: Notification,
                         id="reply-content"
                         value={replyContent}
                         onChange={(e) => setReplyContent(e.target.value)}
-                        placeholder={t('notifications.meetingRequest.messagePlaceholder')}
+                        placeholder={`Hi ${notif.authorName.split(' ')[0]}, thanks for reaching out...`}
                         className="min-h-[120px]"
                     />
                 </div>
@@ -84,9 +84,9 @@ function MeetingReplyDialog({ notif, children }: { notif: Notification, children
             <DialogTrigger asChild>{children}</DialogTrigger>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>{t('notifications.meetingReply.dialogTitle')}</DialogTitle>
+                    <DialogTitle>{`Message from ${notif.authorName}`}</DialogTitle>
                     <DialogDescription>
-                        {t('notifications.meetingReply.dialogDescription', { expertName: notif.postTitle })}
+                        {`Response to your connection request for ${notif.postTitle}.`}
                     </DialogDescription>
                 </DialogHeader>
                 <div className="py-4 space-y-2">
@@ -133,11 +133,21 @@ export function NotificationItem({ notif, onDelete }: { notif: Notification, onD
             link = '/dashboard/forums';
             break;
         case 'nudge':
-            link = '/dashboard/experts';
+             link = '/dashboard/experts';
             break;
         default:
             link = '#';
             break;
+    }
+    
+    // Override for researcher-to-researcher connection requests
+    if (notif.type === 'meeting_request' && user?.role === 'researcher') {
+        text = `${notif.authorName} wants to connect.`;
+        subtext = "Click to view message and respond.";
+    }
+    if (notif.type === 'meeting_reply' && user?.role === 'researcher') {
+        text = `Response from ${notif.authorName}.`;
+        subtext = `Regarding your connection request.`;
     }
 
     const content = (
@@ -174,7 +184,7 @@ export function NotificationItem({ notif, onDelete }: { notif: Notification, onD
         if (notif.type === 'meeting_request' && user?.role === 'researcher') {
             return <ReplyToMeetingRequestDialog notif={notif}>{children}</ReplyToMeetingRequestDialog>;
         }
-        if (notif.type === 'meeting_reply' && user?.role === 'patient') {
+        if (notif.type === 'meeting_reply') { // For both patient and researcher
             return <MeetingReplyDialog notif={notif}>{children}</MeetingReplyDialog>;
         }
         if (link === '#') {

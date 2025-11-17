@@ -483,8 +483,8 @@
             "new_post": "New Post",
             "new_reply": "New Reply",
             "nudge": "Expert Nudge",
-            "meeting_request": "Meeting Request",
-            "meeting_reply": "Meeting Reply"
+            "meeting_request": "Connection Request",
+            "meeting_reply": "Connection Reply"
         },
         "empty": {
             "title": "No Notifications",
@@ -495,8 +495,8 @@
             "new_post": "New Post: \"{{postTitle}}\"||By {{authorName}}",
             "new_reply": "New Reply on: \"{{postTitle}}\"||By {{authorName}}",
             "nudge": "{{authorName}} nudged an expert to join!||Expert: {{postTitle}}",
-            "meeting_request": "Meeting request for {{postTitle}}||From: {{authorName}}",
-            "meeting_reply": "Update on your meeting request||From: {{authorName}} re: {{postTitle}}"
+            "meeting_request": "Connection request from {{authorName}}||Click to respond.",
+            "meeting_reply": "Response from {{authorName}}||Regarding your connection request."
         },
         "meetingRequest": {
             "dialogTitle": "Reply to {{name}}",

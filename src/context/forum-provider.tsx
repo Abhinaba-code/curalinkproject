@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
@@ -158,6 +159,9 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
   const notifications = user 
     ? allNotifications
         .filter(n => {
+            if (n.type === 'meeting_request' && n.recipientId !== 'all_researchers') {
+                 return n.recipientId === user.id && n.senderId !== user.id;
+            }
             const isRecipient = n.recipientId === user.id || (user.role === 'researcher' && n.recipientId === 'all_researchers');
             const isNotSender = n.senderId ? n.senderId !== user.id : true;
             return isRecipient && isNotSender;
@@ -422,6 +426,8 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
     };
     
     const sendMeetingRequest = (expert: Expert, fromUser: User, reason: string): Notification => {
+        const isResearcherToResearcher = fromUser.role === 'researcher';
+
         const newNotification: Notification = {
             id: `notif-${Date.now()}`,
             postId: expert.id,
@@ -430,8 +436,9 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
             authorName: fromUser.name || 'Anonymous',
             read: false,
             type: 'meeting_request',
-            recipientId: 'all_researchers',
+            recipientId: isResearcherToResearcher ? expert.id : 'all_researchers',
             senderId: fromUser.id,
+            originalRequest: { content: reason } as any,
         };
         const updatedNotifs = [newNotification, ...allNotifications];
         setAllNotifications(updatedNotifs);
@@ -459,11 +466,17 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
             authorName: user.name || 'Anonymous',
             read: false,
             type: 'meeting_reply',
-            recipientId: originalNotification.authorId, // The patient who made the request
+            recipientId: originalNotification.authorId, // The user who made the request
             originalRequest: {...originalNotification, content: replyContent },
             senderId: user.id,
         };
-        const updatedNotifs = [newReplyNotification, ...allNotifications];
+        
+        // Also mark the original request as read
+        const updatedOriginalNotifs = allNotifications.map(n => 
+            n.id === originalNotification.id ? { ...n, read: true } : n
+        );
+
+        const updatedNotifs = [newReplyNotification, ...updatedOriginalNotifs];
         setAllNotifications(updatedNotifs);
         localStorage.setItem('cura-notifications', JSON.stringify(updatedNotifs));
     };
@@ -529,5 +542,3 @@ export function useForum() {
   }
   return context;
 }
-
-    

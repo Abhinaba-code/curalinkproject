@@ -7,7 +7,7 @@ import type { Expert, ClinicalTrial, Publication } from '@/lib/types';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Microscope, ExternalLink, Loader2, Search, Pin, User, Calendar, Mail, Phone, Plus, Star, Bell, Check, Send, Award, BookMarked, Medal, Link as LinkIcon } from 'lucide-react';
+import { Microscope, ExternalLink, Loader2, Search, Pin, User, Calendar, Mail, Phone, Plus, Star, Bell, Check, Send, Award, BookMarked, Medal, Link as LinkIcon, Users as UsersIcon } from 'lucide-react';
 import { searchExperts, searchClinicalTrials, searchPublications } from '@/lib/api';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useFavorites } from '@/context/favorites-provider';
@@ -56,29 +56,44 @@ function RequestMeetingDialog({ expert, onRequested }: { expert: Expert, onReque
             return;
         }
         sendMeetingRequest(expert, user, reason);
-        toast({
-            title: "Meeting Request Sent!",
-            description: `Your request regarding ${expert.name} has been sent to researchers.`,
-            duration: 3000,
-        });
+        
+        const isResearcher = user.role === 'researcher';
+        const title = isResearcher ? "Connection Request Sent!" : "Meeting Request Sent!";
+        const description = isResearcher
+            ? `Your request to connect with ${expert.name} has been sent.`
+            : `Your request regarding ${expert.name} has been sent to researchers.`;
+
+        toast({ title, description, duration: 3000 });
         onRequested();
         setIsOpen(false);
         setReason('');
     };
+    
+    const isResearcherToResearcher = user?.role === 'researcher';
 
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>
                 <Button variant="outline" className="w-full">
-                    <Calendar className="mr-2 h-4 w-4" />
-                    {t('notifications.types.meeting_request')}
+                    {isResearcherToResearcher ? (
+                        <UsersIcon className="mr-2 h-4 w-4" />
+                    ) : (
+                        <Calendar className="mr-2 h-4 w-4" />
+                    )}
+                    {isResearcherToResearcher ? 'Connect' : t('notifications.types.meeting_request')}
                 </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-lg border-4 border-primary/20">
                 <DialogHeader>
-                    <DialogTitle>{t('notifications.meetingRequest.dialogTitle', { name: expert.name })}</DialogTitle>
+                    <DialogTitle>
+                         {isResearcherToResearcher 
+                            ? `Connect with ${expert.name}`
+                            : t('notifications.meetingRequest.dialogTitle', { name: expert.name })}
+                    </DialogTitle>
                     <DialogDescription>
-                        {t('notifications.meetingRequest.dialogDescription', { expertName: expert.name })}
+                       {isResearcherToResearcher
+                            ? `Send a message to ${expert.name} to start a conversation.`
+                            : t('notifications.meetingRequest.dialogDescription', { expertName: expert.name })}
                     </DialogDescription>
                 </DialogHeader>
                 <div className="grid gap-4 py-4">
@@ -108,7 +123,9 @@ function RequestMeetingDialog({ expert, onRequested }: { expert: Expert, onReque
                             value={reason}
                             onChange={(e) => setReason(e.target.value)}
                             className="min-h-[120px]"
-                            placeholder={t('notifications.meetingRequest.messagePlaceholder')}
+                            placeholder={isResearcherToResearcher
+                                ? `Hi ${expert.name.split(' ')[0]}, I'd like to connect regarding...`
+                                : t('notifications.meetingRequest.messagePlaceholder')}
                         />
                     </div>
                 </div>
@@ -118,7 +135,7 @@ function RequestMeetingDialog({ expert, onRequested }: { expert: Expert, onReque
                     </DialogClose>
                     <Button type="submit" onClick={handleSendRequest}>
                         <Send className="mr-2 h-4 w-4" />
-                        {t('notifications.meetingRequest.sendButton')}
+                        {isResearcherToResearcher ? 'Send Request' : t('notifications.meetingRequest.sendButton')}
                     </Button>
                 </DialogFooter>
             </DialogContent>
@@ -238,6 +255,7 @@ function ExpertProfileDialog({ expert, children }: { expert: Expert, children: R
 }
 
 function ExpertCard({ expert, isTopMatch }: { expert: Expert, isTopMatch: boolean }) {
+    const { user } = useAuth();
     const { isFavorite, toggleFavorite } = useFavorites();
     const { isFollowing, toggleFollow } = useFollow();
     const { sendNudgeNotification, removeNudgeNotification, removeMeetingRequest } = useForum();
@@ -282,6 +300,9 @@ function ExpertCard({ expert, isTopMatch }: { expert: Expert, isTopMatch: boolea
         });
         setMeetingRequested(false);
     }
+    
+    const isCurrentUser = user?.id === expert.id;
+    const isResearcher = user?.role === 'researcher';
 
     return (
         <Card className="flex flex-col">
@@ -308,9 +329,11 @@ function ExpertCard({ expert, isTopMatch }: { expert: Expert, isTopMatch: boolea
                             )}
                         </div>
                     </div>
-                    <Button variant="ghost" size="icon" onClick={() => toggleFavorite(expert, 'expert')}>
-                        <Star className={`h-5 w-5 ${favorite ? 'text-yellow-400 fill-yellow-400' : 'text-muted-foreground'}`} />
-                    </Button>
+                    {!isCurrentUser && (
+                        <Button variant="ghost" size="icon" onClick={() => toggleFavorite(expert, 'expert')}>
+                            <Star className={`h-5 w-5 ${favorite ? 'text-yellow-400 fill-yellow-400' : 'text-muted-foreground'}`} />
+                        </Button>
+                    )}
                 </div>
             </CardHeader>
             <CardContent className="flex-grow">
@@ -323,33 +346,33 @@ function ExpertCard({ expert, isTopMatch }: { expert: Expert, isTopMatch: boolea
                     View on NPI Registry
                  </a>
             </CardContent>
-            <CardFooter>
-                 <div className="flex flex-col gap-2 w-full">
-                    <div className="grid grid-cols-2 gap-2 w-full">
-                        <Button variant={following ? 'secondary' : 'default'} onClick={handleFollow} size="sm">
-                            <Plus className="mr-2 h-4 w-4" />
-                            {following ? 'Unfollow' : 'Follow'}
-                        </Button>
-                        <ExpertProfileDialog expert={expert}>
-                            <Button variant="outline" size="sm" className="w-full"><User className="mr-2 h-4 w-4" />View Profile</Button>
-                        </ExpertProfileDialog>
-                    </div>
+            {!isCurrentUser && (
+                <CardFooter>
                     <div className="flex flex-col gap-2 w-full">
-                        <Button variant="outline" onClick={handleNudge}>
-                            {nudged ? <Check className="mr-2 h-4 w-4" /> : <Bell className="mr-2 h-4 w-4" />}
-                            {nudged ? 'Nudged' : 'Nudge to Join'}
-                        </Button>
-                        {meetingRequested ? (
-                             <Button variant="destructive" onClick={handleCancelRequest}>
-                                <Calendar className="mr-2 h-4 w-4" />
-                                Cancel Request
+                        <div className="grid grid-cols-2 gap-2 w-full">
+                            <Button variant={following ? 'secondary' : 'default'} onClick={handleFollow} size="sm">
+                                <Plus className="mr-2 h-4 w-4" />
+                                {following ? 'Unfollow' : 'Follow'}
                             </Button>
-                        ) : (
-                            <RequestMeetingDialog expert={expert} onRequested={() => setMeetingRequested(true)} />
-                        )}
+                            <ExpertProfileDialog expert={expert}>
+                                <Button variant="outline" size="sm" className="w-full"><User className="mr-2 h-4 w-4" />View Profile</Button>
+                            </ExpertProfileDialog>
+                        </div>
+                        <div className="flex flex-col gap-2 w-full">
+                             {isResearcher ? (
+                                <RequestMeetingDialog expert={expert} onRequested={() => setMeetingRequested(true)} />
+                             ) : meetingRequested ? (
+                                <Button variant="destructive" onClick={handleCancelRequest}>
+                                    <Calendar className="mr-2 h-4 w-4" />
+                                    Cancel Request
+                                </Button>
+                            ) : (
+                                <RequestMeetingDialog expert={expert} onRequested={() => setMeetingRequested(true)} />
+                            )}
+                        </div>
                     </div>
-                </div>
-            </CardFooter>
+                </CardFooter>
+            )}
         </Card>
     );
 }

@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -13,6 +14,8 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { useTranslation } from '@/context/language-provider';
 import { formatDistanceToNow } from 'date-fns';
+import { useFollow } from '@/context/follow-provider';
+import type { Expert } from '@/lib/types';
 
 const notificationIcons = {
   new_post: MessageSquare,
@@ -23,23 +26,51 @@ const notificationIcons = {
 };
 
 function ReplyToMeetingRequestDialog({ notif, children }: { notif: Notification, children: React.ReactNode }) {
-    const { addMeetingReply } = useForum();
+    const { addMeetingReply, deleteNotification } = useForum();
+    const { toggleFollow } = useFollow();
     const { user } = useAuth();
     const { toast } = useToast();
     const { t } = useTranslation();
     const [replyContent, setReplyContent] = useState('');
     const [isOpen, setIsOpen] = useState(false);
 
-    const handleSendReply = () => {
-        if (!replyContent.trim() || !user) return;
-        addMeetingReply(notif, replyContent);
+    const handleAcceptAndReply = () => {
+        if (!user) return;
+
+        // 1. Add connection
+        const newConnection: Expert = {
+            id: notif.authorId,
+            name: notif.authorName,
+            specialty: 'Researcher', // Placeholder
+            address: '', city: '', state: '', zip: '', url: '#',
+            avatarUrl: `https://picsum.photos/seed/${notif.authorId}/200/200`
+        };
+        toggleFollow(newConnection);
+
+        // 2. Send reply message
+        const message = replyContent.trim() || `Hi ${notif.authorName.split(' ')[0]}, I've accepted your connection request. Let's talk!`;
+        addMeetingReply(notif, message);
+        
+        // 3. Inform user
+        toast({
+            title: "Connection Accepted!",
+            description: `You are now connected with ${notif.authorName}.`,
+        });
+
+        // 4. Clean up
         setReplyContent('');
         setIsOpen(false);
-        toast({
-            title: t('notifications.meetingRequest.replySuccess.title'),
-            description: t('notifications.meetingRequest.replySuccess.description', { name: notif.authorName }),
-        });
     };
+
+    const handleDecline = () => {
+        deleteNotification(notif.id);
+        toast({
+            variant: 'destructive',
+            title: "Request Declined",
+            description: `The connection request from ${notif.authorName} has been removed.`
+        });
+        setIsOpen(false);
+    }
     
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -48,29 +79,36 @@ function ReplyToMeetingRequestDialog({ notif, children }: { notif: Notification,
             </DialogTrigger>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>{`Reply to ${notif.authorName}`}</DialogTitle>
+                    <DialogTitle>Connection Request</DialogTitle>
                     <DialogDescription>
-                        {`Replying to a connection request from ${notif.authorName}. They will be notified of your response.`}
+                        {`${notif.authorName} wants to connect with you.`}
                     </DialogDescription>
                 </DialogHeader>
                 <div className="py-4 space-y-4">
-                    <Label htmlFor="reply-content">{t('notifications.meetingRequest.messageLabel')}</Label>
+                    {notif.originalRequest?.content && (
+                        <div className="text-sm text-muted-foreground border p-3 rounded-md bg-secondary/50">
+                            <p className="font-semibold mb-1">Message:</p>
+                            <p>"{notif.originalRequest.content}"</p>
+                        </div>
+                    )}
+                    <Label htmlFor="reply-content">Optional Reply Message</Label>
                     <Textarea 
                         id="reply-content"
                         value={replyContent}
                         onChange={(e) => setReplyContent(e.target.value)}
                         placeholder={`Hi ${notif.authorName.split(' ')[0]}, thanks for reaching out...`}
-                        className="min-h-[120px]"
+                        className="min-h-[80px]"
                     />
                 </div>
-                <DialogFooter>
-                    <DialogClose asChild>
-                        <Button variant="outline">{t('common.cancel')}</Button>
-                    </DialogClose>
-                    <Button onClick={handleSendReply}>
-                        <Send className="mr-2 h-4 w-4" />
-                        {t('notifications.meetingRequest.sendButton')}
-                    </Button>
+                <DialogFooter className="flex-col-reverse sm:flex-row sm:justify-between w-full">
+                    <Button variant="destructive" onClick={handleDecline}>Decline</Button>
+                    <div className="flex gap-2">
+                        <DialogClose asChild><Button variant="outline">{t('common.cancel')}</Button></DialogClose>
+                        <Button onClick={handleAcceptAndReply}>
+                            <CheckCircle className="mr-2 h-4 w-4" />
+                            Accept & Reply
+                        </Button>
+                    </div>
                 </DialogFooter>
             </DialogContent>
         </Dialog>
@@ -86,7 +124,7 @@ function MeetingReplyDialog({ notif, children }: { notif: Notification, children
                 <DialogHeader>
                     <DialogTitle>{`Message from ${notif.authorName}`}</DialogTitle>
                     <DialogDescription>
-                        {`Response to your connection request for ${notif.postTitle}.`}
+                        {`Response to your connection request.`}
                     </DialogDescription>
                 </DialogHeader>
                 <div className="py-4 space-y-2">
@@ -145,7 +183,7 @@ export function NotificationItem({ notif, onDelete }: { notif: Notification, onD
         text = `${notif.authorName} wants to connect.`;
         subtext = "Click to view message and respond.";
     }
-    if (notif.type === 'meeting_reply' && user?.role === 'researcher') {
+    if (notif.type === 'meeting_reply') {
         text = `Response from ${notif.authorName}.`;
         subtext = `Regarding your connection request.`;
     }
@@ -184,7 +222,7 @@ export function NotificationItem({ notif, onDelete }: { notif: Notification, onD
         if (notif.type === 'meeting_request' && user?.role === 'researcher') {
             return <ReplyToMeetingRequestDialog notif={notif}>{children}</ReplyToMeetingRequestDialog>;
         }
-        if (notif.type === 'meeting_reply') { // For both patient and researcher
+        if (notif.type === 'meeting_reply') {
             return <MeetingReplyDialog notif={notif}>{children}</MeetingReplyDialog>;
         }
         if (link === '#') {

@@ -41,6 +41,79 @@ const CATEGORIES = [
     "Radiology",
 ];
 
+function MessageDialog({ expert, children }: { expert: Expert, children: React.ReactNode }) {
+    const { user } = useAuth();
+    const { toast } = useToast();
+    const { sendMeetingRequest, allNotifications } = useForum();
+    const [message, setMessage] = useState('');
+    const [isOpen, setIsOpen] = useState(false);
+    const { t } = useTranslation();
+
+    const conversationHistory = allNotifications.filter(n =>
+        (n.senderId === user?.id && n.recipientId === expert.id) ||
+        (n.senderId === expert.id && n.recipientId === user?.id)
+    ).sort((a, b) => parseInt(a.id.split('-')[1]) - parseInt(b.id.split('-')[1]));
+
+    const handleSendMessage = () => {
+        if (!user || !message.trim()) {
+            toast({ variant: 'destructive', title: 'Message cannot be empty.', duration: 3000 });
+            return;
+        }
+        sendMeetingRequest(expert, user, message, 'meeting_reply'); // Use a different type for direct messages
+        
+        toast({ title: 'Message Sent!', description: `Your message to ${expert.name} has been sent.`, duration: 3000 });
+        setMessage('');
+    };
+
+    return (
+        <Dialog open={isOpen} onOpenChange={setIsOpen}>
+            <DialogTrigger asChild>{children}</DialogTrigger>
+            <DialogContent className="sm:max-w-lg border-4 border-primary/20">
+                <DialogHeader>
+                    <DialogTitle>Message with {expert.name}</DialogTitle>
+                    <DialogDescription>Your conversation history.</DialogDescription>
+                </DialogHeader>
+                <ScrollArea className="h-72 p-4 border rounded-md">
+                    <div className="space-y-4">
+                        {conversationHistory.map(notif => (
+                            <div key={notif.id} className={`flex items-end gap-2 ${notif.senderId === user?.id ? 'justify-end' : ''}`}>
+                                {notif.senderId !== user?.id && (
+                                    <Avatar className="h-8 w-8">
+                                        <AvatarImage src={`https://picsum.photos/seed/${notif.senderId}/200/200`} />
+                                        <AvatarFallback>{notif.authorName.charAt(0)}</AvatarFallback>
+                                    </Avatar>
+                                )}
+                                <div className={`max-w-[75%] rounded-lg px-3 py-2 text-sm ${notif.senderId === user?.id ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
+                                    {notif.originalRequest?.content || "..."}
+                                </div>
+                            </div>
+                        ))}
+                        {conversationHistory.length === 0 && <p className="text-center text-sm text-muted-foreground">No messages yet. Start the conversation!</p>}
+                    </div>
+                </ScrollArea>
+                <div className="grid gap-4 py-4">
+                    <Textarea
+                        value={message}
+                        onChange={(e) => setMessage(e.target.value)}
+                        className="min-h-[80px]"
+                        placeholder="Type your message..."
+                    />
+                </div>
+                <DialogFooter>
+                    <DialogClose asChild>
+                        <Button type="button" variant="outline">{t('common.close')}</Button>
+                    </DialogClose>
+                    <Button type="submit" onClick={handleSendMessage}>
+                        <Send className="mr-2 h-4 w-4" />
+                        Send Message
+                    </Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
+    );
+}
+
+
 function RequestMeetingDialog({ expert, onRequested }: { expert: Expert, onRequested: () => void }) {
     const { user } = useAuth();
     const { toast } = useToast();
@@ -126,7 +199,7 @@ function RequestMeetingDialog({ expert, onRequested }: { expert: Expert, onReque
                             className="min-h-[120px]"
                             placeholder={isResearcherToResearcher
                                 ? `Hi ${expert.name.split(' ')[0]}, I'd like to connect regarding...`
-                                : t('notifications.meetingRequest.messagePlaceholder')}
+                               : t('notifications.meetingRequest.messagePlaceholder')}
                         />
                     </div>
                 </div>
@@ -264,49 +337,33 @@ function ExpertProfileDialog({ expert, children }: { expert: Expert, children: R
 function ExpertCard({ expert, isTopMatch }: { expert: Expert, isTopMatch: boolean }) {
     const { user } = useAuth();
     const { isFavorite, toggleFavorite } = useFavorites();
-    const { isFollowing, toggleFollow } = useFollow();
-    const { sendNudgeNotification, removeNudgeNotification, removeMeetingRequest } = useForum();
+    const { isFollowing, toggleFollow, followedExperts } = useFollow();
     const { toast } = useToast();
+    const { notifications, sendMeetingRequest, removeMeetingRequest } = useForum();
     const initials = expert.name ? expert.name.split(' ').map(n => n[0]).join('') : '??';
     const favorite = isFavorite(expert.id);
     const following = isFollowing(expert.id);
-    const [nudged, setNudged] = useState(false);
-    const [meetingRequested, setMeetingRequested] = useState(false);
+
+    const isRequestPending = notifications.some(
+        n => n.type === 'meeting_request' && n.postId === expert.id && n.senderId === user?.id
+    );
+
+    const [meetingRequested, setMeetingRequested] = useState(isRequestPending);
 
     const handleFollow = () => {
         toggleFollow(expert);
     };
 
-    const handleNudge = () => {
-        if (!nudged) {
-            sendNudgeNotification(expert);
-            toast({
-                title: "Nudge Sent!",
-                description: `A notification has been sent to researchers about ${expert.name}.`,
-                duration: 3000,
-            });
-        } else {
-            removeNudgeNotification(expert.id);
-            toast({
-                title: "Nudge Canceled",
-                description: `The nudge for ${expert.name} has been recalled.`,
-                variant: 'destructive',
-                duration: 3000,
-            });
-        }
-        setNudged(!nudged);
-    };
-    
     const handleCancelRequest = () => {
         removeMeetingRequest(expert.id);
         toast({
-            title: "Meeting Request Canceled",
-            description: `Your request for ${expert.name} has been withdrawn.`,
+            title: "Connection Request Canceled",
+            description: `Your request to ${expert.name} has been withdrawn.`,
             variant: "destructive",
             duration: 3000,
         });
         setMeetingRequested(false);
-    }
+    };
     
     const isCurrentUser = user?.id === expert.id;
     const isResearcher = user?.role === 'researcher';
@@ -366,8 +423,14 @@ function ExpertCard({ expert, isTopMatch }: { expert: Expert, isTopMatch: boolea
                             </ExpertProfileDialog>
                         </div>
                         <div className="flex flex-col gap-2 w-full">
-                             {isResearcher ? (
-                                meetingRequested ? (
+                            {isResearcher ? (
+                                isFollowing(expert.id) ? (
+                                     <MessageDialog expert={expert}>
+                                        <Button variant="outline">
+                                            <MessageSquare className="mr-2 h-4 w-4" /> Message
+                                        </Button>
+                                    </MessageDialog>
+                                ) : meetingRequested ? (
                                     <Button variant="secondary" disabled>
                                         <Check className="mr-2 h-4 w-4" />
                                         Request Sent
@@ -375,12 +438,7 @@ function ExpertCard({ expert, isTopMatch }: { expert: Expert, isTopMatch: boolea
                                 ) : (
                                     <RequestMeetingDialog expert={expert} onRequested={() => setMeetingRequested(true)} />
                                 )
-                             ) : meetingRequested ? (
-                                <Button variant="destructive" onClick={handleCancelRequest}>
-                                    <Calendar className="mr-2 h-4 w-4" />
-                                    Cancel Request
-                                </Button>
-                            ) : (
+                             ) : (
                                 <RequestMeetingDialog expert={expert} onRequested={() => setMeetingRequested(true)} />
                             )}
                         </div>

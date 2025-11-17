@@ -130,6 +130,7 @@ const getInitialSampleNotifications = (user: User): Notification[] => {
 interface ForumContextType {
   posts: ForumPost[];
   notifications: Notification[];
+  allNotifications: Notification[];
   addPost: (post: Omit<ForumPost, 'id' | 'upvotes' | 'replies' | 'reactions' | 'author'>) => void;
   deletePost: (postId: string) => void;
   addReply: (postId: string, content: string) => void;
@@ -138,7 +139,7 @@ interface ForumContextType {
   toggleReplyReaction: (postId: string, replyId: string, emoji: string) => void;
   sendNudgeNotification: (expert: Expert) => void;
   removeNudgeNotification: (expertId: string) => void;
-  sendMeetingRequest: (expert: Expert, fromUser: User, reason: string) => Notification;
+  sendMeetingRequest: (expert: Expert, fromUser: User, reason: string, type?: Notification['type']) => Notification;
   removeMeetingRequest: (expertId: string) => void;
   addMeetingReply: (originalNotification: Notification, replyContent: string) => void;
   markNotificationsAsRead: () => void;
@@ -159,9 +160,6 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
   const notifications = user 
     ? allNotifications
         .filter(n => {
-            if (n.type === 'meeting_request' && n.recipientId !== 'all_researchers') {
-                 return n.recipientId === user.id && n.senderId !== user.id;
-            }
             const isRecipient = n.recipientId === user.id || (user.role === 'researcher' && n.recipientId === 'all_researchers');
             const isNotSender = n.senderId ? n.senderId !== user.id : true;
             return isRecipient && isNotSender;
@@ -425,7 +423,7 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
         localStorage.setItem('cura-notifications', JSON.stringify(updatedNotifs));
     };
     
-    const sendMeetingRequest = (expert: Expert, fromUser: User, reason: string): Notification => {
+    const sendMeetingRequest = (expert: Expert, fromUser: User, reason: string, type: Notification['type'] = 'meeting_request'): Notification => {
         const isResearcherToResearcher = fromUser.role === 'researcher';
 
         const newNotification: Notification = {
@@ -435,7 +433,7 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
             authorId: fromUser.id,
             authorName: fromUser.name || 'Anonymous',
             read: false,
-            type: 'meeting_request',
+            type: type,
             recipientId: isResearcherToResearcher ? expert.id : 'all_researchers',
             senderId: fromUser.id,
             originalRequest: { content: reason } as any,
@@ -460,7 +458,7 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
 
         const newReplyNotification: Notification = {
             id: `notif-${Date.now()}`,
-            postId: originalNotification.postId, // ID of the expert
+            postId: originalNotification.postId, // ID of the expert being discussed
             postTitle: originalNotification.postTitle, // Name of the expert
             authorId: user.id,
             authorName: user.name || 'Anonymous',
@@ -471,10 +469,8 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
             senderId: user.id,
         };
         
-        // Also mark the original request as read
-        const updatedOriginalNotifs = allNotifications.map(n => 
-            n.id === originalNotification.id ? { ...n, read: true } : n
-        );
+        // Mark the original request as "read" and then delete it to avoid clutter
+        const updatedOriginalNotifs = allNotifications.filter(n => n.id !== originalNotification.id);
 
         const updatedNotifs = [newReplyNotification, ...updatedOriginalNotifs];
         setAllNotifications(updatedNotifs);
@@ -526,7 +522,7 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
   };
 
 
-  const value = { posts, notifications: notifications, addPost, deletePost, addReply, deleteReply, sendNudgeNotification, removeNudgeNotification, sendMeetingRequest, addMeetingReply, removeMeetingRequest, markNotificationsAsRead, unreadCount, togglePostReaction, toggleReplyReaction, clearNotifications, deleteNotification };
+  const value = { posts, notifications, allNotifications, addPost, deletePost, addReply, deleteReply, sendNudgeNotification, removeNudgeNotification, sendMeetingRequest, addMeetingReply, removeMeetingRequest, markNotificationsAsRead, unreadCount, togglePostReaction, toggleReplyReaction, clearNotifications, deleteNotification };
 
   return (
     <ForumContext.Provider value={value}>

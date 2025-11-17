@@ -24,6 +24,7 @@ import { useHistory } from '@/context/history-provider';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useTranslation } from '@/context/language-provider';
+import { getExpertRecommendations } from '@/ai/flows/ai-powered-expert-recommendations';
 
 
 const PAGE_SIZE = 12;
@@ -201,7 +202,7 @@ function ExpertProfileDialog({ expert, children }: { expert: Expert, children: R
     );
 }
 
-function ExpertCard({ expert }: { expert: Expert }) {
+function ExpertCard({ expert, isTopMatch }: { expert: Expert, isTopMatch: boolean }) {
     const { isFavorite, toggleFavorite } = useFavorites();
     const { isFollowing, toggleFollow } = useFollow();
     const { sendNudgeNotification, removeNudgeNotification, removeMeetingRequest } = useForum();
@@ -264,6 +265,12 @@ function ExpertCard({ expert }: { expert: Expert }) {
                                     {expert.specialty}
                                 </CardDescription>
                             )}
+                             {isTopMatch && (
+                                <Badge className="mt-2" variant="default">
+                                    <Star className="mr-1 h-3 w-3" />
+                                    Top Match
+                                </Badge>
+                            )}
                         </div>
                     </div>
                     <Button variant="ghost" size="icon" onClick={() => toggleFavorite(expert, 'expert')}>
@@ -322,6 +329,7 @@ export default function ExpertsPage() {
     const [totalResults, setTotalResults] = useState(0);
     const { addHistoryItem } = useHistory();
     const { t } = useTranslation();
+    const [topMatches, setTopMatches] = useState<string[]>([]);
 
     const totalPages = Math.ceil(totalResults / PAGE_SIZE);
     
@@ -329,6 +337,7 @@ export default function ExpertsPage() {
         let isMounted = true;
         async function fetchData(query: string, page: number) {
             setLoading(true);
+            setTopMatches([]);
             try {
                 // Fetch both experts and trials
                 const [expertData, trialData] = await Promise.all([
@@ -340,6 +349,15 @@ export default function ExpertsPage() {
                     setExperts(expertData.results);
                     setTotalResults(expertData.totalCount);
                     setTrials(trialData);
+
+                    if (expertData.results.length > 0) {
+                        try {
+                            const recommendations = await getExpertRecommendations({ researchInterests: query });
+                            setTopMatches(recommendations.expertRecommendations);
+                        } catch (aiError) {
+                            console.error("AI recommendation failed:", aiError);
+                        }
+                    }
                 }
             } catch (error) {
                 console.error("Failed to fetch data", error);
@@ -467,7 +485,11 @@ export default function ExpertsPage() {
                         <>
                             <div className="grid gap-6 pt-4 md:grid-cols-2 lg:grid-cols-3">
                                 {experts.map((expert) => (
-                                    <ExpertCard key={expert.id} expert={expert} />
+                                    <ExpertCard 
+                                        key={expert.id} 
+                                        expert={expert}
+                                        isTopMatch={topMatches.includes(expert.name)} 
+                                    />
                                 ))}
                             </div>
                             {totalPages > 1 && (
@@ -541,7 +563,3 @@ export default function ExpertsPage() {
         </div>
     );
 }
-
-    
-
-    

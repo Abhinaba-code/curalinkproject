@@ -315,10 +315,11 @@ export default function ProfilePage() {
   const hasIncomingRequests = connectionRequests.length > 0;
   const hasOutgoingRequests = outgoingRequests.length > 0;
   const hasConnections = followedExperts.length > 0;
-  const showEmptyState = !hasIncomingRequests && !hasOutgoingRequests && !hasConnections;
-
+  
   const connectionsTitle = isResearcher ? t('profile.connections.title') : t('profile.following.title');
   const connectionsDescription = isResearcher ? t('profile.connections.description') : t('profile.following.description');
+  const showEmptyState = !hasIncomingRequests && !hasOutgoingRequests && !hasConnections;
+
 
   return (
     <div className="space-y-6">

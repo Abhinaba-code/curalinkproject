@@ -46,6 +46,7 @@ export function UserNav() {
     : 'U';
     
   const editProfileLink = user.role === 'patient' ? '/dashboard/create-profile' : '/dashboard/create-researcher-profile';
+  const connectionsLinkText = user.role === 'researcher' ? t('userNav.connections') : t('profile.following.title');
 
   return (
     <DropdownMenu>
@@ -101,7 +102,7 @@ export function UserNav() {
            <DropdownMenuItem asChild>
             <Link href="/dashboard/profile">
               <Users className="mr-2 h-4 w-4" />
-              <span>{t('profile.following.title')}</span>
+              <span>{connectionsLinkText}</span>
             </Link>
           </DropdownMenuItem>
            <DropdownMenuItem asChild>

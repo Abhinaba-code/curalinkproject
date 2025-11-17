@@ -277,7 +277,10 @@ function ExpertProfileDialog({ expert, children }: { expert: Expert, children: R
                             </div>
                         </div>
                         <div className="space-y-4">
-                            <h4 className="font-semibold text-primary">Recent Publications</h4>
+                            <h4 className="font-semibold text-primary flex items-center gap-2">
+                                <BookMarked className="h-4 w-4" />
+                                Recent Publications
+                            </h4>
                             {loadingPubs ? (
                                 <div className="space-y-2">
                                     <Skeleton className="h-4 w-full" />
@@ -355,7 +358,8 @@ function ExpertCard({ expert, isTopMatch }: { expert: Expert, isTopMatch: boolea
     };
 
     const handleNudge = () => {
-        if (user?.isPremium) {
+        if (!user) return;
+        if (user.isPremium) {
             sendNudgeNotification(expert);
             setIsNudged(true); // UI update
             toast({
@@ -528,7 +532,7 @@ export default function ExpertsPage() {
         return () => {
             isMounted = false;
         };
-    }, [currentQuery, currentPage, user?.role]);
+    }, [currentQuery, currentPage, user?.role, user?.researchInterests]);
     
     const handleSearch = (e?: React.FormEvent) => {
         e?.preventDefault();

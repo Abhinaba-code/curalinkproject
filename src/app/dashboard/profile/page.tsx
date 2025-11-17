@@ -26,11 +26,17 @@ import {
   Pill,
   Ban,
   ClipboardList,
+  FlaskConical,
+  Loader2,
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { useFollow } from '@/context/follow-provider';
-import type { Expert } from '@/lib/types';
+import type { ClinicalTrial, Expert } from '@/lib/types';
 import { useTranslation } from '@/context/language-provider';
+import { useEffect, useState } from 'react';
+import { searchClinicalTrials } from '@/lib/api';
+import TrialCard from '../trials/trial-card';
+import { Skeleton } from '@/components/ui/skeleton';
 
 function ProfileDetail({
   icon,
@@ -87,6 +93,76 @@ function FollowedExpertCard({
     </div>
   );
 }
+
+function RelevantTrialsSection() {
+    const { user } = useAuth();
+    const [trials, setTrials] = useState<ClinicalTrial[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchTrials = async () => {
+            if (user?.interests && user.interests.length > 0) {
+                setLoading(true);
+                const query = user.interests.join(' OR ');
+                const fetchedTrials = await searchClinicalTrials(query, 3);
+                setTrials(fetchedTrials);
+                setLoading(false);
+            } else {
+                setLoading(false);
+            }
+        };
+
+        fetchTrials();
+    }, [user?.interests]);
+
+    if (!user?.interests || user.interests.length === 0) {
+        return null;
+    }
+
+    return (
+         <Card>
+            <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                    <FlaskConical />
+                    Relevant Clinical Trials
+                </CardTitle>
+                <CardDescription>
+                    Based on your interests, you may be eligible for these trials.
+                </CardDescription>
+            </CardHeader>
+            <CardContent>
+                {loading ? (
+                    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                        {Array.from({ length: 3 }).map((_, i) => (
+                           <div key={i} className="space-y-4 rounded-lg border p-6">
+                                <Skeleton className="h-6 w-3/4" />
+                                <Skeleton className="h-4 w-1/2" />
+                                <div className="space-y-2 pt-4">
+                                    <Skeleton className="h-4 w-full" />
+                                    <Skeleton className="h-4 w-5/6" />
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                ) : trials.length > 0 ? (
+                    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                        {trials.map((trial) => (
+                            <TrialCard key={trial.id} trial={trial} />
+                        ))}
+                    </div>
+                ) : (
+                    <div className="text-center text-muted-foreground border-2 border-dashed rounded-lg p-8">
+                        <p>No specific clinical trials found for your interests at this time.</p>
+                        <Button variant="link" asChild className="mt-2">
+                            <Link href="/dashboard/trials">Explore all trials</Link>
+                        </Button>
+                    </div>
+                )}
+            </CardContent>
+        </Card>
+    );
+}
+
 
 export default function ProfilePage() {
   const { user } = useAuth();
@@ -224,6 +300,8 @@ export default function ProfilePage() {
           )}
         </CardContent>
       </Card>
+
+      {user.role === 'patient' && <RelevantTrialsSection />}
 
       <Card>
         <CardHeader>

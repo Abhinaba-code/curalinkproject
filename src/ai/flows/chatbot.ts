@@ -8,6 +8,7 @@ import type { ChatbotInput, ChatbotOutput } from './schemas';
 export async function chatbot(
   input: ChatbotInput
 ): Promise<ChatbotOutput> {
+  try {
     const history = (input.history || []).map(msg => ({
         role: msg.role,
         content: [{ text: msg.content }]
@@ -29,4 +30,12 @@ export async function chatbot(
     });
 
     return { response: text };
+    } catch (error: any) {
+        console.error('Chatbot error:', error.message);
+        
+        // Fallback response
+        return { 
+            response: "I'm sorry, I encountered an error processing your request. Please try again." 
+        };
+    }
 }

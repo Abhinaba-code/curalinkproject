@@ -217,7 +217,8 @@
             "forums": "ফোরাম",
             "favorites": "পছন্দের",
             "reports": "রিপোর্ট ডাউনলোড করুন",
-            "auditLog": "অডিট লগ"
+            "auditLog": "অডিট লগ",
+            "history": "ইতিহাস"
         }
     },
     "createProfile": {
@@ -487,7 +488,7 @@
             "new_post": "নতুন পোস্ট",
             "new_reply": "নতুন উত্তর",
             "nudge": "বিশেষজ্ঞকে ঠেলা দিন",
-            "meeting_request": "সংযোগ অনুরোধ",
+            "meeting_request": "বার্তা অনুরোধ",
             "meeting_reply": "সংযোগ উত্তর"
         },
         "empty": {
@@ -503,11 +504,11 @@
             "meeting_reply": "{{authorName}} থেকে উত্তর||আপনার সংযোগের অনুরোধ সম্পর্কে।"
         },
         "meetingRequest": {
-            "dialogTitle": "{{name}}-কে উত্তর দিন",
-            "dialogDescription": "বিশেষজ্ঞ: {{expertName}} সংক্রান্ত একটি মিটিং অনুরোধের উত্তর দিচ্ছেন। রোগীকে আপনার উত্তরের বিষয়ে জানানো হবে।",
-            "messageLabel": "আপনার বার্তা",
-            "messagePlaceholder": "আপনার উত্তর লিখুন...",
-            "sendButton": "উত্তর পাঠান",
+            "dialogTitle": "{{name}}-কে বার্তা পাঠান",
+            "dialogDescription": "এই বার্তাটি প্ল্যাটফর্মের গবেষকদের কাছে বিশেষজ্ঞ: {{expertName}} সম্পর্কে পাঠানো হবে। আপনার নাম এবং ইমেল শেয়ার করা হবে।",
+            "messageLabel": "আপনার বার্তা / প্রশ্ন",
+            "messagePlaceholder": "আপনার প্রশ্ন বা বার্তা এখানে লিখুন...",
+            "sendButton": "বার্তা পাঠান",
             "replySuccess": {
                 "title": "উত্তর পাঠানো হয়েছে!",
                 "description": "আপনার উত্তর {{name}}-কে পাঠানো হয়েছে।"

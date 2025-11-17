@@ -3,11 +3,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import type { Expert, ClinicalTrial, Publication } from '@/lib/types';
+import type { Expert, ClinicalTrial, Publication, User } from '@/lib/types';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Microscope, ExternalLink, Loader2, Search, Pin, User, Calendar, Mail, Phone, Plus, Star, Bell, Check, Send, Award, BookMarked, Medal, Link as LinkIcon, Users as UsersIcon, MessageSquare } from 'lucide-react';
+import { Microscope, ExternalLink, Loader2, Search, Pin, User as UserIcon, Calendar, Mail, Phone, Plus, Star, Bell, Check, Send, Award, BookMarked, Medal, Link as LinkIcon, Users as UsersIcon, MessageSquare } from 'lucide-react';
 import { searchExperts, searchClinicalTrials, searchPublications } from '@/lib/api';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useFavorites } from '@/context/favorites-provider';
@@ -132,10 +132,10 @@ function RequestMeetingDialog({ expert, onRequested }: { expert: Expert, onReque
         sendMeetingRequest(expert, user, reason);
         
         const isResearcher = user.role === 'researcher';
-        const title = isResearcher ? "Connection Request Sent!" : "Meeting Request Sent!";
+        const title = isResearcher ? "Connection Request Sent!" : "Message Request Sent!";
         const description = isResearcher
             ? `Your request to connect with ${expert.name} has been sent.`
-            : `Your request regarding ${expert.name} has been sent to researchers.`;
+            : `Your message regarding ${expert.name} has been sent to researchers.`;
 
         toast({ title, description, duration: 3000 });
         onRequested();
@@ -152,7 +152,7 @@ function RequestMeetingDialog({ expert, onRequested }: { expert: Expert, onReque
                     {isResearcherToResearcher ? (
                         <UsersIcon className="mr-2 h-4 w-4" />
                     ) : (
-                        <Calendar className="mr-2 h-4 w-4" />
+                        <MessageSquare className="mr-2 h-4 w-4" />
                     )}
                     {isResearcherToResearcher ? 'Connect' : t('notifications.types.meeting_request')}
                 </Button>
@@ -337,32 +337,30 @@ function ExpertProfileDialog({ expert, children }: { expert: Expert, children: R
 function ExpertCard({ expert, isTopMatch }: { expert: Expert, isTopMatch: boolean }) {
     const { user } = useAuth();
     const { isFavorite, toggleFavorite } = useFavorites();
-    const { isFollowing, toggleFollow, followedExperts } = useFollow();
+    const { isFollowing, toggleFollow } = useFollow();
     const { toast } = useToast();
-    const { notifications, sendMeetingRequest, removeMeetingRequest } = useForum();
+    const { notifications, sendNudgeNotification, removeNudgeNotification } = useForum();
     const initials = expert.name ? expert.name.split(' ').map(n => n[0]).join('') : '??';
     const favorite = isFavorite(expert.id);
     const following = isFollowing(expert.id);
 
-    const isRequestPending = notifications.some(
+    const isNudged = notifications.some(n => n.type === 'nudge' && n.postId === expert.id);
+
+    const [meetingRequested, setMeetingRequested] = useState(notifications.some(
         n => n.type === 'meeting_request' && n.postId === expert.id && n.senderId === user?.id
-    );
-
-    const [meetingRequested, setMeetingRequested] = useState(isRequestPending);
-
+    ));
+    
     const handleFollow = () => {
         toggleFollow(expert);
     };
 
-    const handleCancelRequest = () => {
-        removeMeetingRequest(expert.id);
+    const handleNudge = () => {
+        sendNudgeNotification(expert);
         toast({
-            title: "Connection Request Canceled",
-            description: `Your request to ${expert.name} has been withdrawn.`,
-            variant: "destructive",
-            duration: 3000,
+            title: "Expert Nudged!",
+            description: `${expert.name} has been noted. Researchers will be notified of community interest.`,
+            duration: 5000,
         });
-        setMeetingRequested(false);
     };
     
     const isCurrentUser = user?.id === expert.id;
@@ -419,28 +417,36 @@ function ExpertCard({ expert, isTopMatch }: { expert: Expert, isTopMatch: boolea
                                 {following ? 'Unfollow' : 'Follow'}
                             </Button>
                             <ExpertProfileDialog expert={expert}>
-                                <Button variant="outline" size="sm" className="w-full"><User className="mr-2 h-4 w-4" />View Profile</Button>
+                                <Button variant="outline" size="sm" className="w-full"><UserIcon className="mr-2 h-4 w-4" />View Profile</Button>
                             </ExpertProfileDialog>
                         </div>
                         <div className="flex flex-col gap-2 w-full">
                             {isResearcher ? (
-                                isFollowing(expert.id) ? (
+                                meetingRequested ? (
+                                    <Button variant="secondary" disabled>
+                                        <Check className="mr-2 h-4 w-4" />
+                                        Request Sent
+                                    </Button>
+                                ) : isFollowing(expert.id) ? (
                                      <MessageDialog expert={expert}>
                                         <Button variant="outline">
                                             <MessageSquare className="mr-2 h-4 w-4" /> Message
                                         </Button>
                                     </MessageDialog>
-                                ) : meetingRequested ? (
-                                    <Button variant="secondary" disabled>
-                                        <Check className="mr-2 h-4 w-4" />
-                                        Request Sent
-                                    </Button>
                                 ) : (
                                     <RequestMeetingDialog expert={expert} onRequested={() => setMeetingRequested(true)} />
                                 )
                              ) : (
-                                <RequestMeetingDialog expert={expert} onRequested={() => setMeetingRequested(true)} />
-                            )}
+                                <>
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <Button variant={isNudged ? 'secondary' : 'outline'} onClick={handleNudge} disabled={isNudged} size="sm">
+                                            <Bell className="mr-2 h-4 w-4" />
+                                            {isNudged ? 'Nudged' : 'Nudge to Join'}
+                                        </Button>
+                                        <RequestMeetingDialog expert={expert} onRequested={() => setMeetingRequested(true)} />
+                                    </div>
+                                </>
+                             )}
                         </div>
                     </div>
                 </CardFooter>
@@ -546,7 +552,7 @@ export default function ExpertsPage() {
     }
 
     const isResearcher = user?.role === 'researcher';
-    const title = isResearcher ? t('dashboard.nav.collaborators') : "Find Health Experts & Specialists";
+    const title = isResearcher ? t('dashboard.nav.collaborators') : t('dashboard.nav.experts');
     const description = isResearcher ? "Find researchers to collaborate with." : "Find specialists and clinical trials. Search by specialty, name, or location.";
 
     return (

@@ -218,8 +218,7 @@
             "favorites": "Favorites",
             "reports": "Download Reports",
             "auditLog": "Audit Log",
-            "history": "History",
-            "notifications": "Notifications"
+            "history": "History"
         }
     },
     "createProfile": {
@@ -489,7 +488,7 @@
             "new_post": "New Post",
             "new_reply": "New Reply",
             "nudge": "Expert Nudge",
-            "meeting_request": "Connection Request",
+            "meeting_request": "Message Request",
             "meeting_reply": "Connection Reply"
         },
         "empty": {
@@ -505,11 +504,11 @@
             "meeting_reply": "Response from {{authorName}}||Regarding your connection request."
         },
         "meetingRequest": {
-            "dialogTitle": "Reply to {{name}}",
-            "dialogDescription": "Replying to a meeting request regarding expert: {{expertName}}. The patient will be notified of your response.",
-            "messageLabel": "Your Message",
-            "messagePlaceholder": "Write your response...",
-            "sendButton": "Send Reply",
+            "dialogTitle": "Send message to {{name}}",
+            "dialogDescription": "This message will be sent to researchers on the platform regarding specialist: {{expertName}}. Your name and email will be shared.",
+            "messageLabel": "Your Message / Question",
+            "messagePlaceholder": "Write your question or message here...",
+            "sendButton": "Send Message",
             "replySuccess": {
                 "title": "Reply Sent!",
                 "description": "Your reply has been sent to {{name}}."

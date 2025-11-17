@@ -489,7 +489,7 @@
             "new_post": "नई पोस्ट",
             "new_reply": "नया उत्तर",
             "nudge": "विशेषज्ञ को संकेत",
-            "meeting_request": "कनेक्शन अनुरोध",
+            "meeting_request": "संदेश अनुरोध",
             "meeting_reply": "कनेक्शन उत्तर"
         },
         "empty": {
@@ -505,11 +505,11 @@
             "meeting_reply": "{{authorName}} से प्रतिक्रिया||आपके कनेक्शन अनुरोध के संबंध में।"
         },
         "meetingRequest": {
-            "dialogTitle": "{{name}} को उत्तर दें",
-            "dialogDescription": "विशेषज्ञ: {{expertName}} के संबंध में एक बैठक अनुरोध का उत्तर दे रहे हैं। रोगी को आपके उत्तर की सूचना दी जाएगी।",
-            "messageLabel": "आपका संदेश",
-            "messagePlaceholder": "अपना उत्तर लिखें...",
-            "sendButton": "उत्तर भेजें",
+            "dialogTitle": "{{name}} को संदेश भेजें",
+            "dialogDescription": "यह संदेश प्लेटफ़ॉर्म पर शोधकर्ताओं को विशेषज्ञ: {{expertName}} के संबंध में भेजा जाएगा। आपका नाम और ईमेल साझा किया जाएगा।",
+            "messageLabel": "आपका संदेश / प्रश्न",
+            "messagePlaceholder": "अपना प्रश्न या संदेश यहाँ लिखें...",
+            "sendButton": "संदेश भेजें",
             "replySuccess": {
                 "title": "उत्तर भेजा गया!",
                 "description": "आपका उत्तर {{name}} को भेज दिया गया है।"

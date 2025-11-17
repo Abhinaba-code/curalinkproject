@@ -37,7 +37,7 @@ export async function checkTrialEligibility(input: CheckTrialEligibilityInput): 
     `;
 
     const { object } = await generateObject({
-        model: google('gemini-1.5-flash'),
+        model: google('gemini-pro'),
         schema: CheckTrialEligibilityOutputSchema,
         prompt: prompt,
     });

@@ -24,7 +24,7 @@ export async function summarizeSymptoms(input: SummarizeSymptomsInput): Promise<
     `;
 
     const { object } = await generateObject({
-        model: google('gemini-1.5-flash'),
+        model: google('gemini-pro'),
         schema: SummarizeSymptomsOutputSchema,
         prompt: prompt,
     });

@@ -179,11 +179,12 @@ export default function ProfilePage() {
         .map((n) => n[0])
         .join('')
     : 'U';
+    
+  const isResearcher = user.role === 'researcher';
 
-  const editProfileLink =
-    user.role === 'patient'
-      ? '/dashboard/create-profile'
-      : '/dashboard/create-researcher-profile';
+  const editProfileLink = isResearcher
+      ? '/dashboard/create-researcher-profile'
+      : '/dashboard/create-profile';
 
   return (
     <div className="space-y-6">
@@ -305,8 +306,8 @@ export default function ProfilePage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>{t('profile.following.title')}</CardTitle>
-          <CardDescription>{t('profile.following.description')}</CardDescription>
+          <CardTitle>{isResearcher ? t('profile.connections.title') : t('profile.following.title')}</CardTitle>
+          <CardDescription>{isResearcher ? t('profile.connections.description') : t('profile.following.description')}</CardDescription>
         </CardHeader>
         <CardContent>
           {followedExperts.length > 0 ? (
@@ -332,3 +333,5 @@ export default function ProfilePage() {
     </div>
   );
 }
+
+    

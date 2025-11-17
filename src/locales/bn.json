@@ -348,6 +348,14 @@
         },
         "following": {
             "title": "অনুসরণ করা হচ্ছে",
+            "description": "আপনি যে বিশেষজ্ঞদের অনুসরণ করছেন।"
+        },
+        "connections": {
+            "title": "আমার সংযোগ",
+            "description": "আপনার পেশাদার সংযোগ এবং মুলতুবি অনুরোধগুলি পরিচালনা করুন।"
+        },
+        "following": {
+            "title": "অনুসরণ করা হচ্ছে",
             "description": "আপনি যে বিশেষজ্ঞদের অনুসরণ করছেন।",
             "empty": {
                 "title": "আপনি এখনো কোনো বিশেষজ্ঞকে অনুসরণ করছেন না।",
@@ -481,8 +489,8 @@
             "new_post": "নতুন পোস্ট",
             "new_reply": "নতুন উত্তর",
             "nudge": "বিশেষজ্ঞকে ঠেলা দিন",
-            "meeting_request": "মিটিংয়ের অনুরোধ",
-            "meeting_reply": "মিটিংয়ের উত্তর"
+            "meeting_request": "সংযোগ অনুরোধ",
+            "meeting_reply": "সংযোগ উত্তর"
         },
         "empty": {
             "title": "কোনো বিজ্ঞপ্তি নেই",
@@ -493,8 +501,8 @@
             "new_post": "নতুন পোস্ট: \"{{postTitle}}\"||{{authorName}} দ্বারা",
             "new_reply": "এতে নতুন উত্তর: \"{{postTitle}}\"||{{authorName}} দ্বারা",
             "nudge": "{{authorName}} একজন বিশেষজ্ঞকে যোগদানের জন্য ঠেলা দিয়েছেন!||বিশেষজ্ঞ: {{postTitle}}",
-            "meeting_request": "{{postTitle}}-এর জন্য মিটিংয়ের অনুরোধ|| remitente: {{authorName}}",
-            "meeting_reply": "আপনার মিটিং অনুরোধের উপর আপডেট||{{authorName}} থেকে বিষয়: {{postTitle}}"
+            "meeting_request": "{{authorName}} থেকে সংযোগের অনুরোধ||উত্তর দিতে ক্লিক করুন।",
+            "meeting_reply": "{{authorName}} থেকে উত্তর||আপনার সংযোগের অনুরোধ সম্পর্কে।"
         },
         "meetingRequest": {
             "dialogTitle": "{{name}}-কে উত্তর দিন",
@@ -641,3 +649,5 @@
         }
     }
 }
+
+    

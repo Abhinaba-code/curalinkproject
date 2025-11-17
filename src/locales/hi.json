@@ -349,6 +349,14 @@
             "researchGate": "रिसर्चगेट प्रोफ़ाइल"
         },
         "following": {
+            "title": "अनुसरण",
+            "description": "विशेषज्ञ जिनका आप अनुसरण कर रहे हैं।"
+        },
+        "connections": {
+            "title": "मेरे कनेक्शन",
+            "description": "अपने पेशेवर कनेक्शन और लंबित अनुरोधों का प्रबंधन करें।"
+        },
+        "following": {
             "title": "निम्नलिखित",
             "description": "जिन विशेषज्ञों को आप फॉलो कर रहे हैं।",
             "empty": {
@@ -483,8 +491,8 @@
             "new_post": "नई पोस्ट",
             "new_reply": "नया उत्तर",
             "nudge": "विशेषज्ञ को संकेत",
-            "meeting_request": "बैठक का अनुरोध",
-            "meeting_reply": "बैठक का उत्तर"
+            "meeting_request": "कनेक्शन अनुरोध",
+            "meeting_reply": "कनेक्शन उत्तर"
         },
         "empty": {
             "title": "कोई सूचना नहीं",
@@ -495,8 +503,8 @@
             "new_post": "नई पोस्ट: \"{{postTitle}}\"||{{authorName}} द्वारा",
             "new_reply": "इस पर नया उत्तर: \"{{postTitle}}\"||{{authorName}} द्वारा",
             "nudge": "{{authorName}} ने एक विशेषज्ञ को शामिल होने के लिए संकेत दिया!||विशेषज्ञ: {{postTitle}}",
-            "meeting_request": "{{postTitle}} के लिए बैठक का अनुरोध||प्रेषक: {{authorName}}",
-            "meeting_reply": "आपके बैठक अनुरोध पर अपडेट||प्रेषक: {{authorName}} विषय: {{postTitle}}"
+            "meeting_request": "{{authorName}} से कनेक्शन अनुरोध||उत्तर देने के लिए क्लिक करें।",
+            "meeting_reply": "{{authorName}} से प्रतिक्रिया||आपके कनेक्शन अनुरोध के संबंध में।"
         },
         "meetingRequest": {
             "dialogTitle": "{{name}} को उत्तर दें",
@@ -643,3 +651,5 @@
         }
     }
 }
+
+    

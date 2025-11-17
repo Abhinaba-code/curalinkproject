@@ -350,6 +350,14 @@
         },
         "following": {
             "title": "Following",
+            "description": "Experts you are following."
+        },
+        "connections": {
+            "title": "My Connections",
+            "description": "Manage your professional connections and pending requests."
+        },
+        "following": {
+            "title": "Following",
             "description": "Experts you are following.",
             "empty": {
                 "title": "You are not following any experts yet.",
@@ -643,3 +651,5 @@
         }
     }
 }
+
+    

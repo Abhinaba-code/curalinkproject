@@ -459,6 +459,7 @@ export default function ExpertsPage() {
     const [totalResults, setTotalResults] = useState(0);
     const { addHistoryItem } = useHistory();
     const { t } = useTranslation();
+    const { user } = useAuth();
     const [topMatches, setTopMatches] = useState<string[]>([]);
 
     const totalPages = Math.ceil(totalResults / PAGE_SIZE);
@@ -480,7 +481,7 @@ export default function ExpertsPage() {
                     setTotalResults(expertData.totalCount);
                     setTrials(trialData);
 
-                    if (expertData.results.length > 0) {
+                    if (user?.role === 'researcher' && expertData.results.length > 0) {
                         try {
                             const recommendations = await getExpertRecommendations({ researchInterests: query });
                             setTopMatches(recommendations.expertRecommendations);
@@ -509,7 +510,7 @@ export default function ExpertsPage() {
         return () => {
             isMounted = false;
         };
-    }, [currentQuery, currentPage]);
+    }, [currentQuery, currentPage, user?.role]);
     
     const handleSearch = (e?: React.FormEvent) => {
         e?.preventDefault();
@@ -541,14 +542,17 @@ export default function ExpertsPage() {
         }
     }
 
+    const title = user?.role === 'researcher' ? "Connect with Collaborators" : "Connect with Researchers & Specialists";
+    const description = user?.role === 'researcher' ? "Find researchers to collaborate with." : "Find specialists and clinical trials. Search by specialty, name, or location.";
+
     return (
         <div className="space-y-6">
             <div>
                 <h1 className="font-headline text-3xl font-bold">
-                    Connect with Researchers & Specialists
+                    {title}
                 </h1>
                 <p className="text-muted-foreground">
-                    Find specialists and clinical trials. Search by specialty, name, or location.
+                    {description}
                 </p>
             </div>
             
@@ -587,7 +591,7 @@ export default function ExpertsPage() {
             
             <Tabs defaultValue="experts" className="w-full">
                 <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="experts">Researchers ({totalResults})</TabsTrigger>
+                    <TabsTrigger value="experts">{user?.role === 'researcher' ? 'Collaborators' : 'Researchers'} ({totalResults})</TabsTrigger>
                     <TabsTrigger value="trials">Clinical Trials ({trials.length})</TabsTrigger>
                 </TabsList>
                 <TabsContent value="experts">

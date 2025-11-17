@@ -181,7 +181,7 @@ function MapView({
       });
     });
 
-  }, [isLoaded, experts, center, radius]);
+  }, [isLoaded, experts, center, radius, expertPositions]);
 
 
   const fullMapUrl = useMemo(() => {
@@ -372,7 +372,7 @@ function HealthExpertsMapPage() {
         });
       })
       .finally(() => setLoading(false));
-  }, [query, lat, lng, radius, toast]);
+  }, [query, toast]);
   
   const handleSearch = (newQuery: string, newRadius: number) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -417,9 +417,11 @@ function HealthExpertsMapPage() {
           onUseMyLocation={handleUseMyLocation}
       />
 
-      <div className="grid grid-cols-1 gap-6">
-        <MapView center={mapCenter} radius={radius} experts={experts} searchParams={currentParams} />
-        <div className="overflow-y-auto">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="md:col-span-2">
+            <MapView center={mapCenter} radius={radius} experts={experts} searchParams={currentParams} />
+        </div>
+        <div className="overflow-y-auto max-h-[500px]">
             <ResultsList experts={experts} loading={loading} />
         </div>
       </div>

@@ -50,8 +50,15 @@ export async function searchClinicalTrials(
     if (query) {
         queryParts.push(`query.cond=${encodeURIComponent(query)}`);
     }
+    
+    // Updated to handle both text location and geo-distance
     if (location) {
-        queryParts.push(`query.locn=${encodeURIComponent(location)}`);
+        // The API uses geo() for distance search, not query.locn
+        if (location.startsWith('distance(')) {
+             queryParts.push(`filter.geo=${encodeURIComponent(location)}`);
+        } else {
+             queryParts.push(`query.locn=${encodeURIComponent(location)}`);
+        }
     }
 
     if (statuses && statuses.length > 0) {
@@ -131,5 +138,3 @@ export async function searchExperts(
     return { results: [], totalCount: 0 };
   }
 }
-
-    

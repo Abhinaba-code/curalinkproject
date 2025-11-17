@@ -435,7 +435,7 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
             type: type,
             recipientId: fromUser.role === 'researcher' ? expert.id : 'all_researchers',
             senderId: fromUser.id,
-            originalRequest: { content: reason } as any,
+            originalRequest: { content: reason, email: fromUser.email } as any,
         };
         const updatedNotifs = [newNotification, ...allNotifications];
         setAllNotifications(updatedNotifs);
@@ -458,7 +458,7 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
                 return {
                     ...n,
                     authorName: newName || n.authorName,
-                    originalRequest: { ...n.originalRequest, content: newContent, email: newEmail } as any,
+                    originalRequest: { ...n.originalRequest, content: newContent, email: newEmail || n.originalRequest?.email } as any,
                     id: `notif-${Date.now()}`, // Update timestamp to re-trigger notifications
                     read: false, // Mark as unread for the recipient
                 };

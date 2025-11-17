@@ -33,6 +33,7 @@ import {
   Mail,
   Send,
   ArrowRight,
+  MessageSquare,
 } from 'lucide-react';
 import { format, formatDistanceToNow } from 'date-fns';
 import { useFollow } from '@/context/follow-provider';
@@ -439,68 +440,98 @@ export default function ProfilePage() {
 
       {user.role === 'patient' && <RelevantTrialsSection />}
 
-      <Card>
-        <CardHeader>
-          <CardTitle>{connectionsTitle}</CardTitle>
-          <CardDescription>{connectionsDescription}</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-            {hasIncomingRequests && (
-                <div className="space-y-4">
-                    <h3 className="text-sm font-semibold text-muted-foreground">Pending Incoming Requests</h3>
+      {isResearcher && (
+        <Card>
+          <CardHeader>
+            <CardTitle>{connectionsTitle}</CardTitle>
+            <CardDescription>{connectionsDescription}</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+              {hasIncomingRequests && (
+                  <div className="space-y-4">
+                      <h3 className="text-sm font-semibold text-muted-foreground">Pending Incoming Requests</h3>
+                      <div className="grid gap-4">
+                          {connectionRequests.map((req) => (
+                            <ConnectionRequestCard key={req.id} request={req} onAccept={handleAcceptRequest} onDecline={handleDeclineRequest} />
+                          ))}
+                      </div>
+                  </div>
+              )}
+              
+              {hasOutgoingRequests && (
+                  <div className="space-y-4">
+                    <h3 className="text-sm font-semibold text-muted-foreground">Pending Outgoing Requests</h3>
                     <div className="grid gap-4">
-                        {connectionRequests.map((req) => (
-                           <ConnectionRequestCard key={req.id} request={req} onAccept={handleAcceptRequest} onDecline={handleDeclineRequest} />
-                        ))}
+                      {outgoingRequests.map((req) => (
+                          <OutgoingRequestCard key={req.id} request={req} onCancel={handleCancelRequest} />
+                      ))}
                     </div>
-                </div>
+                  </div>
+              )}
+
+              {(hasIncomingRequests || hasOutgoingRequests) && hasConnections && <Separator />}
+
+            {hasConnections && (
+              <div className="space-y-4">
+                  {(hasIncomingRequests || hasOutgoingRequests) && <h3 className="text-sm font-semibold text-muted-foreground">Current Connections</h3>}
+                  <div className="grid gap-4 md:grid-cols-2">
+                  {followedExperts.map((expert) => (
+                      <FollowedExpertCard
+                      key={expert.id}
+                      expert={expert}
+                      onUnfollow={() => toggleFollow(expert)}
+                      />
+                  ))}
+                  </div>
+              </div>
             )}
             
-            {hasOutgoingRequests && (
-                <div className="space-y-4">
-                  <h3 className="text-sm font-semibold text-muted-foreground">Pending Outgoing Requests</h3>
-                  <div className="grid gap-4">
-                    {outgoingRequests.map((req) => (
-                        <OutgoingRequestCard key={req.id} request={req} onCancel={handleCancelRequest} />
-                    ))}
-                  </div>
-                </div>
+            {showEmptyState && (
+              <div className="text-center text-muted-foreground border-2 border-dashed rounded-lg p-8">
+                  <p>You have no connections or pending requests.</p>
+                  <Button variant="link" asChild className="mt-2">
+                    <Link href="/dashboard/experts">Find Collaborators</Link>
+                  </Button>
+              </div>
             )}
 
-            {(hasIncomingRequests || hasOutgoingRequests) && hasConnections && <Separator />}
+          </CardContent>
+        </Card>
+      )}
 
-          {hasConnections && (
-            <div className="space-y-4">
-                {(hasIncomingRequests || hasOutgoingRequests) && <h3 className="text-sm font-semibold text-muted-foreground">Current Connections</h3>}
-                <div className="grid gap-4 md:grid-cols-2">
-                {followedExperts.map((expert) => (
+      {!isResearcher && hasConnections && (
+          <Card>
+            <CardHeader>
+              <CardTitle>{connectionsTitle}</CardTitle>
+              <CardDescription>{connectionsDescription}</CardDescription>
+            </CardHeader>
+            <CardContent className="grid gap-4 md:grid-cols-2">
+               {followedExperts.map((expert) => (
                     <FollowedExpertCard
                     key={expert.id}
                     expert={expert}
                     onUnfollow={() => toggleFollow(expert)}
                     />
                 ))}
+            </CardContent>
+        </Card>
+      )}
+      {!isResearcher && !hasConnections && (
+           <Card>
+            <CardHeader>
+              <CardTitle>{connectionsTitle}</CardTitle>
+              <CardDescription>{connectionsDescription}</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <div className="text-center text-muted-foreground border-2 border-dashed rounded-lg p-8">
+                     <p>{t('profile.following.empty.title')}</p>
+                    <Button variant="link" asChild className="mt-2">
+                        <Link href="/dashboard/experts">{t('profile.following.empty.link')}</Link>
+                    </Button>
                 </div>
-            </div>
-          )}
-          
-          {showEmptyState && (
-            <div className="text-center text-muted-foreground border-2 border-dashed rounded-lg p-8">
-              {isResearcher ? (
-                <p>You have no connections or pending requests.</p>
-              ) : (
-                <>
-                  <p>{t('profile.following.empty.title')}</p>
-                  <Button variant="link" asChild className="mt-2">
-                    <Link href="/dashboard/experts">{t('profile.following.empty.link')}</Link>
-                  </Button>
-                </>
-              )}
-            </div>
-          )}
-
-        </CardContent>
-      </Card>
+            </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

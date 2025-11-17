@@ -339,28 +339,36 @@ function ExpertCard({ expert, isTopMatch }: { expert: Expert, isTopMatch: boolea
     const { isFavorite, toggleFavorite } = useFavorites();
     const { isFollowing, toggleFollow } = useFollow();
     const { toast } = useToast();
-    const { notifications, sendNudgeNotification, removeNudgeNotification } = useForum();
+    const { notifications, sendNudgeNotification } = useForum();
     const initials = expert.name ? expert.name.split(' ').map(n => n[0]).join('') : '??';
     const favorite = isFavorite(expert.id);
     const following = isFollowing(expert.id);
 
-    const isNudged = notifications.some(n => n.type === 'nudge' && n.postId === expert.id);
-
-    const [meetingRequested, setMeetingRequested] = useState(notifications.some(
-        n => n.type === 'meeting_request' && n.postId === expert.id && n.senderId === user?.id
-    ));
+    const isNudged = user ? notifications.some(n => n.type === 'nudge' && n.postId === expert.id && n.senderId === user.id) : false;
+    
+    const [meetingRequested, setMeetingRequested] = useState(user ? notifications.some(
+        n => n.type === 'meeting_request' && n.postId === expert.id && n.senderId === user.id
+    ) : false);
     
     const handleFollow = () => {
         toggleFollow(expert);
     };
 
     const handleNudge = () => {
-        sendNudgeNotification(expert);
-        toast({
-            title: "Expert Nudged!",
-            description: `${expert.name} has been noted. Researchers will be notified of community interest.`,
-            duration: 5000,
-        });
+        if (user?.isPremium) {
+            sendNudgeNotification(expert);
+            toast({
+                title: "Expert Nudged!",
+                description: `${expert.name} has been noted. Researchers will be notified of community interest.`,
+                duration: 5000,
+            });
+        } else {
+            toast({
+                variant: "destructive",
+                title: "Premium Feature",
+                description: "Nudging experts is a premium feature. Please upgrade your account.",
+            });
+        }
     };
     
     const isCurrentUser = user?.id === expert.id;
@@ -420,34 +428,37 @@ function ExpertCard({ expert, isTopMatch }: { expert: Expert, isTopMatch: boolea
                                 <Button variant="outline" size="sm" className="w-full"><UserIcon className="mr-2 h-4 w-4" />View Profile</Button>
                             </ExpertProfileDialog>
                         </div>
-                        <div className="flex flex-col gap-2 w-full">
-                            {isResearcher ? (
-                                meetingRequested ? (
+                         {isResearcher ? (
+                            meetingRequested ? (
+                                <Button variant="secondary" disabled>
+                                    <Check className="mr-2 h-4 w-4" />
+                                    Request Sent
+                                </Button>
+                            ) : isFollowing(expert.id) ? (
+                                 <MessageDialog expert={expert}>
+                                    <Button variant="outline">
+                                        <MessageSquare className="mr-2 h-4 w-4" /> Message
+                                    </Button>
+                                </MessageDialog>
+                            ) : (
+                                <RequestMeetingDialog expert={expert} onRequested={() => setMeetingRequested(true)} />
+                            )
+                         ) : (
+                            <div className="flex flex-col gap-2">
+                                <Button variant={isNudged ? 'secondary' : 'outline'} onClick={handleNudge} disabled={isNudged} size="sm">
+                                    <Bell className="mr-2 h-4 w-4" />
+                                    {isNudged ? 'Nudged' : 'Nudge to Join'}
+                                </Button>
+                                {meetingRequested ? (
                                     <Button variant="secondary" disabled>
                                         <Check className="mr-2 h-4 w-4" />
                                         Request Sent
                                     </Button>
-                                ) : isFollowing(expert.id) ? (
-                                     <MessageDialog expert={expert}>
-                                        <Button variant="outline">
-                                            <MessageSquare className="mr-2 h-4 w-4" /> Message
-                                        </Button>
-                                    </MessageDialog>
                                 ) : (
                                     <RequestMeetingDialog expert={expert} onRequested={() => setMeetingRequested(true)} />
-                                )
-                             ) : (
-                                <>
-                                    <div className="flex flex-col gap-2">
-                                        <Button variant={isNudged ? 'secondary' : 'outline'} onClick={handleNudge} disabled={isNudged} size="sm">
-                                            <Bell className="mr-2 h-4 w-4" />
-                                            {isNudged ? 'Nudged' : 'Nudge to Join'}
-                                        </Button>
-                                        <RequestMeetingDialog expert={expert} onRequested={() => setMeetingRequested(true)} />
-                                    </div>
-                                </>
-                             )}
-                        </div>
+                                )}
+                            </div>
+                         )}
                     </div>
                 </CardFooter>
             )}

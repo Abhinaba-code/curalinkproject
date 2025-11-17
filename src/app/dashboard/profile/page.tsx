@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useAuth } from '@/context/auth-provider';
@@ -531,7 +532,7 @@ export default function ProfilePage() {
         </>
       )}
 
-      {isResearcher && (
+      {isResearcher ? (
         <Card>
           <CardHeader>
             <CardTitle>{connectionsTitle}</CardTitle>
@@ -588,43 +589,35 @@ export default function ProfilePage() {
 
           </CardContent>
         </Card>
-      )}
-
-      {!isResearcher && hasConnections && (
-          <Card>
-            <CardHeader>
-              <CardTitle>{connectionsTitle}</CardTitle>
-              <CardDescription>{connectionsDescription}</CardDescription>
-            </CardHeader>
-            <CardContent className="grid gap-4 md:grid-cols-2">
-               {followedExperts.map((expert) => (
-                    <FollowedExpertCard
-                    key={expert.id}
-                    expert={expert}
-                    onUnfollow={() => toggleFollow(expert)}
-                    />
-                ))}
-            </CardContent>
-        </Card>
-      )}
-      {!isResearcher && !hasConnections && !hasOutgoingRequests && (
-           <Card>
+      ) : (
+        <Card>
             <CardHeader>
               <CardTitle>{connectionsTitle}</CardTitle>
               <CardDescription>{connectionsDescription}</CardDescription>
             </CardHeader>
             <CardContent>
-                <div className="text-center text-muted-foreground border-2 border-dashed rounded-lg p-8">
-                     <p>{t('profile.following.empty.title')}</p>
-                    <Button variant="link" asChild className="mt-2">
-                        <Link href="/dashboard/experts">{t('profile.following.empty.link')}</Link>
-                    </Button>
-                </div>
+                {hasConnections ? (
+                    <div className="grid gap-4 md:grid-cols-2">
+                    {followedExperts.map((expert) => (
+                        <FollowedExpertCard
+                        key={expert.id}
+                        expert={expert}
+                        onUnfollow={() => toggleFollow(expert)}
+                        />
+                    ))}
+                    </div>
+                ) : (
+                    <div className="text-center text-muted-foreground border-2 border-dashed rounded-lg p-8">
+                        <p>{t('profile.following.empty.title')}</p>
+                        <Button variant="link" asChild className="mt-2">
+                            <Link href="/dashboard/experts">{t('profile.following.empty.link')}</Link>
+                        </Button>
+                    </div>
+                )}
             </CardContent>
         </Card>
       )}
+
     </div>
   );
 }
-
-    

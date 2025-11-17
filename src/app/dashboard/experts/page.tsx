@@ -59,7 +59,7 @@ function MessageDialog({ expert, children }: { expert: Expert, children: React.R
             toast({ variant: 'destructive', title: 'Message cannot be empty.', duration: 3000 });
             return;
         }
-        sendMeetingRequest(expert, user, message, 'meeting_reply'); // Use a different type for direct messages
+        sendMeetingRequest(expert, user, message, 'meeting_reply');
         
         toast({ title: 'Message Sent!', description: `Your message to ${expert.name} has been sent.`, duration: 3000 });
         setMessage('');
@@ -239,7 +239,7 @@ function ExpertProfileDialog({ expert, children }: { expert: Expert, children: R
     return (
         <Dialog onOpenChange={(open) => { if (open) fetchExpertPublications(); }}>
             <DialogTrigger asChild>{children}</DialogTrigger>
-            <DialogContent className="sm:max-w-md p-0">
+            <DialogContent className="sm:max-w-sm p-0">
                 <DialogHeader className="p-6 pb-4">
                     <div className="flex flex-col items-center text-center gap-4">
                         <Avatar className="h-24 w-24 border-4 border-primary">
@@ -342,14 +342,14 @@ function ExpertCard({ expert, isTopMatch }: { expert: Expert, isTopMatch: boolea
     const { isFavorite, toggleFavorite } = useFavorites();
     const { isFollowing, toggleFollow } = useFollow();
     const { toast } = useToast();
-    const { notifications, sendNudgeNotification } = useForum();
+    const { allNotifications, sendNudgeNotification } = useForum();
     const initials = expert.name ? expert.name.split(' ').map(n => n[0]).join('') : '??';
     const favorite = isFavorite(expert.id);
     const following = isFollowing(expert.id);
 
-    const [isNudged, setIsNudged] = useState(() => user ? notifications.some(n => n.type === 'nudge' && n.postId === expert.id && n.senderId === user.id) : false);
+    const [isNudged, setIsNudged] = useState(() => user ? allNotifications.some(n => n.type === 'nudge' && n.postId === expert.id && n.senderId === user.id) : false);
 
-    const [meetingRequested, setMeetingRequested] = useState(user ? notifications.some(
+    const [meetingRequested, setMeetingRequested] = useState(user ? allNotifications.some(
         n => n.type === 'meeting_request' && n.postId === expert.id && n.senderId === user.id
     ) : false);
     

@@ -243,23 +243,23 @@ function RelevantTrialsSection() {
 export default function ProfilePage() {
   const { user } = useAuth();
   const { followedExperts, toggleFollow } = useFollow();
-  const { notifications, deleteNotification } = useForum();
+  const { allNotifications, deleteNotification } = useForum();
   const { toast } = useToast();
   const { t } = useTranslation();
 
   const { connectionRequests, outgoingRequests } = useMemo(() => {
     if (!user) return { connectionRequests: [], outgoingRequests: [] };
 
-    const incoming = notifications.filter(
+    const incoming = allNotifications.filter(
       (n) => n.type === 'meeting_request' && n.recipientId === user.id && user.role === 'researcher'
     );
 
-    const outgoing = notifications.filter(
+    const outgoing = allNotifications.filter(
       (n) => n.type === 'meeting_request' && n.senderId === user.id
     );
 
     return { connectionRequests: incoming, outgoingRequests: outgoing };
-  }, [notifications, user]);
+  }, [allNotifications, user]);
 
   const handleAcceptRequest = (request: Notification) => {
     // In a real app, you might need more info to create an 'Expert' object

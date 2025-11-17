@@ -424,8 +424,6 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
     };
     
     const sendMeetingRequest = (expert: Expert, fromUser: User, reason: string, type: Notification['type'] = 'meeting_request'): Notification => {
-        const isResearcherToResearcher = fromUser.role === 'researcher';
-
         const newNotification: Notification = {
             id: `notif-${Date.now()}`,
             postId: expert.id,
@@ -434,7 +432,7 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
             authorName: fromUser.name || 'Anonymous',
             read: false,
             type: type,
-            recipientId: isResearcherToResearcher ? expert.id : 'all_researchers',
+            recipientId: fromUser.role === 'researcher' ? expert.id : 'all_researchers',
             senderId: fromUser.id,
             originalRequest: { content: reason } as any,
         };

@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useAuth } from '@/context/auth-provider';
@@ -161,7 +160,7 @@ function EditRequestDialog({ request, onCancel, onUpdate }: { request: Notificat
   const [isOpen, setIsOpen] = useState(false);
   const [message, setMessage] = useState(request.originalRequest?.content || '');
   const [name, setName] = useState(request.authorName);
-  const [email, setEmail] = useState(''); // Assuming we don't have sender's email in notification, so it's blank.
+  const [email, setEmail] = useState(request.originalRequest?.email || '');
   const recipientName = request.postTitle;
 
 
@@ -392,7 +391,7 @@ export default function ProfilePage() {
   
   const connectionsTitle = isResearcher ? t('profile.connections.title') : t('profile.following.title');
   const connectionsDescription = isResearcher ? t('profile.connections.description') : t('profile.following.description');
-  const showEmptyState = !hasIncomingRequests && !hasOutgoingRequests && !hasConnections;
+  const showResearcherEmptyState = !hasIncomingRequests && !hasOutgoingRequests && !hasConnections;
 
 
   return (
@@ -511,7 +510,26 @@ export default function ProfilePage() {
         </CardContent>
       </Card>
 
-      {user.role === 'patient' && <RelevantTrialsSection />}
+      {user.role === 'patient' && (
+        <>
+          <RelevantTrialsSection />
+           {hasOutgoingRequests && (
+                <Card>
+                    <CardHeader>
+                        <CardTitle>My Sent Requests</CardTitle>
+                        <CardDescription>Manage the message requests you've sent to researchers.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <div className="grid gap-4 md:grid-cols-2">
+                          {outgoingRequests.map((req) => (
+                              <EditRequestDialog key={req.id} request={req} onCancel={handleCancelRequest} onUpdate={handleUpdateRequest} />
+                          ))}
+                        </div>
+                    </CardContent>
+                </Card>
+            )}
+        </>
+      )}
 
       {isResearcher && (
         <Card>
@@ -559,7 +577,7 @@ export default function ProfilePage() {
               </div>
             )}
             
-            {showEmptyState && (
+            {showResearcherEmptyState && (
               <div className="text-center text-muted-foreground border-2 border-dashed rounded-lg p-8">
                   <p>You have no connections or pending requests.</p>
                   <Button variant="link" asChild className="mt-2">
@@ -589,7 +607,7 @@ export default function ProfilePage() {
             </CardContent>
         </Card>
       )}
-      {!isResearcher && !hasConnections && (
+      {!isResearcher && !hasConnections && !hasOutgoingRequests && (
            <Card>
             <CardHeader>
               <CardTitle>{connectionsTitle}</CardTitle>
@@ -608,3 +626,5 @@ export default function ProfilePage() {
     </div>
   );
 }
+
+    

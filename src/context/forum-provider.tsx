@@ -141,6 +141,7 @@ interface ForumContextType {
   removeNudgeNotification: (expertId: string) => void;
   sendMeetingRequest: (expert: Expert, fromUser: User, reason: string, type?: Notification['type']) => Notification;
   removeMeetingRequest: (expertId: string) => void;
+  updateMeetingRequest: (notificationId: string, newContent: string) => void;
   addMeetingReply: (originalNotification: Notification, replyContent: string) => void;
   markNotificationsAsRead: () => void;
   clearNotifications: () => void;
@@ -451,6 +452,22 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
         localStorage.setItem('cura-notifications', JSON.stringify(updatedNotifs));
     };
 
+    const updateMeetingRequest = (notificationId: string, newContent: string) => {
+        const updatedNotifs = allNotifications.map(n => {
+            if (n.id === notificationId) {
+                return {
+                    ...n,
+                    originalRequest: { ...n.originalRequest, content: newContent } as any,
+                    id: `notif-${Date.now()}`, // Update timestamp to re-trigger notifications
+                    read: false, // Mark as unread for the recipient
+                };
+            }
+            return n;
+        });
+        setAllNotifications(updatedNotifs);
+        localStorage.setItem('cura-notifications', JSON.stringify(updatedNotifs));
+    };
+
     const addMeetingReply = (originalNotification: Notification, replyContent: string) => {
         if (!user) return;
 
@@ -520,7 +537,7 @@ export function ForumProvider({ children }: { children: React.ReactNode }) {
   };
 
 
-  const value = { posts, notifications, allNotifications, addPost, deletePost, addReply, deleteReply, sendNudgeNotification, removeNudgeNotification, sendMeetingRequest, addMeetingReply, removeMeetingRequest, markNotificationsAsRead, unreadCount, togglePostReaction, toggleReplyReaction, clearNotifications, deleteNotification };
+  const value = { posts, notifications, allNotifications, addPost, deletePost, addReply, deleteReply, sendNudgeNotification, removeNudgeNotification, sendMeetingRequest, addMeetingReply, removeMeetingRequest, markNotificationsAsRead, unreadCount, togglePostReaction, toggleReplyReaction, clearNotifications, deleteNotification, updateMeetingRequest };
 
   return (
     <ForumContext.Provider value={value}>

@@ -10,10 +10,21 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  CardFooter
 } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogClose,
+} from '@/components/ui/dialog';
 import {
   Calendar,
   MapPin,
@@ -46,6 +57,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useForum, type Notification } from '@/context/forum-provider';
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '@/components/ui/separator';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 
 function ProfileDetail({
   icon,
@@ -142,30 +155,68 @@ function ConnectionRequestCard({ request, onAccept, onDecline }: { request: Noti
     );
 }
 
-function OutgoingRequestCard({ request, onCancel }: { request: Notification, onCancel: (id: string) => void }) {
-  const recipientName = request.postTitle; // In this context, postTitle holds the recipient's name
-  const recipientAvatarUrl = `https://picsum.photos/seed/${request.postId}/200/200`;
-  const initials = recipientName ? recipientName.split(' ').map(n => n[0]).join('') : 'U';
-  const timeSince = formatDistanceToNow(new Date(parseInt(request.id.split('-')[1])), { addSuffix: true });
+function EditRequestDialog({ request, onCancel, onUpdate }: { request: Notification; onCancel: (id: string) => void; onUpdate: (id: string, newContent: string) => void; }) {
+  const { t } = useTranslation();
+  const [isOpen, setIsOpen] = useState(false);
+  const [message, setMessage] = useState(request.originalRequest?.content || '');
+  const recipientName = request.postTitle;
+
+  const handleUpdate = () => {
+    onUpdate(request.id, message);
+    setIsOpen(false);
+  };
+  
+  const handleCancel = () => {
+      onCancel(request.id);
+      setIsOpen(false);
+  }
 
   return (
-    <Card>
-      <CardContent className="p-3 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Avatar className="h-10 w-10">
-            <AvatarImage src={recipientAvatarUrl} alt={recipientName} />
-            <AvatarFallback>{initials}</AvatarFallback>
-          </Avatar>
-          <div>
-            <p className="text-sm font-medium">Request to {recipientName}</p>
-            <p className="text-xs text-muted-foreground">Sent {timeSince}</p>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <div className="block p-3 rounded-lg border hover:bg-accent cursor-pointer">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Avatar className="h-10 w-10">
+                <AvatarImage src={`https://picsum.photos/seed/${request.postId}/200/200`} alt={recipientName} />
+                <AvatarFallback>{recipientName ? recipientName.split(' ').map(n => n[0]).join('') : 'U'}</AvatarFallback>
+              </Avatar>
+              <div>
+                <p className="text-sm font-medium">Request to {recipientName}</p>
+                <p className="text-xs text-muted-foreground">Sent {formatDistanceToNow(new Date(parseInt(request.id.split('-')[1])), { addSuffix: true })}</p>
+              </div>
+            </div>
+             <Button variant="ghost" size="sm">Edit</Button>
           </div>
         </div>
-        <Button size="sm" variant="ghost" onClick={() => onCancel(request.id)}>
-          Cancel Request
-        </Button>
-      </CardContent>
-    </Card>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Edit Request to {recipientName}</DialogTitle>
+          <DialogDescription>
+            You can update your message or cancel the request.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="py-4 space-y-2">
+            <Label htmlFor="edit-message">Your Message</Label>
+            <Textarea 
+                id="edit-message"
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                className="min-h-[120px]"
+            />
+        </div>
+        <DialogFooter className="justify-between">
+          <Button variant="destructive" onClick={handleCancel}>Cancel Request</Button>
+          <div className="flex gap-2">
+            <DialogClose asChild><Button variant="outline">{t('common.cancel')}</Button></DialogClose>
+            <Button onClick={handleUpdate}>
+                <Send className="mr-2 h-4 w-4" /> Update & Resend
+            </Button>
+          </div>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -243,7 +294,7 @@ function RelevantTrialsSection() {
 export default function ProfilePage() {
   const { user } = useAuth();
   const { followedExperts, toggleFollow } = useFollow();
-  const { allNotifications, deleteNotification } = useForum();
+  const { allNotifications, deleteNotification, updateMeetingRequest } = useForum();
   const { toast } = useToast();
   const { t } = useTranslation();
 
@@ -292,6 +343,14 @@ export default function ProfilePage() {
     toast({
         title: "Request Cancelled",
         description: "Your connection request has been withdrawn."
+    });
+  };
+  
+  const handleUpdateRequest = (id: string, newContent: string) => {
+    updateMeetingRequest(id, newContent);
+    toast({
+        title: "Request Updated",
+        description: "Your message has been updated and resent."
     });
   };
 
@@ -461,9 +520,9 @@ export default function ProfilePage() {
               {hasOutgoingRequests && (
                   <div className="space-y-4">
                     <h3 className="text-sm font-semibold text-muted-foreground">Pending Outgoing Requests</h3>
-                    <div className="grid gap-4">
+                    <div className="grid gap-4 md:grid-cols-2">
                       {outgoingRequests.map((req) => (
-                          <OutgoingRequestCard key={req.id} request={req} onCancel={handleCancelRequest} />
+                          <EditRequestDialog key={req.id} request={req} onCancel={handleCancelRequest} onUpdate={handleUpdateRequest} />
                       ))}
                     </div>
                   </div>

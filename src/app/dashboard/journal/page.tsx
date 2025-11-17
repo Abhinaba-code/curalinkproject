@@ -26,7 +26,7 @@ import {
   Download,
   Stethoscope,
   Pill,
-  Walk,
+  Activity,
   Utensils,
   Tag,
 } from 'lucide-react';
@@ -356,7 +356,7 @@ function JournalEntryCard({
                 ) : <p className="text-xs italic">No medications logged.</p>
             )}
             {renderDetailSection(
-                <Walk className="h-4 w-4" />,
+                <Activity className="h-4 w-4" />,
                 "Activities",
                 entry.activities?.length ? (
                     <div className="flex flex-wrap gap-1">

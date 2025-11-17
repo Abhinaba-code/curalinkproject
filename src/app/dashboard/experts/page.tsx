@@ -118,8 +118,6 @@ function RequestMeetingDialog({ expert, onRequested }: { expert: Expert, onReque
     const { user } = useAuth();
     const { toast } = useToast();
     const { sendMeetingRequest } = useForum();
-    const [name, setName] = useState(user?.name || '');
-    const [email, setEmail] = useState(user?.email || '');
     const [reason, setReason] = useState('');
     const [isOpen, setIsOpen] = useState(false);
     const { t } = useTranslation();
@@ -175,9 +173,8 @@ function RequestMeetingDialog({ expert, onRequested }: { expert: Expert, onReque
                         <Label htmlFor="name">{t('auth.login.title')}</Label>
                         <Input
                             id="name"
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
-                            required
+                            value={user?.name || ''}
+                            disabled
                         />
                     </div>
                     <div className="space-y-2">
@@ -185,9 +182,8 @@ function RequestMeetingDialog({ expert, onRequested }: { expert: Expert, onReque
                         <Input
                             id="email"
                             type="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            required
+                            value={user?.email || ''}
+                            disabled
                         />
                     </div>
                     <div className="space-y-2">

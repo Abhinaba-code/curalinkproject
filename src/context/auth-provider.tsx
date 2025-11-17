@@ -95,6 +95,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           avatarUrl: `https://picsum.photos/seed/${email}/200/200`,
           walletBalance: 0, // Starting balance set to 0
           isPremium: false,
+          notificationSettings: {
+            newTrials: true,
+            forumActivity: false,
+            newsletter: true,
+          }
         };
   
         users.push(newUser);

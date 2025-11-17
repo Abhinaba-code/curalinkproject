@@ -372,7 +372,7 @@ export default function SettingsPage() {
       </div>
 
       <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-        <Card>
+        <Card className="animation-fade-in">
           <CardHeader className="flex flex-row items-center gap-4">
             <User className="h-6 w-6 text-primary" />
             <CardTitle>{t('settings.profile.title')}</CardTitle>
@@ -391,7 +391,7 @@ export default function SettingsPage() {
           </CardFooter>
         </Card>
 
-        <Card>
+        <Card className="animation-fade-in">
           <CardHeader className="flex flex-row items-center gap-4">
             <KeyRound className="h-6 w-6 text-primary" />
             <CardTitle>{t('settings.account.title')}</CardTitle>
@@ -407,7 +407,7 @@ export default function SettingsPage() {
           </CardFooter>
         </Card>
 
-        <Card>
+        <Card className="animation-fade-in">
           <CardHeader className="flex flex-row items-center gap-4">
             <Bell className="h-6 w-6 text-primary" />
             <CardTitle>{t('settings.notifications.title')}</CardTitle>
@@ -446,7 +446,7 @@ export default function SettingsPage() {
           </CardContent>
         </Card>
         
-        <div className="lg:col-span-1">
+        <div className="lg:col-span-1 animation-fade-in">
             <Card className="border-2 border-primary/50 shadow-lg shadow-primary/20">
               <CardHeader className="flex flex-row items-center gap-4">
                 <Zap className="h-6 w-6 text-primary" />
@@ -540,7 +540,7 @@ export default function SettingsPage() {
         </div>
 
 
-        <Card className="lg:col-span-2">
+        <Card className="lg:col-span-2 animation-fade-in">
             <CardHeader className="flex flex-row items-center gap-4">
                 <Palette className="h-6 w-6 text-primary" />
                 <CardTitle>{t('settings.appearance.title')}</CardTitle>
@@ -557,3 +557,5 @@ export default function SettingsPage() {
     </div>
   );
 }
+
+    

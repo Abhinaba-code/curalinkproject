@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -71,42 +70,45 @@ export default function Home() {
       <AppShellContent className="animate-fade-in">
         <main className="flex-1">
           {/* Hero Section */}
-          <section className="relative h-[70vh] flex items-center justify-center text-center text-white">
-             {heroImage && (
-              <Image
-                src={heroImage.imageUrl}
-                alt={heroImage.description}
-                fill
-                className="object-cover"
-                priority
-                data-ai-hint={heroImage.imageHint}
-              />
-            )}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-black/20" />
-            <div className="relative z-10 p-4">
-              <h1 className="font-headline text-5xl font-bold tracking-tight md:text-7xl drop-shadow-2xl">
-                {t('homePage.title')}
-              </h1>
-              <p className="mt-4 max-w-2xl mx-auto text-lg text-slate-200 md:text-xl drop-shadow-lg">
-                {t('homePage.subtitle')}
-              </p>
-              <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:justify-center">
-                <Button size="lg" asChild className="font-bold shadow-lg">
-                  <Link href="/auth/signup?role=patient">
-                    {t('homePage.patientButton')}
-                  </Link>
-                </Button>
-                <Button
-                  size="lg"
-                  variant="outline"
-                  asChild
-                  className="font-bold border-white/80 text-white hover:bg-white hover:text-primary shadow-lg"
-                >
-                  <Link href="/auth/signup?role=researcher">
-                    {t('homePage.researcherButton')}
-                  </Link>
-                </Button>
-              </div>
+          <section className="bg-secondary/30">
+            <div className="container mx-auto px-4 grid lg:grid-cols-2 gap-12 items-center py-20 md:py-32">
+                <div className="text-center lg:text-left">
+                     <h1 className="font-headline text-5xl font-bold tracking-tight md:text-7xl">
+                        {t('homePage.title')}
+                    </h1>
+                    <p className="mt-6 max-w-2xl mx-auto lg:mx-0 text-lg text-muted-foreground md:text-xl">
+                        {t('homePage.subtitle')}
+                    </p>
+                    <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:justify-center lg:justify-start">
+                        <Button size="lg" asChild className="font-bold shadow-lg">
+                        <Link href="/auth/signup?role=patient">
+                            {t('homePage.patientButton')}
+                        </Link>
+                        </Button>
+                        <Button
+                        size="lg"
+                        variant="outline"
+                        asChild
+                        className="font-bold"
+                        >
+                        <Link href="/auth/signup?role=researcher">
+                            {t('homePage.researcherButton')}
+                        </Link>
+                        </Button>
+                    </div>
+                </div>
+                <div className="relative h-80 lg:h-[450px] w-full rounded-2xl overflow-hidden shadow-2xl">
+                    {heroImage && (
+                    <Image
+                        src={heroImage.imageUrl}
+                        alt={heroImage.description}
+                        fill
+                        className="object-cover"
+                        priority
+                        data-ai-hint={heroImage.imageHint}
+                    />
+                    )}
+                </div>
             </div>
           </section>
 

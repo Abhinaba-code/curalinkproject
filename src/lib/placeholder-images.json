@@ -2,9 +2,9 @@
   "placeholderImages": [
     {
       "id": "hero-background",
-      "description": "A researcher looking into a microscope in a brightly lit, modern laboratory setting.",
-      "imageUrl": "https://images.unsplash.com/photo-1579154215118-8779439c2e6b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxyZXNlYXJjaCUyMGxhYnxlbnwwfHx8fDE3NjIyNzY4ODN8MA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "research lab"
+      "description": "A doctor and patient looking together at a tablet screen in a bright, modern clinic.",
+      "imageUrl": "https://images.unsplash.com/photo-1576091160550-2173dba999ef?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxkb2N0b3IlMjBwYXRpZW50JTIwY29uc3VsdGF0aW9ufGVufDB8fHx8MTc2Mjc5OTQ2NHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "doctor patient"
     },
     {
       "id": "join-background",
@@ -33,7 +33,7 @@
     {
       "id": "user-4",
       "description": "A patient looking hopeful.",
-      "imageUrl": "https://images.unsplash.com/photo-1615462696310-09736533dbb8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxob3BlZnVsJTIwcGF0aWVudHxlbnwwfHx8fDE3NjIyNTIxNTR8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1615462696310-0973602533dbb8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxob3BlZnVsJTIwcGF0aWVudHxlbnwwfHx8fDE3NjIyNTIxNTR8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "hopeful patient"
     },
     {

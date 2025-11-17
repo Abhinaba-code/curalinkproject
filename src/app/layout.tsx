@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import type { Metadata } from 'next';
@@ -44,24 +45,25 @@ function AuditLogger() {
 // This component now lives here to correctly access both Auth and Theme contexts.
 function PremiumThemeManager() {
   const { user } = useAuth();
-  const { setTheme, theme } = useTheme();
+  const { setTheme, theme, premiumThemes } = useTheme();
 
   useEffect(() => {
     if (user?.isPremium) {
+      // Premium users can use any theme. We don't need to force change anything here
+      // unless we want a default first-time premium theme.
       const manualThemeChoice = localStorage.getItem('cura-theme-manual-choice');
       if (!manualThemeChoice) {
         setTheme('gold');
         localStorage.setItem('cura-theme-manual-choice', 'true');
       }
-
     } else {
-      if (theme === 'gold') {
-        const storedTheme = localStorage.getItem('cura-theme') as any | null;
-        setTheme(storedTheme && storedTheme !== 'gold' ? storedTheme : 'light');
+      // If a non-premium user has a premium theme active, revert them.
+      if (premiumThemes.includes(theme)) {
+        const lastTheme = localStorage.getItem('cura-theme-last-non-premium') as any;
+        setTheme(lastTheme || 'light');
       }
-      localStorage.removeItem('cura-theme-manual-choice');
     }
-  }, [user?.isPremium, setTheme, theme]);
+  }, [user?.isPremium, setTheme, theme, premiumThemes]);
 
   return null;
 }

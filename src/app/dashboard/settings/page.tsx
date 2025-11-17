@@ -24,6 +24,7 @@ import {
   Zap,
   MessageSquare,
   TrendingUp,
+  Lock,
 } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
@@ -252,51 +253,67 @@ function DeleteAccountDialog() {
 
 function ThemeSelector() {
   const { theme, setTheme } = useTheme();
+  const { user } = useAuth();
   const { t } = useTranslation();
 
   const themes = [
-    { name: 'light', colors: ['#e2e8f0', '#3b82f6', '#ec4899'] },
-    { name: 'dark', colors: ['#334155', '#60a5fa', '#f472b6'] },
-    { name: 'ocean', colors: ['#cbd5e1', '#38bdf8', '#34d399'] },
-    { name: 'sunset', colors: ['#fde68a', '#f97316', '#d946ef'] },
-    { name: 'forest', colors: ['#dcfce7', '#4d7c0f', '#84cc16'] },
-    { name: 'rose', colors: ['#fecdd3', '#f43f5e', '#fb7185'] },
-    { name: 'mint', colors: ['#d1fae5', '#10b981', '#6ee7b7'] },
-    { name: 'indigo', colors: ['#3730a3', '#818cf8', '#a78bfa'] },
-    { name: 'gold', colors: ['#fef3c7', '#f59e0b', '#fbbf24'] },
-    { name: 'slate', colors: ['#334155', '#64748b', '#94a3b8'] },
+    { name: 'light', colors: ['#e2e8f0', '#3b82f6', '#ec4899'], premium: false },
+    { name: 'dark', colors: ['#334155', '#60a5fa', '#f472b6'], premium: false },
+    { name: 'ocean', colors: ['#cbd5e1', '#38bdf8', '#34d399'], premium: true },
+    { name: 'sunset', colors: ['#fde68a', '#f97316', '#d946ef'], premium: true },
+    { name: 'forest', colors: ['#dcfce7', '#4d7c0f', '#84cc16'], premium: true },
+    { name: 'rose', colors: ['#fecdd3', '#f43f5e', '#fb7185'], premium: true },
+    { name: 'mint', colors: ['#d1fae5', '#10b981', '#6ee7b7'], premium: true },
+    { name: 'indigo', colors: ['#3730a3', '#818cf8', '#a78bfa'], premium: true },
+    { name: 'gold', colors: ['#fef3c7', '#f59e0b', '#fbbf24'], premium: true },
+    { name: 'slate', colors: ['#334155', '#64748b', '#94a3b8'], premium: true },
   ];
+
+  const availableThemes = user?.isPremium ? themes : themes.filter(t => !t.premium);
 
   return (
     <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-      {themes.map((themeOption) => (
-        <button
-          key={themeOption.name}
-          onClick={() => setTheme(themeOption.name as any)}
-          className={cn(
-            'relative rounded-lg border-2 p-4 transition-all focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
-            theme === themeOption.name ? 'border-primary' : 'border-transparent'
-          )}
-        >
-          <div className="flex gap-2">
-            {themeOption.colors.map((color, index) => (
-              <div
-                key={index}
-                className="h-8 w-full rounded"
-                style={{ backgroundColor: color }}
-              />
-            ))}
-          </div>
-          <span className="mt-2 block text-center text-sm capitalize">
-            {t('settings.themes.' + themeOption.name)}
-          </span>
-          {theme === themeOption.name && (
-            <div className="absolute top-2 right-2 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-primary-foreground">
-              <Check className="h-4 w-4" />
+      {themes.map((themeOption) => {
+        const isSelected = theme === themeOption.name;
+        const isPremiumTheme = themeOption.premium;
+        const canSelect = user?.isPremium || !isPremiumTheme;
+
+        return (
+          <button
+            key={themeOption.name}
+            onClick={() => canSelect && setTheme(themeOption.name as any)}
+            disabled={!canSelect}
+            className={cn(
+              'relative rounded-lg border-2 p-4 transition-all focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
+              isSelected ? 'border-primary' : 'border-transparent',
+              !canSelect && 'cursor-not-allowed opacity-50'
+            )}
+          >
+            <div className="flex gap-2">
+              {themeOption.colors.map((color, index) => (
+                <div
+                  key={index}
+                  className="h-8 w-full rounded"
+                  style={{ backgroundColor: color }}
+                />
+              ))}
             </div>
-          )}
-        </button>
-      ))}
+            <span className="mt-2 block text-center text-sm capitalize">
+              {t('settings.themes.' + themeOption.name)}
+            </span>
+            {isSelected && (
+              <div className="absolute top-2 right-2 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                <Check className="h-4 w-4" />
+              </div>
+            )}
+            {isPremiumTheme && !user?.isPremium && (
+                <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-black/60">
+                    <Lock className="h-6 w-6 text-white" />
+                </div>
+            )}
+          </button>
+        )
+      })}
     </div>
   );
 }

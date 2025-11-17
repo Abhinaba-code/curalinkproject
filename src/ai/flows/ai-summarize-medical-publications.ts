@@ -22,11 +22,10 @@ export async function summarizeMedicalPublication(input: SummarizeMedicalPublica
         `;
 
     const { object } = await generateObject({
-        model: google('gemini-pro'),
+        model: google('models/gemini-pro'),
         schema: SummarizeMedicalPublicationOutputSchema,
         prompt: prompt,
     });
 
     return object;
 }
-

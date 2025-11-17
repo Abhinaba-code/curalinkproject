@@ -21,7 +21,7 @@ export async function chatbot(
     Do not make up information.`;
 
     const { text } = await generateText({
-        model: google('gemini-pro'),
+        model: google('models/gemini-pro'),
         system: systemPrompt,
         prompt: `Here is the user's question: "${input.query}"`,
         // The AI SDK types don't perfectly align with the history format here, but it works.

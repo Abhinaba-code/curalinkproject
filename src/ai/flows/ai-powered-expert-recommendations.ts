@@ -17,7 +17,7 @@ export async function getExpertRecommendations(
     `;
 
   const { object } = await generateObject({
-    model: google('gemini-pro'),
+    model: google('models/gemini-pro'),
     schema: ExpertRecommendationsOutputSchema,
     prompt: prompt,
   });

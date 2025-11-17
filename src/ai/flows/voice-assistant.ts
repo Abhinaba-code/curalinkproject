@@ -17,7 +17,7 @@ export async function voiceAssistant(
     `;
 
     const { text } = await generateText({
-        model: google('gemini-pro'),
+        model: google('models/gemini-pro'),
         prompt: prompt,
     });
 

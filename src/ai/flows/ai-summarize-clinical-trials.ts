@@ -18,7 +18,7 @@ export async function summarizeClinicalTrial(input: SummarizeClinicalTrialInput)
         `;
 
     const { object } = await generateObject({
-        model: google('gemini-pro'),
+        model: google('models/gemini-pro'),
         schema: SummarizeClinicalTrialOutputSchema,
         prompt: prompt,
     });

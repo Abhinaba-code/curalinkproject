@@ -89,7 +89,7 @@ export function UserNav() {
            <DropdownMenuItem asChild>
             <Link href="/dashboard/notifications">
               <Bell className="mr-2 h-4 w-4" />
-              <span>{t('dashboard.nav.notifications')}</span>
+              <span>{t('userNav.notifications')}</span>
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
@@ -101,7 +101,7 @@ export function UserNav() {
            <DropdownMenuItem asChild>
             <Link href="/dashboard/profile">
               <Users className="mr-2 h-4 w-4" />
-              <span>{t('userNav.connections')}</span>
+              <span>{t('profile.following.title')}</span>
             </Link>
           </DropdownMenuItem>
            <DropdownMenuItem asChild>

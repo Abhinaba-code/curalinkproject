@@ -249,7 +249,7 @@ export default function ProfilePage() {
     if (!user) return { connectionRequests: [], outgoingRequests: [] };
 
     const incoming = notifications.filter(
-      (n) => n.type === 'meeting_request' && n.recipientId === user.id
+      (n) => n.type === 'meeting_request' && n.recipientId === user.id && user.role === 'researcher'
     );
 
     const outgoing = notifications.filter(
@@ -311,9 +311,10 @@ export default function ProfilePage() {
       ? '/dashboard/create-researcher-profile'
       : '/dashboard/create-profile';
       
-  const hasPending = isResearcher && (connectionRequests.length > 0 || outgoingRequests.length > 0);
+  const hasIncomingRequests = connectionRequests.length > 0;
+  const hasOutgoingRequests = outgoingRequests.length > 0;
   const hasConnections = followedExperts.length > 0;
-  const showEmptyState = !hasPending && !hasConnections;
+  const showEmptyState = !hasIncomingRequests && !hasOutgoingRequests && !hasConnections;
 
 
   return (
@@ -440,7 +441,7 @@ export default function ProfilePage() {
           <CardDescription>{isResearcher ? t('profile.connections.description') : t('profile.following.description')}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-            {isResearcher && connectionRequests.length > 0 && (
+            {hasIncomingRequests && (
                 <div className="space-y-4">
                     <h3 className="text-sm font-semibold text-muted-foreground">Pending Incoming Requests</h3>
                     <div className="grid gap-4">
@@ -451,7 +452,7 @@ export default function ProfilePage() {
                 </div>
             )}
             
-            {outgoingRequests.length > 0 && (
+            {hasOutgoingRequests && (
                 <div className="space-y-4">
                   <h3 className="text-sm font-semibold text-muted-foreground">Pending Outgoing Requests</h3>
                   <div className="grid gap-4">
@@ -462,11 +463,11 @@ export default function ProfilePage() {
                 </div>
             )}
 
-            {hasPending && hasConnections && <Separator />}
+            {(hasIncomingRequests || hasOutgoingRequests) && hasConnections && <Separator />}
 
           {hasConnections && (
             <div className="space-y-4">
-                {hasPending && <h3 className="text-sm font-semibold text-muted-foreground">Current Connections</h3>}
+                {(hasIncomingRequests || hasOutgoingRequests) && <h3 className="text-sm font-semibold text-muted-foreground">Current Connections</h3>}
                 <div className="grid gap-4 md:grid-cols-2">
                 {followedExperts.map((expert) => (
                     <FollowedExpertCard
@@ -500,3 +501,4 @@ export default function ProfilePage() {
   );
 }
 
+    

@@ -66,7 +66,7 @@ function DashboardApp({ children }: { children: React.ReactNode }) {
         { href: '/dashboard/journal', label: t('dashboard.nav.journal'), icon: NotebookPen },
         { href: '/dashboard/trials', label: t('dashboard.nav.trials'), icon: FlaskConical },
         { href: '/dashboard/publications', label: t('dashboard.nav.publications'), icon: FileText },
-        { href: '/dashboard/experts', label: t('dashboard.nav.researchers'), icon: Users },
+        { href: '/dashboard/experts', label: t('dashboard.nav.experts'), icon: Users },
         { href: '/dashboard/experts/map', label: t('dashboard.nav.expertsMap'), icon: Map },
         { href: '/dashboard/forums', label: t('dashboard.nav.forums'), icon: HeartPulse },
         { href: '/dashboard/notifications', label: t('dashboard.nav.notifications'), icon: Bell },

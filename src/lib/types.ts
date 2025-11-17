@@ -7,6 +7,11 @@ export type User = {
   avatarUrl: string;
   walletBalance?: number;
   isPremium?: boolean;
+  notificationSettings?: {
+    newTrials?: boolean;
+    forumActivity?: boolean;
+    newsletter?: boolean;
+  };
   // Patient fields
   dob?: string;
   location?: string;

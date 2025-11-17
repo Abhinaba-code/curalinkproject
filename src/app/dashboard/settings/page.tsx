@@ -303,9 +303,49 @@ function ThemeSelector() {
 
 export default function SettingsPage() {
   const { toast } = useToast();
-  const { user, updateUserProfile, updateWalletBalance } = useAuth();
+  const { user, updateUserProfile } = useAuth();
   const [isUpgrading, setIsUpgrading] = useState(false);
   const { t, setLocale, locale } = useTranslation();
+
+  const [notificationSettings, setNotificationSettings] = useState({
+    newTrials: true,
+    forumActivity: false,
+    newsletter: true,
+  });
+
+  useEffect(() => {
+    if (user?.notificationSettings) {
+      setNotificationSettings({
+        newTrials: user.notificationSettings.newTrials ?? true,
+        forumActivity: user.notificationSettings.forumActivity ?? false,
+        newsletter: user.notificationSettings.newsletter ?? true,
+      });
+    }
+  }, [user]);
+
+  const handleNotificationChange = async (key: keyof typeof notificationSettings, value: boolean) => {
+    setNotificationSettings(prev => ({ ...prev, [key]: value }));
+    try {
+      await updateUserProfile({
+        notificationSettings: {
+          ...notificationSettings,
+          [key]: value,
+        },
+      });
+      toast({
+        title: 'Settings Saved',
+        description: 'Your notification preferences have been updated.',
+      });
+    } catch (error: any) {
+      toast({
+        variant: 'destructive',
+        title: 'Save Failed',
+        description: 'Could not update your notification settings.',
+      });
+      // Revert UI on failure
+      setNotificationSettings(prev => ({ ...prev, [key]: !value }));
+    }
+  };
 
   const premiumCost = 59;
 
@@ -423,7 +463,11 @@ export default function SettingsPage() {
                   {t('settings.notifications.newTrials.description')}
                 </p>
               </div>
-              <Switch id="new-trials" defaultChecked />
+              <Switch 
+                id="new-trials" 
+                checked={notificationSettings.newTrials}
+                onCheckedChange={(checked) => handleNotificationChange('newTrials', checked)}
+              />
             </div>
             <div className="flex items-center justify-between rounded-lg border p-3">
               <div className="space-y-0.5">
@@ -432,7 +476,11 @@ export default function SettingsPage() {
                   {t('settings.notifications.forumActivity.description')}
                 </p>
               </div>
-              <Switch id="forum-activity" />
+              <Switch 
+                id="forum-activity" 
+                checked={notificationSettings.forumActivity}
+                onCheckedChange={(checked) => handleNotificationChange('forumActivity', checked)}
+              />
             </div>
             <div className="flex items-center justify-between rounded-lg border p-3">
               <div className="space-y-0.5">
@@ -441,7 +489,11 @@ export default function SettingsPage() {
                   {t('settings.notifications.newsletter.description')}
                 </p>
               </div>
-              <Switch id="newsletter" defaultChecked />
+              <Switch 
+                id="newsletter"
+                checked={notificationSettings.newsletter}
+                onCheckedChange={(checked) => handleNotificationChange('newsletter', checked)}
+              />
             </div>
           </CardContent>
         </Card>
@@ -557,5 +609,3 @@ export default function SettingsPage() {
     </div>
   );
 }
-
-    

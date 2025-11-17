@@ -28,15 +28,20 @@ import {
   ClipboardList,
   FlaskConical,
   Loader2,
+  Check,
+  Mail,
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { useFollow } from '@/context/follow-provider';
 import type { ClinicalTrial, Expert } from '@/lib/types';
 import { useTranslation } from '@/context/language-provider';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { searchClinicalTrials } from '@/lib/api';
 import TrialCard from '../trials/trial-card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useForum, type Notification } from '@/context/forum-provider';
+import { useToast } from '@/hooks/use-toast';
+import { Separator } from '@/components/ui/separator';
 
 function ProfileDetail({
   icon,
@@ -92,6 +97,45 @@ function FollowedExpertCard({
       </Button>
     </div>
   );
+}
+
+function ConnectionRequestCard({ request, onAccept, onDecline }: { request: Notification, onAccept: (request: Notification) => void, onDecline: (id: string) => void }) {
+    const fromUser = {
+        id: request.authorId,
+        name: request.authorName,
+        avatarUrl: `https://picsum.photos/seed/${request.authorId}/200/200`,
+        specialty: 'Researcher', // Placeholder
+    };
+    const initials = fromUser.name ? fromUser.name.split(' ').map(n => n[0]).join('') : 'U';
+
+    return (
+        <Card className="bg-secondary/50">
+            <CardContent className="p-4">
+                <div className="flex items-start gap-4">
+                    <Avatar className="h-12 w-12">
+                        <AvatarImage src={fromUser.avatarUrl} alt={fromUser.name} />
+                        <AvatarFallback>{initials}</AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1">
+                        <p className="font-semibold">{fromUser.name} wants to connect.</p>
+                        {request.originalRequest?.content && (
+                            <p className="text-sm text-muted-foreground mt-1 p-2 border bg-background rounded-md">
+                                "{request.originalRequest.content}"
+                            </p>
+                        )}
+                         <div className="flex gap-2 mt-3">
+                            <Button size="sm" onClick={() => onAccept(request)}>
+                                <Check className="mr-2 h-4 w-4" /> Accept
+                            </Button>
+                            <Button size="sm" variant="outline" onClick={() => onDecline(request.id)}>
+                                <X className="mr-2 h-4 w-4" /> Decline
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            </CardContent>
+        </Card>
+    );
 }
 
 function RelevantTrialsSection() {
@@ -167,7 +211,41 @@ function RelevantTrialsSection() {
 export default function ProfilePage() {
   const { user } = useAuth();
   const { followedExperts, toggleFollow } = useFollow();
+  const { notifications, deleteNotification } = useForum();
+  const { toast } = useToast();
   const { t } = useTranslation();
+
+  const connectionRequests = useMemo(() => {
+    if (!user || user.role !== 'researcher') return [];
+    return notifications.filter(n => n.type === 'meeting_request' && n.recipientId === user.id);
+  }, [notifications, user]);
+
+  const handleAcceptRequest = (request: Notification) => {
+    // In a real app, you might need more info to create an 'Expert' object
+    const newConnection: Expert = {
+        id: request.authorId,
+        name: request.authorName,
+        specialty: 'Researcher', // Placeholder
+        address: '', city: '', state: '', zip: '', url: '#',
+        avatarUrl: `https://picsum.photos/seed/${request.authorId}/200/200`
+    };
+    toggleFollow(newConnection);
+    deleteNotification(request.id);
+    toast({
+      title: "Connection Added",
+      description: `You are now connected with ${request.authorName}.`
+    });
+  };
+
+  const handleDeclineRequest = (id: string) => {
+    deleteNotification(id);
+    toast({
+      variant: 'destructive',
+      title: "Request Declined",
+      description: "The connection request has been removed."
+    });
+  };
+
 
   if (!user) {
     return null;
@@ -309,29 +387,52 @@ export default function ProfilePage() {
           <CardTitle>{isResearcher ? t('profile.connections.title') : t('profile.following.title')}</CardTitle>
           <CardDescription>{isResearcher ? t('profile.connections.description') : t('profile.following.description')}</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-6">
+            {isResearcher && connectionRequests.length > 0 && (
+                <div className="space-y-4">
+                    <h3 className="text-sm font-semibold text-muted-foreground">Pending Requests</h3>
+                    <div className="grid gap-4">
+                        {connectionRequests.map((req) => (
+                           <ConnectionRequestCard key={req.id} request={req} onAccept={handleAcceptRequest} onDecline={handleDeclineRequest} />
+                        ))}
+                    </div>
+                </div>
+            )}
+            
+            {isResearcher && connectionRequests.length > 0 && followedExperts.length > 0 && <Separator />}
+
           {followedExperts.length > 0 ? (
-            <div className="grid gap-4 md:grid-cols-2">
-              {followedExperts.map((expert) => (
-                <FollowedExpertCard
-                  key={expert.id}
-                  expert={expert}
-                  onUnfollow={() => toggleFollow(expert)}
-                />
-              ))}
+            <div className="space-y-4">
+                {isResearcher && <h3 className="text-sm font-semibold text-muted-foreground">Current Connections</h3>}
+                <div className="grid gap-4 md:grid-cols-2">
+                {followedExperts.map((expert) => (
+                    <FollowedExpertCard
+                    key={expert.id}
+                    expert={expert}
+                    onUnfollow={() => toggleFollow(expert)}
+                    />
+                ))}
+                </div>
             </div>
           ) : (
-            <div className="text-center text-muted-foreground border-2 border-dashed rounded-lg p-8">
-              <p>{t('profile.following.empty.title')}</p>
-              <Button variant="link" asChild className="mt-2">
-                <Link href="/dashboard/experts">{t('profile.following.empty.link')}</Link>
-              </Button>
-            </div>
+             isResearcher && connectionRequests.length === 0 && (
+                <div className="text-center text-muted-foreground border-2 border-dashed rounded-lg p-8">
+                    <p>You have no connections or pending requests.</p>
+                </div>
+            )
           )}
+
+           {!isResearcher && followedExperts.length === 0 && (
+                 <div className="text-center text-muted-foreground border-2 border-dashed rounded-lg p-8">
+                    <p>{t('profile.following.empty.title')}</p>
+                    <Button variant="link" asChild className="mt-2">
+                        <Link href="/dashboard/experts">{t('profile.following.empty.link')}</Link>
+                    </Button>
+                </div>
+           )}
+
         </CardContent>
       </Card>
     </div>
   );
 }
-
-    

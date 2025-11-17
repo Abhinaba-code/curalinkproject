@@ -1,0 +1,645 @@
+
+{
+    "common": {
+        "cancel": "Cancel",
+        "search": "Search",
+        "close": "Close",
+        "save": "Save",
+        "delete": "Delete"
+    },
+    "roles": {
+        "patient": "Patient",
+        "researcher": "Researcher"
+    },
+    "locales": {
+        "en": "English",
+        "hi": "Hindi",
+        "bn": "Bengali"
+    },
+    "wallet": {
+        "title": "My Wallet",
+        "description": "Manage your account balance.",
+        "currentBalance": "Current Balance",
+        "deposit": {
+            "title": "Deposit Funds",
+            "button": "Deposit",
+            "invalidAmount": {
+                "title": "Invalid Amount",
+                "description": "Please enter a valid positive number to deposit."
+            },
+            "success": {
+                "title": "Deposit Successful",
+                "description": "₹{{amount}} has been added to your wallet."
+            }
+        },
+        "withdraw": {
+            "title": "Withdraw Funds",
+            "button": "Withdraw",
+            "invalidAmount": {
+                "title": "Invalid Amount",
+                "description": "Please enter a valid positive number to withdraw."
+            },
+            "insufficientFunds": {
+                "title": "Insufficient Funds",
+                "description": "You do not have enough balance to withdraw that amount."
+            },
+            "success": {
+                "title": "Withdrawal Successful",
+                "description": "₹{{amount}} has been withdrawn from your wallet."
+            }
+        },
+        "error": {
+            "title": "Transaction Failed"
+        }
+    },
+    "publicHeader": {
+        "about": "About",
+        "faq": "FAQ",
+        "contact": "Contact",
+        "terms": "Terms",
+        "privacy": "Privacy",
+        "login": "Log In",
+        "getStarted": "Get Started"
+    },
+    "header": {
+        "searchPlaceholder": "Search trials, publications...",
+        "notifications": {
+            "title": "Notifications",
+            "description": "Recent updates and interactions.",
+            "empty": "No new notifications.",
+            "clearAll": "Clear all",
+            "viewAll": "View all"
+        }
+    },
+    "userNav": {
+        "profile": "Profile",
+        "editProfile": "Edit Profile",
+        "notifications": "Notifications",
+        "settings": "Settings",
+        "following": "Following",
+        "history": "History",
+        "about": "About",
+        "help": "Help",
+        "contact": "Contact",
+        "logout": "Log out"
+    },
+    "auth": {
+        "email": "Email",
+        "password": "Password",
+        "confirmPassword": "Confirm Password",
+        "backToHome": "Back to Home",
+        "login": {
+            "title": "Welcome to CuraLink",
+            "description": "Sign in to your {{role}} account",
+            "button": "Sign In",
+            "noAccount": "Don't have an account?",
+            "signUpLink": "Sign Up",
+            "areYouA": "Are you a {{role}}?",
+            "signInAs": "Sign in as a {{role}}",
+            "error": {
+                "title": "Login Failed",
+                "description": "Invalid email, password, or role."
+            }
+        },
+        "signup": {
+            "title": "Create a {{role}} Account",
+            "description": "Join CuraLink to get started.",
+            "button": "Sign up as a {{role}}",
+            "haveAccount": "Already have an account?",
+            "loginLink": "Log in",
+            "areYouA": "Are you a {{role}}?",
+            "signUpAs": "Sign up as a {{role}}",
+            "error": {
+                "title": "Signup Failed",
+                "passwordMismatch": "Passwords don't match!",
+                "passwordLength": "Password must be at least 6 characters long."
+            }
+        }
+    },
+    "footer": {
+        "tagline": "Connecting patients and researchers for a healthier tomorrow.",
+        "copyright": "CuraLink. All rights reserved."
+    },
+    "homePage": {
+        "title": "CuraLink",
+        "subtitle": "Connecting Patients and Researchers for a Healthier Tomorrow.",
+        "patientButton": "I'm a Patient or Caregiver",
+        "researcherButton": "I'm a Researcher",
+        "featuresTitle": "A New Era of Collaborative Healthcare",
+        "featuresSubtitle": "CuraLink empowers you with tools and connections to navigate the complex world of medical research.",
+        "feature1Title": "AI-Powered Trial Matching",
+        "feature1Desc": "Our intelligent platform analyzes your profile to find the most relevant clinical trials for you.",
+        "feature2Title": "Simplified Research",
+        "feature2Desc": "Access AI-summarized medical publications to easily understand complex research.",
+        "feature3Title": "Health Expert Connections",
+        "feature3Desc": "Connect with leading health experts and researchers in your field of interest.",
+        "joinTitle": "Ready to Join?",
+        "joinSubtitle": "Become part of a community dedicated to advancing medical science and improving patient outcomes.",
+        "joinButton": "Create Your Free Account"
+    },
+    "aboutPage": {
+        "title": "About This Project",
+        "paragraph": "CuraLink is a demonstration project built by Abhinaba roy pradhan to showcase the power of modern web technologies in the healthcare space. It was founded on the principle that the path to medical breakthroughs is paved with collaboration. We believe in empowering patients with information and connecting them with the researchers who are working tirelessly to find cures. Our mission is to break down the barriers in healthcare, making research more accessible, transparent, and efficient for everyone involved.",
+        "contactTitle": "Get In Touch",
+        "contactParagraph": "This project is maintained by Abhinaba roy pradhan.",
+        "contactEmail": "abhinabapradhan@gmail.com"
+    },
+    "contactPage": {
+        "title": "Get In Touch",
+        "paragraph": "We'd love to hear from you. Whether you have a question, feedback, or a partnership inquiry, please don't hesitate to reach out. This project is developed and maintained by Abhinaba roy pradhan.",
+        "emailButton": "abhinabapradhan@gmail.com"
+    },
+    "faqPage": {
+        "title": "Frequently Asked Questions",
+        "subtitle": "Have questions? We've got answers. Here are some of the most common queries we receive.",
+        "q1": "What is CuraLink?",
+        "a1": "CuraLink is a platform designed to connect patients and researchers to accelerate medical advancements. We provide tools for finding clinical trials, understanding research, and connecting with experts.",
+        "q2": "Who can use CuraLink?",
+        "a2": "CuraLink is for everyone! Whether you are a patient seeking treatment options, a caregiver supporting a loved one, or a researcher looking for collaborators and participants, our platform has resources for you.",
+        "q3": "Is my data secure?",
+        "a3": "Yes, we take data privacy and security very seriously. We use industry-standard encryption and security protocols to protect your information. Please see our Privacy Policy for more details.",
+        "q4": "How much does it cost?",
+        "a4": "Creating an account and using the basic features of CuraLink is completely free for patients, caregivers, and researchers. We may introduce premium features in the future.",
+        "q5": "Who developed this project?",
+        "a5": "CuraLink is a demonstration project conceived and built by Abhinaba roy pradhan."
+    },
+    "privacyPage": {
+        "title": "Privacy Policy",
+        "lastUpdated": "Last updated: {{date}}",
+        "welcome": "Welcome to CuraLink, a demonstration project developed by Abhinaba roy pradhan. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our platform. Please read this privacy policy carefully. If you do not agree with the terms of this privacy policy, please do not access the site.",
+        "collectionTitle": "Collection of Your Information",
+        "collectionText": "We may collect information about you in a variety of ways. The information we may collect on the Site includes personally identifiable information, such as your name, shipping address, email address, and telephone number, and demographic information, such as your age, gender, hometown, and interests, that you voluntarily give to us when you register with the Site or when you choose to participate in various activities related to the Site.",
+        "useTitle": "Use of Your Information",
+        "useText": "Having accurate information about you permits us to provide you with a smooth, efficient, and customized experience. Specifically, we may use information collected about you via the Site to:",
+        "useL1": "Create and manage your account.",
+        "useL2": "Email you regarding your account or order.",
+        "useL3": "Enable user-to-user communications.",
+        "useL4": "Fulfill and manage purchases, orders, payments, and other transactions related to the Site.",
+        "useL5": "Generate a personal profile about you to make future visits to the Site more personalized.",
+        "useL6": "Increase the efficiency and operation of the Site.",
+        "securityTitle": "Security of Your Information",
+        "securityText": "We use administrative, technical, and physical security measures to help protect your personal information. While we have taken reasonable steps to secure the personal information you provide to us, please be aware that despite our efforts, no security measures are perfect or impenetrable, and no method of data transmission can be guaranteed against any interception or other type of misuse.",
+        "contactTitle": "Contact Us",
+        "contactText": "If you have questions or comments about this Privacy Policy, please contact the project developer, Abhinaba roy pradhan, at: {{email}}"
+    },
+    "termsPage": {
+        "title": "Terms of Service",
+        "lastUpdated": "Last updated: {{date}}",
+        "agreementTitle": "1. Agreement to Terms",
+        "agreementText": "By using our services, you agree to be bound by these Terms. If you do not agree to be bound by these Terms, do not use the services. This is a demonstration project developed by Abhinaba roy pradhan and should not be used for actual medical decisions.",
+        "contentTitle": "2. Content",
+        "contentText": "Our Service allows you to post, link, store, share and otherwise make available certain information, text, graphics, videos, or other material. You are responsible for the Content that you post on or through the Service, including its legality, reliability, and appropriateness.",
+        "accountsTitle": "3. Accounts",
+        "accountsText": "When you create an account with us, you guarantee that you are above the age of 18, and that the information you provide us is accurate, complete, and current at all times. Inaccurate, incomplete, or obsolete information may result in the immediate termination of your account on the Service.",
+        "ipTitle": "4. Intellectual Property",
+        "ipText": "The Service and its original content, features and functionality are and will remain the exclusive property of CuraLink and its licensors. The Service is protected by copyright, trademark, and other laws of both the United States and foreign countries.",
+        "disclaimerTitle": "5. Disclaimer",
+        "disclaimerText": "The service is provided on an \"AS IS\" and \"AS AVAILABLE\" basis. The service is provided without warranties of any kind, whether express or implied, including, but not limited to, implied warranties of merchantability, fitness for a particular purpose, non-infringement or course of performance. Information provided on CuraLink is not a substitute for professional medical advice.",
+        "lawTitle": "6. Governing Law",
+        "lawText": "These Terms shall be governed and construed in accordance with the laws of the United States, without regard to its conflict of law provisions.",
+        "changesTitle": "7. Changes",
+        "changesText": "We reserve the right, at our sole discretion, to modify or replace these Terms at any time. If a revision is material we will provide at least 30 days' notice prior to any new terms taking effect.",
+        "contactTitle": "Contact Us",
+        "contactText": "If you have any questions about these Terms, please contact the project developer, Abhinaba roy pradhan, at: {{email}}"
+    },
+    "dashboard": {
+        "loading": "Loading your dashboard...",
+        "nav": {
+            "dashboard": "Dashboard",
+            "journal": "Health Journal",
+            "trials": "Clinical Trials",
+            "publications": "Publications",
+            "experts": "Health Experts",
+            "expertsMap": "Experts Map",
+            "collaborators": "Collaborators",
+            "forums": "Forums",
+            "favorites": "Favorites",
+            "reports": "Download Reports",
+            "auditLog": "Audit Log",
+            "history": "History",
+            "notifications": "Notifications"
+        }
+    },
+    "createProfile": {
+        "patient": {
+            "title": "Create Your Patient Profile",
+            "description": "This information helps us personalize your experience. Keep it up to date.",
+            "fullName": {
+                "label": "Full Name",
+                "placeholder": "John Doe"
+            },
+            "dob": {
+                "label": "Date of Birth",
+                "placeholder": "Pick a date",
+                "description": "Your date of birth is used to calculate your age."
+            },
+            "location": {
+                "label": "Location",
+                "placeholder": "e.g., Bengaluru, Karnataka, India",
+                "description": "Your city, state, and country help us find relevant local trials."
+            },
+            "bio": {
+                "label": "Bio",
+                "placeholder": "Tell us a little bit about yourself.",
+                "description": "A brief, optional summary about you."
+            },
+            "interests": {
+                "label": "Medical Conditions or Interests",
+                "placeholder": "e.g., Glioblastoma, Lung Cancer, Immunotherapy",
+                "description": "List the conditions or research topics you are interested in, separated by commas."
+            },
+            "medications": {
+                "label": "Current Medications",
+                "placeholder": "e.g., Metformin, Lisinopril",
+                "description": "List your current medications, separated by commas (optional)."
+            },
+            "allergies": {
+                "label": "Allergies",
+                "placeholder": "e.g., Penicillin, Peanuts",
+                "description": "List any known allergies, separated by commas (optional)."
+            },
+            "pastTests": {
+                "label": "Past Medical Tests",
+                "placeholder": "e.g., MRI Scan (2023), Biopsy (2022)",
+                "description": "List relevant past tests and their dates, separated by commas (optional)."
+            },
+            "saveButton": "Save Profile",
+            "error": {
+                "title": "Incomplete Profile",
+                "description": "Please fill out all required fields to continue."
+            },
+            "success": {
+                "title": "Profile Saved!",
+                "description": "Your information has been successfully saved."
+            },
+            "saveFailed": {
+                "title": "Save Failed",
+                "description": "Could not save your profile."
+            }
+        },
+        "researcher": {
+            "title": "Your Researcher Profile",
+            "description": "This information will be visible to patients and other researchers. Keep it up to date.",
+            "fullName": {
+                "label": "Full Name",
+                "placeholder": "Dr. Evelyn Reed"
+            },
+            "affiliation": {
+                "label": "Affiliation / Institution",
+                "placeholder": "Global Health Institute"
+            },
+            "bio": {
+                "label": "Bio",
+                "placeholder": "e.g., I am a neuro-oncologist focused on developing novel therapies...",
+                "description": "A brief professional summary (optional, 200 characters max)."
+            },
+            "specialties": {
+                "label": "Specialties",
+                "placeholder": "e.g., Neuro-oncology, Glioblastoma",
+                "description": "List your clinical or research specialties, separated by commas."
+            },
+            "researchInterests": {
+                "label": "Research Interests",
+                "placeholder": "e.g., Targeted Therapy, Immunotherapy, Clinical Trials",
+                "description": "List your primary research interests, separated by commas."
+            },
+            "orcid": {
+                "label": "ORCID iD",
+                "description": "Optional"
+            },
+            "researchGate": {
+                "label": "ResearchGate Profile",
+                "description": "Optional"
+            },
+            "saveButton": "Save Profile",
+            "error": {
+                "title": "Incomplete Profile",
+                "description": "Please fill out all required fields to continue."
+            },
+            "success": {
+                "title": "Profile Saved!",
+                "description": "Your information has been successfully saved."
+            },
+            "saveFailed": {
+                "title": "Save Failed",
+                "description": "Could not save your profile."
+            }
+        }
+    },
+    "profile": {
+        "title": "My Profile",
+        "description": "This is your personal profile.",
+        "editButton": "Edit Profile",
+        "unfollowAria": "Unfollow",
+        "patient": {
+            "about": "About Me",
+            "dob": "Date of Birth",
+            "location": "Location",
+            "interests": "Medical Conditions & Interests",
+            "medications": "Current Medications",
+            "allergies": "Allergies",
+            "pastTests": "Past Medical Tests"
+        },
+        "researcher": {
+            "affiliation": "Affiliation / Institution",
+            "bio": "Bio",
+            "specialties": "Specialties",
+            "researchInterests": "Research Interests",
+            "orcid": "ORCID iD",
+            "researchGate": "ResearchGate Profile"
+        },
+        "following": {
+            "title": "Following",
+            "description": "Experts you are following.",
+            "empty": {
+                "title": "You are not following any experts yet.",
+                "link": "Find Experts to Follow"
+            }
+        }
+    },
+    "search": {
+        "title": "Search Results",
+        "description": "Aggregated results from across the CuraLink platform.",
+        "loading": "Loading...",
+        "prompt": "Please enter a search term in the header to begin.",
+        "noResults": {
+            "title": "No results found for \"{{query}}\"",
+            "description": "Try searching for something else."
+        },
+        "trials": {
+            "title": "Clinical Trials",
+            "description": "Top clinical trial results matching your search."
+        },
+        "publications": {
+            "title": "Publications",
+            "description": "Top publication results matching your search."
+        },
+        "experts": {
+            "title": "Health Experts",
+            "description": "Top health expert results matching your search."
+        }
+    },
+    "reports": {
+        "title": "Download Reports",
+        "description": "Export your health data for personal records or to share with your healthcare provider.",
+        "symptomHistory": {
+            "title": "Symptom History",
+            "description": "A comprehensive PDF of your tracked symptoms, dates, and severities."
+        },
+        "savedTrials": {
+            "title": "Saved Trials List",
+            "description": "A list of all clinical trials you have marked as favorites for easy reference."
+        },
+        "medicationSchedule": {
+            "title": "Medication Schedule",
+            "description": "A printable schedule of your current medications from your profile."
+        },
+        "downloadButton": "Download PDF",
+        "toast": {
+            "title": "Download Started",
+            "description": "Your \"{{reportName}}\" report is being generated and will download shortly."
+        }
+    },
+    "auditLog": {
+        "title": "Audit Log",
+        "description": "A log of important security and activity events on your account.",
+        "card": {
+            "title": "Recent Account Activity",
+            "description": "This log is provided for security purposes. If you see any suspicious activity, please change your password immediately."
+        },
+        "table": {
+            "activity": "Activity",
+            "details": "Details",
+            "ip": "IP Address",
+            "date": "Date"
+        },
+        "activity": {
+            "loginSuccess": "Successful Login",
+            "profileUpdate": "Profile Updated",
+            "passwordChange": "Password Changed",
+            "loginFail": "Failed Login Attempt"
+        },
+        "details": {
+            "loginSuccessMac": "User logged in from Chrome on macOS.",
+            "profileUpdate": "Changed location to \"New York, USA\".",
+            "passwordChange": "Password was successfully updated.",
+            "loginFail": "Incorrect password entered.",
+            "loginSuccessIos": "User logged in from Safari on iOS."
+        }
+    },
+    "favorites": {
+        "title": "Your Favorites",
+        "description": "Your saved trials, publications, and health experts.",
+        "removeAria": "Remove {{title}} from favorites",
+        "viewSource": "View Source",
+        "empty": {
+            "title": "No Favorites Yet",
+            "description": "Click the star icon on any item to save it here."
+        },
+        "trials": {
+            "title": "Tracked Clinical Trials",
+            "description": "Saved clinical trials for future reference and progress tracking."
+        },
+        "publications": {
+            "title": "Saved Publications",
+            "description": "Your collection of saved medical publications."
+        },
+        "experts": {
+            "title": "Followed Health Experts",
+            "description": "A list of health experts you are following."
+        }
+    },
+    "history": {
+        "title": "Activity History",
+        "description": "A log of your recent searches and activities.",
+        "today": "Today",
+        "yesterday": "Yesterday",
+        "clearAllButton": "Clear All History",
+        "clearConfirm": {
+            "title": "Are you absolutely sure?",
+            "description": "This action cannot be undone. This will permanently delete all of your activity history.",
+            "action": "Yes, clear history"
+        },
+        "activity": {
+            "trial_search": "Searched for trials: \"{{query}}\"",
+            "publication_search": "Searched for publications: \"{{query}}\"",
+            "expert_search": "Searched for experts: \"{{query}}\"",
+            "global_search": "Searched all content for: \"{{query}}\""
+        },
+        "empty": {
+            "title": "No History Yet",
+            "description": "Your recent searches and activities will appear here."
+        }
+    },
+    "notifications": {
+        "title": "Notification Center",
+        "description": "A complete history of your account notifications.",
+        "filterButton": "Filter",
+        "clearAllButton": "Clear All",
+        "filter": {
+            "title": "Filter by Type"
+        },
+        "types": {
+            "new_post": "New Post",
+            "new_reply": "New Reply",
+            "nudge": "Expert Nudge",
+            "meeting_request": "Meeting Request",
+            "meeting_reply": "Meeting Reply"
+        },
+        "empty": {
+            "title": "No Notifications",
+            "adjustFilters": "Adjust your filters to see more notifications.",
+            "noNotifications": "You have no notifications yet."
+        },
+        "text": {
+            "new_post": "New Post: \"{{postTitle}}\"||By {{authorName}}",
+            "new_reply": "New Reply on: \"{{postTitle}}\"||By {{authorName}}",
+            "nudge": "{{authorName}} nudged an expert to join!||Expert: {{postTitle}}",
+            "meeting_request": "Meeting request for {{postTitle}}||From: {{authorName}}",
+            "meeting_reply": "Update on your meeting request||From: {{authorName}} re: {{postTitle}}"
+        },
+        "meetingRequest": {
+            "dialogTitle": "Reply to {{name}}",
+            "dialogDescription": "Replying to a meeting request regarding expert: {{expertName}}. The patient will be notified of your response.",
+            "messageLabel": "Your Message",
+            "messagePlaceholder": "Write your response...",
+            "sendButton": "Send Reply",
+            "replySuccess": {
+                "title": "Reply Sent!",
+                "description": "Your reply has been sent to {{name}}."
+            }
+        },
+        "meetingReply": {
+            "dialogTitle": "Update on Your Meeting Request",
+            "dialogDescription": "A researcher has responded to your request regarding {{expertName}}.",
+            "messageLabel": "Researcher's Message:"
+        },
+        "toast": {
+            "cleared": {
+                "title": "Notifications Cleared",
+                "description": "All your notifications have been removed."
+            },
+            "removed": {
+                "title": "Notification Removed"
+            }
+        }
+    },
+    "settings": {
+        "title": "Settings",
+        "description": "Adjust your account and notification settings.",
+        "profile": {
+            "title": "Profile Settings",
+            "description": "Manage your personal information, medical interests, and public profile. This information helps us personalize your experience.",
+            "button": "Edit Profile"
+        },
+        "account": {
+            "title": "Account Settings",
+            "description": "Manage your login credentials and account status."
+        },
+        "changePassword": {
+            "button": "Change Password",
+            "title": "Change Password",
+            "description": "Enter your current password and a new password below.",
+            "currentPassword": "Current Password",
+            "newPassword": "New Password",
+            "confirmNewPassword": "Confirm New Password",
+            "errorMatch": {
+                "title": "Error",
+                "description": "New passwords don't match."
+            },
+            "errorLength": {
+                "title": "Error",
+                "description": "Password must be at least 6 characters long."
+            },
+            "success": {
+                "title": "Success",
+                "description": "Your password has been changed successfully."
+            },
+            "errorFailed": {
+                "title": "Password Change Failed",
+                "description": "An unexpected error occurred."
+            }
+        },
+        "deleteAccount": {
+            "button": "Delete Account",
+            "title": "Are you absolutely sure?",
+            "description": "This action cannot be undone. This will permanently delete your account and remove all your data from our servers.",
+            "confirmPrompt": "Please type {{email}} to confirm.",
+            "emailPlaceholder": "Enter your email",
+            "countdown": "Deleting in {{count}}...",
+            "readyToDelete": "Ready to delete",
+            "confirmButton": "Confirm",
+            "waitingButton": "Waiting...",
+            "finalDeleteButton": "Delete Permanently"
+        },
+        "notifications": {
+            "title": "Notifications",
+            "description": "Choose how you receive notifications from CuraLink.",
+            "newTrials": {
+                "label": "New Trial Alerts",
+                "description": "Receive emails about new trials matching your interests."
+            },
+            "forumActivity": {
+                "label": "Forum Activity",
+                "description": "Get notified about replies to your posts and mentions."
+            },
+            "newsletter": {
+                "label": "Newsletter",
+                "description": "Receive our monthly community newsletter."
+            }
+        },
+        "premium": {
+            "title": "Premium Features",
+            "multiLanguage": {
+                "label": "Multi-Language Support",
+                "description": "Access CuraLink in English, Hindi, and Bengali."
+            },
+            "expertQA": {
+                "label": "Expert Q&A",
+                "description": "Get your questions answered directly by verified experts in private forums."
+            },
+            "priorityMatching": {
+                "label": "Priority trial matching",
+                "description": "Your profile will be prioritized when new, relevant clinical trials become available."
+            },
+            "unlimitedReminders": {
+                "label": "Unlimited reminders",
+                "description": "Set unlimited reminders for medications, appointments, and trial check-ins."
+            },
+            "premiumMember": "You are a Premium Member!",
+            "upgradeButton": "Upgrade Now for ₹{{price}}/month",
+            "errorFunds": {
+                "title": "Insufficient Funds",
+                "description": "Please add money to your wallet to upgrade."
+            },
+            "success": {
+                "title": "Upgrade Successful!",
+                "description": "You are now a Premium member. Thank you!"
+            },
+            "errorFailed": {
+                "title": "Upgrade Failed",
+                "description": "An unexpected error occurred."
+            },
+            "languageSuccess": {
+                "title": "Language Updated",
+                "description": "App language has been set to {{language}}."
+            }
+        },
+        "appearance": {
+            "title": "Appearance",
+            "description": "Choose a theme to personalize the look and feel of the application."
+        },
+        "themes": {
+            "light": "Light",
+            "dark": "Dark",
+            "ocean": "Ocean",
+            "sunset": "Sunset",
+            "forest": "Forest",
+            "rose": "Rose",
+            "mint": "Mint",
+            "indigo": "Indigo",
+            "gold": "Gold",
+            "slate": "Slate"
+        }
+    }
+}

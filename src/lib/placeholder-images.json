@@ -1,0 +1,64 @@
+{
+  "placeholderImages": [
+    {
+      "id": "user-1",
+      "description": "A smiling person in a professional setting.",
+      "imageUrl": "https://images.unsplash.com/photo-1560250097-0b93528c311a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxwcm9mZXNzaW9uYWwlMjBwb3J0cmFpdHxlbnwwfHx8fDE3NjIxODc0NTd8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "professional portrait"
+    },
+    {
+      "id": "user-2",
+      "description": "A person looking thoughtful.",
+      "imageUrl": "https://images.unsplash.com/photo-1605043269924-32c9b0226efe?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHx0aG91Z2h0ZnVsJTIwcG9ydHJhaXR8ZW58MHx8fHwxNzYyMjUyMTU0fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "thoughtful portrait"
+    },
+    {
+      "id": "user-3",
+      "description": "A researcher in a lab coat.",
+      "imageUrl": "https://images.unsplash.com/photo-1760074032923-2b84e9aab03e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxyZXNlYXJjaGVyJTIwbGFiY29hdHxlbnwwfHx8fDE3NjIyNTAwMDF8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "researcher labcoat"
+    },
+    {
+      "id": "user-4",
+      "description": "A patient looking hopeful.",
+      "imageUrl": "https://images.unsplash.com/photo-1615462696310-09736533dbb8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxob3BlZnVsJTIwcGF0aWVudHxlbnwwfHx8fDE3NjIyNTIxNTR8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "hopeful patient"
+    },
+    {
+      "id": "user-5",
+      "description": "A healthcare professional.",
+      "imageUrl": "https://images.unsplash.com/photo-1666887360680-9dc27a1d2753?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxoZWFsdGhjYXJlJTIwcHJvZmVzc2lvbmFsfGVufDB8fHx8MTc2MjE4NzU5OXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "healthcare professional"
+    },
+    {
+      "id": "expert-1",
+      "description": "A portrait of a doctor.",
+      "imageUrl": "https://images.unsplash.com/photo-1612276529731-4b21494e6d71?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8ZG9jdG9yJTIwcG9ydHJhaXR8ZW58MHx8fHwxNzYyMjIwMDExfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "doctor portrait"
+    },
+    {
+      "id": "expert-2",
+      "description": "A portrait of a scientist.",
+      "imageUrl": "https://images.unsplash.com/photo-1758685734614-63fe30c18b79?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxzY2llbnRpc3QlMjBwb3J0cmFpdHxlbnwwfHx8fDE3NjIyNTIxNTR8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "scientist portrait"
+    },
+    {
+      "id": "expert-3",
+      "description": "A portrait of a specialist.",
+      "imageUrl": "https://images.unsplash.com/photo-1758599543111-36ce5c34fceb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxzcGVjaWFsaXN0JTIwcG9ydHJhaXR8ZW58MHx8fHwxNzYyMjUyMTU0fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "specialist portrait"
+    },
+    {
+      "id": "publication-1",
+      "description": "An abstract scientific background image.",
+      "imageUrl": "https://images.unsplash.com/photo-1486291301608-a503c774721a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxzY2llbmNlJTIwYWJzdHJhY3R8ZW58MHx8fHwxNzYyMjUyMTU1fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "science abstract"
+    },
+    {
+      "id": "about-us",
+      "description": "A diverse team of researchers collaborating in a modern lab.",
+      "imageUrl": "https://images.unsplash.com/photo-1758270705172-07b53627dfcb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxyZXNlYXJjaCUyMHRlYW18ZW58MHx8fHwxNzYyMjc2ODgzfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "research team"
+    }
+  ]
+}

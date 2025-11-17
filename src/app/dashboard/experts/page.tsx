@@ -7,7 +7,7 @@ import type { Expert, ClinicalTrial, Publication } from '@/lib/types';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Microscope, ExternalLink, Loader2, Search, Pin, User, Calendar, Mail, Phone, Plus, Star, Bell, Check, Send, Award, BookMarked, Medal, Link as LinkIcon, Users as UsersIcon } from 'lucide-react';
+import { Microscope, ExternalLink, Loader2, Search, Pin, User, Calendar, Mail, Phone, Plus, Star, Bell, Check, Send, Award, BookMarked, Medal, Link as LinkIcon, Users as UsersIcon, MessageSquare } from 'lucide-react';
 import { searchExperts, searchClinicalTrials, searchPublications } from '@/lib/api';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useFavorites } from '@/context/favorites-provider';
@@ -26,6 +26,7 @@ import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useTranslation } from '@/context/language-provider';
 import { getExpertRecommendations } from '@/ai/flows/ai-powered-expert-recommendations';
+import Link from 'next/link';
 
 
 const PAGE_SIZE = 12;
@@ -244,9 +245,15 @@ function ExpertProfileDialog({ expert, children }: { expert: Expert, children: R
                         </div>
                     </div>
                 </ScrollArea>
-                 <DialogFooter className="p-6 pt-4 border-t">
+                 <DialogFooter className="p-6 pt-4 border-t flex-col sm:flex-col sm:space-x-0 gap-2">
+                    <Button asChild>
+                        <Link href={`/dashboard/forums?tag=${encodeURIComponent(expert.specialty)}`}>
+                            <MessageSquare className="mr-2 h-4 w-4" />
+                            View Discussions
+                        </Link>
+                    </Button>
                     <DialogClose asChild>
-                        <Button type="button">{t('common.close')}</Button>
+                        <Button type="button" variant="outline">{t('common.close')}</Button>
                     </DialogClose>
                 </DialogFooter>
             </DialogContent>

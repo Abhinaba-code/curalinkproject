@@ -52,6 +52,7 @@ import {
   type ChartConfig,
 } from '@/components/ui/chart';
 import jsPDF from 'jspdf';
+import type { Symptom } from '@/ai/flows/schemas';
 
 const levelConfig: {
   [key: string]: {
@@ -268,7 +269,7 @@ function JournalEntryCard({
   );
 }
 
-function AiSymptomSummary({ symptoms }: { symptoms: any[] }) {
+function AiSymptomSummary({ entries }: { entries: JournalEntry[] }) {
   const [summary, setSummary] = useState<any | null>(null);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
@@ -276,6 +277,15 @@ function AiSymptomSummary({ symptoms }: { symptoms: any[] }) {
   const handleGenerateSummary = async () => {
     setLoading(true);
     setSummary(null);
+
+    const symptoms: Symptom[] = entries.map(entry => ({
+        id: entry.id,
+        notes: entry.notes,
+        date: entry.date,
+        // For simplicity, we'll use 'pain' as the main severity metric
+        severity: entry.pain, 
+    }));
+
     try {
       const result = await summarizeSymptoms({ symptoms });
       setSummary(result);
@@ -335,11 +345,11 @@ function AiSymptomSummary({ symptoms }: { symptoms: any[] }) {
             <p className="text-muted-foreground mb-4">
               Click the button to generate an analysis of your symptom log.
             </p>
-            <Button onClick={handleGenerateSummary} disabled={symptoms.length === 0}>
+            <Button onClick={handleGenerateSummary} disabled={entries.length === 0}>
               <Bot className="mr-2 h-4 w-4" />
               Generate AI Summary
             </Button>
-             {symptoms.length === 0 && (
+             {entries.length === 0 && (
               <p className="text-xs text-muted-foreground mt-2">Log a symptom to enable this feature.</p>
             )}
           </div>
@@ -461,7 +471,7 @@ export default function JournalPage() {
             )}
         </div>
         <div className="space-y-6 lg:col-span-1">
-            <AiSymptomSummary symptoms={entries} />
+            <AiSymptomSummary entries={entries} />
             <Card>
                 <CardHeader>
                     <CardTitle>Recent Trends</CardTitle>
@@ -508,5 +518,3 @@ export default function JournalPage() {
     </div>
   );
 }
-
-    

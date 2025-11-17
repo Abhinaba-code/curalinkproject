@@ -68,6 +68,8 @@ export const SymptomSchema = z.object({
   date: z.string().describe("ISO 8601 date string"),
   severity: z.number().describe("A number from 1 (mild) to 5 (severe)"),
 });
+export type Symptom = z.infer<typeof SymptomSchema>;
+
 
 export const SummarizeSymptomsInputSchema = z.object({
   symptoms: z.array(SymptomSchema).describe("An array of symptoms logged by the user."),
@@ -86,3 +88,18 @@ export const VoiceAssistantInputSchema = z.object({
 export const VoiceAssistantOutputSchema = z.object({
     response: z.string().describe("The AI's spoken response to the user query.")
 });
+
+export type ExpertRecommendationsInput = z.infer<typeof ExpertRecommendationsInputSchema>;
+export type ExpertRecommendationsOutput = z.infer<typeof ExpertRecommendationsOutputSchema>;
+export type SummarizeClinicalTrialInput = z.infer<typeof SummarizeClinicalTrialInputSchema>;
+export type SummarizeClinicalTrialOutput = z.infer<typeof SummarizeClinicalTrialOutputSchema>;
+export type SummarizeMedicalPublicationInput = z.infer<typeof SummarizeMedicalPublicationInputSchema>;
+export type SummarizeMedicalPublicationOutput = z.infer<typeof SummarizeMedicalPublicationOutputSchema>;
+export type ChatbotInput = z.infer<typeof ChatbotInputSchema>;
+export type ChatbotOutput = z.infer<typeof ChatbotOutputSchema>;
+export type CheckTrialEligibilityInput = z.infer<typeof CheckTrialEligibilityInputSchema>;
+export type CheckTrialEligibilityOutput = z.infer<typeof CheckTrialEligibilityOutputSchema>;
+export type SummarizeSymptomsInput = z.infer<typeof SummarizeSymptomsInputSchema>;
+export type SummarizeSymptomsOutput = z.infer<typeof SummarizeSymptomsOutputSchema>;
+export type VoiceAssistantInput = z.infer<typeof VoiceAssistantInputSchema>;
+export type VoiceAssistantOutput = z.infer<typeof VoiceAssistantOutputSchema>;

@@ -239,7 +239,7 @@ function ExpertProfileDialog({ expert, children }: { expert: Expert, children: R
     return (
         <Dialog onOpenChange={(open) => { if (open) fetchExpertPublications(); }}>
             <DialogTrigger asChild>{children}</DialogTrigger>
-            <DialogContent className="sm:max-w-sm p-0">
+            <DialogContent className="sm:max-w-lg p-0">
                 <DialogHeader className="p-6 pb-4">
                     <div className="flex flex-col items-center text-center gap-4">
                         <Avatar className="h-24 w-24 border-4 border-primary">

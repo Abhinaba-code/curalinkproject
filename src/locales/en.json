@@ -1,4 +1,5 @@
 
+
 {
     "common": {
         "cancel": "Cancel",
@@ -131,8 +132,8 @@
         "feature1Desc": "Our intelligent platform analyzes your profile to find the most relevant clinical trials for you.",
         "feature2Title": "Simplified Research",
         "feature2Desc": "Access AI-summarized medical publications to easily understand complex research.",
-        "feature3Title": "Health Expert Connections",
-        "feature3Desc": "Connect with leading health experts and researchers in your field of interest.",
+        "feature3Title": "Researcher Connections",
+        "feature3Desc": "Connect with leading specialists and researchers in your field of interest.",
         "joinTitle": "Ready to Join?",
         "joinSubtitle": "Become part of a community dedicated to advancing medical science and improving patient outcomes.",
         "joinButton": "Create Your Free Account"
@@ -210,6 +211,7 @@
             "trials": "Clinical Trials",
             "publications": "Publications",
             "experts": "Health Experts",
+            "researchers": "Find Researchers",
             "expertsMap": "Experts Map",
             "collaborators": "Collaborators",
             "forums": "Forums",
@@ -382,9 +384,9 @@
             "title": "Publications",
             "description": "Top publication results matching your search."
         },
-        "experts": {
-            "title": "Health Experts",
-            "description": "Top health expert results matching your search."
+        "researchers": {
+            "title": "Researchers",
+            "description": "Top researcher results matching your search."
         }
     },
     "reports": {
@@ -453,8 +455,8 @@
             "description": "Your collection of saved medical publications."
         },
         "experts": {
-            "title": "Followed Health Experts",
-            "description": "A list of health experts you are following."
+            "title": "Followed Researchers",
+            "description": "A list of researchers and specialists you are following."
         }
     },
     "history": {

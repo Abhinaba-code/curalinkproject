@@ -545,17 +545,17 @@ export default function ExpertsPage() {
         <div className="space-y-6">
             <div>
                 <h1 className="font-headline text-3xl font-bold">
-                    Connect with Health Experts & Research
+                    Connect with Researchers & Specialists
                 </h1>
                 <p className="text-muted-foreground">
-                    Find providers and clinical trials. Search by specialty, name, or location.
+                    Find specialists and clinical trials. Search by specialty, name, or location.
                 </p>
             </div>
             
             <Card>
                 <CardHeader>
                     <CardTitle>Filter by Specialty</CardTitle>
-                    <CardDescription>Select a category to find experts and trials in that field.</CardDescription>
+                    <CardDescription>Select a category to find specialists and trials in that field.</CardDescription>
                 </CardHeader>
                 <CardContent className="flex flex-wrap gap-2">
                     {CATEGORIES.map(category => (
@@ -587,7 +587,7 @@ export default function ExpertsPage() {
             
             <Tabs defaultValue="experts" className="w-full">
                 <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="experts">Health Experts ({totalResults})</TabsTrigger>
+                    <TabsTrigger value="experts">Researchers ({totalResults})</TabsTrigger>
                     <TabsTrigger value="trials">Clinical Trials ({trials.length})</TabsTrigger>
                 </TabsList>
                 <TabsContent value="experts">
@@ -647,7 +647,7 @@ export default function ExpertsPage() {
                     ) : (
                          <Card className="mt-4 flex items-center justify-center h-64 border-dashed col-span-full">
                             <div className="text-center">
-                                <p className="text-lg font-medium">No Providers Found</p>
+                                <p className="text-lg font-medium">No Specialists Found</p>
                                 <p className="text-sm text-muted-foreground">
                                     {currentQuery 
                                         ? `Your search for "${currentQuery}" did not return any results.`

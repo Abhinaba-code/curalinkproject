@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useFavorites, type FavoriteItem } from '@/context/favorites-provider';

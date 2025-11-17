@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { Suspense, useEffect, useState } from 'react';
@@ -135,8 +136,8 @@ function SearchResults() {
             {experts.length > 0 && (
                 <Card>
                     <CardHeader>
-                        <CardTitle className="flex items-center gap-2"><Users /> {t('search.experts.title')}</CardTitle>
-                        <CardDescription>{t('search.experts.description')}</CardDescription>
+                        <CardTitle className="flex items-center gap-2"><Users /> {t('search.researchers.title')}</CardTitle>
+                        <CardDescription>{t('search.researchers.description')}</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
                         {experts.map(expert => <ExpertResultCard key={expert.id} expert={expert} />)}

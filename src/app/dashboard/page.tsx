@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useAuth } from '@/context/auth-provider';
@@ -386,7 +387,7 @@ export default function DashboardPage() {
             <Button variant="outline" asChild>
               <Link href="/dashboard/experts">
                 <Users className="mr-2 h-4 w-4" />
-                Discover Health Experts
+                Find Researchers
               </Link>
             </Button>
           </CardContent>

@@ -1,8 +1,13 @@
+
 import { NextResponse } from 'next/server';
 
 const NPI_REGISTRY_API_BASE_URL = 'https://npiregistry.cms.hhs.gov/api/';
 const MAX_RESULTS = 1200;
 const API_RESULT_LIMIT = 200; // The API can only return 200 records at a time.
+
+const SPECIALTY_BLACKLIST = [
+    'Physiotherapist',
+];
 
 const formatNPIRecord = (record: any): any | null => {
     if (!record || !record.number) return null;
@@ -12,14 +17,16 @@ const formatNPIRecord = (record: any): any | null => {
   
     if (!location) return null;
   
-    // Correctly determine the name. For individuals, first_name and last_name are reliable.
-    // For organizations, organization_name is correct.
     const isPerson = !!(basic.first_name || basic.last_name);
     const name = isPerson 
         ? [basic.first_name, basic.last_name].filter(Boolean).join(' ')
         : basic.organization_name;
 
     const specialty = taxonomies[0]?.desc || 'Not specified';
+    
+    if (SPECIALTY_BLACKLIST.includes(specialty)) {
+        return null;
+    }
 
     if (!name || name.trim() === '') return null;
   

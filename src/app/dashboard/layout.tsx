@@ -11,7 +11,6 @@ import {
   SidebarMenuButton,
   SidebarInset,
   SidebarFooter,
-  SidebarCollapse,
 } from '@/components/ui/sidebar';
 import {
   FlaskConical,
@@ -121,7 +120,7 @@ function DashboardApp({ children }: { children: React.ReactNode }) {
 
   return (
     <SidebarProvider>
-      <Sidebar>
+      <Sidebar collapsible='none'>
         <SidebarHeader>
           <Logo />
         </SidebarHeader>
@@ -133,7 +132,6 @@ function DashboardApp({ children }: { children: React.ReactNode }) {
                   href={item.href}
                   asChild
                   isActive={pathname === item.href}
-                  tooltip={{ children: item.label, className: 'bg-primary text-primary-foreground' }}
                 >
                   <a href={item.href}>
                     <item.icon />
@@ -145,7 +143,6 @@ function DashboardApp({ children }: { children: React.ReactNode }) {
           </SidebarMenu>
         </SidebarContent>
         <SidebarFooter>
-            <SidebarCollapse />
         </SidebarFooter>
       </Sidebar>
       <SidebarInset>

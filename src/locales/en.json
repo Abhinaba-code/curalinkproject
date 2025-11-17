@@ -76,7 +76,7 @@
         "editProfile": "Edit Profile",
         "notifications": "Notifications",
         "settings": "Settings",
-        "following": "Following",
+        "connections": "My Connections",
         "history": "History",
         "about": "About",
         "help": "Help",
@@ -651,5 +651,3 @@
         }
     }
 }
-
-    

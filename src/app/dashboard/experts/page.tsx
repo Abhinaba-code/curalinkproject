@@ -516,7 +516,7 @@ export default function ExpertsPage() {
         return () => {
             isMounted = false;
         };
-    }, [currentQuery, currentPage, user?.role]);
+    }, [currentQuery, currentPage, user?.role, user?.researchInterests]);
     
     const handleSearch = (e?: React.FormEvent) => {
         e?.preventDefault();

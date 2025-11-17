@@ -59,6 +59,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 
 function ProfileDetail({
   icon,
@@ -155,14 +156,17 @@ function ConnectionRequestCard({ request, onAccept, onDecline }: { request: Noti
     );
 }
 
-function EditRequestDialog({ request, onCancel, onUpdate }: { request: Notification; onCancel: (id: string) => void; onUpdate: (id: string, newContent: string) => void; }) {
+function EditRequestDialog({ request, onCancel, onUpdate }: { request: Notification; onCancel: (id: string) => void; onUpdate: (id: string, newContent: string, newName?: string, newEmail?: string) => void; }) {
   const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [message, setMessage] = useState(request.originalRequest?.content || '');
+  const [name, setName] = useState(request.authorName);
+  const [email, setEmail] = useState(''); // Assuming we don't have sender's email in notification, so it's blank.
   const recipientName = request.postTitle;
 
+
   const handleUpdate = () => {
-    onUpdate(request.id, message);
+    onUpdate(request.id, message, name, email);
     setIsOpen(false);
   };
   
@@ -197,14 +201,24 @@ function EditRequestDialog({ request, onCancel, onUpdate }: { request: Notificat
             You can update your message or cancel the request.
           </DialogDescription>
         </DialogHeader>
-        <div className="py-4 space-y-2">
-            <Label htmlFor="edit-message">Your Message</Label>
-            <Textarea 
-                id="edit-message"
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                className="min-h-[120px]"
-            />
+        <div className="py-4 space-y-4">
+            <div className="space-y-2">
+                <Label htmlFor="edit-name">Your Name</Label>
+                <Input id="edit-name" value={name} onChange={(e) => setName(e.target.value)} />
+            </div>
+            <div className="space-y-2">
+                <Label htmlFor="edit-email">Your Email</Label>
+                <Input id="edit-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="your.email@example.com" />
+            </div>
+            <div className="space-y-2">
+                <Label htmlFor="edit-message">Your Message</Label>
+                <Textarea 
+                    id="edit-message"
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    className="min-h-[120px]"
+                />
+            </div>
         </div>
         <DialogFooter className="justify-between">
           <Button variant="destructive" onClick={handleCancel}>Cancel Request</Button>
@@ -346,8 +360,8 @@ export default function ProfilePage() {
     });
   };
   
-  const handleUpdateRequest = (id: string, newContent: string) => {
-    updateMeetingRequest(id, newContent);
+  const handleUpdateRequest = (id: string, newContent: string, newName?: string, newEmail?: string) => {
+    updateMeetingRequest(id, newContent, newName, newEmail);
     toast({
         title: "Request Updated",
         description: "Your message has been updated and resent."

@@ -50,16 +50,20 @@ export async function searchClinicalTrials(
     const params = new URLSearchParams();
     params.set('pageSize', pageSize.toString());
 
-    let expression = query;
-    if (location && !location.startsWith('distance(')) {
-        expression += ` AND AREA[LocationCity]${location}`
-    }
-    params.set('query.cond', expression);
+    // Main search query for conditions/terms
+    params.set('query.cond', query);
     
-    if (location && location.startsWith('distance(')) {
-        params.set('filter.geo', location);
+    // Separate location filter
+    if (location) {
+        if (location.startsWith('distance(')) {
+            params.set('filter.geo', location);
+        } else {
+            // Use 'query.loc' for city, country searches
+            params.set('query.loc', location);
+        }
     }
     
+    // Status filter
     if (statuses && statuses.length > 0) {
         const apiStatuses = statuses.map(s => appToApiStatusMapping[s]).filter(Boolean);
         if (apiStatuses.length > 0) {

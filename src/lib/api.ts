@@ -48,6 +48,7 @@ export async function searchClinicalTrials(
 ): Promise<ClinicalTrial[]> {
   try {
     const params = new URLSearchParams();
+    params.set('format', 'json');
     params.set('pageSize', pageSize.toString());
 
     // Main search query for conditions/terms

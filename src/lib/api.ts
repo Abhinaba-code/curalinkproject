@@ -52,7 +52,9 @@ export async function searchClinicalTrials(
     params.set('pageSize', pageSize.toString());
 
     // Main search query for conditions/terms
-    params.set('query.cond', query);
+    if (query) {
+      params.set('query.cond', query);
+    }
     
     // Separate location filter
     if (location) {
@@ -68,7 +70,8 @@ export async function searchClinicalTrials(
     if (statuses && statuses.length > 0) {
         const apiStatuses = statuses.map(s => appToApiStatusMapping[s]).filter(Boolean);
         if (apiStatuses.length > 0) {
-            params.set('filter.overallStatus', apiStatuses.join(','));
+            // The API expects multiple statuses to be joined by a '+'
+            params.set('filter.overallStatus', apiStatuses.join('+'));
         }
     }
     
@@ -76,6 +79,8 @@ export async function searchClinicalTrials(
 
     const response = await fetch(url);
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error("ClinicalTrials API Error:", errorText);
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     const data = await response.json();

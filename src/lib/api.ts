@@ -1,4 +1,5 @@
 
+
 import { ClinicalTrial, Publication, Expert } from './types';
 import { XMLParser } from 'fast-xml-parser';
 
@@ -68,7 +69,7 @@ export async function searchClinicalTrials(
         }
     }
     
-    let url = `${CLINICAL_TRIALS_API_BASE_URL}/studies?pageSize=${pageSize}&${queryParts.join('&')}`;
+    let url = `${CLINICAL_TRIALS_API_BASE_URL}/studies?pageSize=${pageSize}${queryParts.length > 0 ? `&${queryParts.join('&')}` : ''}`;
 
     const response = await fetch(url);
     if (!response.ok) {

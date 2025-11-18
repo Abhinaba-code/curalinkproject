@@ -62,9 +62,7 @@ export default function TrialsPage() {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    const baseQuery = user?.interests?.[0] || '';
-    const combinedQuery = [searchTerm, baseQuery].filter(Boolean).join(' ');
-    const finalQuery = combinedQuery || 'health';
+    const finalQuery = searchTerm.trim() || 'health'; // Use only the search term or a default
     setSearchQuery(finalQuery);
     
     const locationParts = [city, country].filter(Boolean);
@@ -102,9 +100,7 @@ export default function TrialsPage() {
         const { latitude, longitude } = position.coords;
         const geoQuery = `distance(${latitude},${longitude},50mi)`;
         
-        const baseQuery = user?.interests?.[0] || '';
-        const combinedQuery = [searchTerm, baseQuery].filter(Boolean).join(' ');
-        const finalQuery = combinedQuery || 'health';
+        const finalQuery = searchTerm.trim() || 'health';
         setSearchQuery(finalQuery);
 
         setLocationQuery(geoQuery);

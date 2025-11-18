@@ -134,6 +134,9 @@ export default function CreateProfilePage() {
                       mode="single"
                       selected={dob}
                       onSelect={setDob}
+                      captionLayout="dropdown-buttons"
+                      fromYear={1900}
+                      toYear={new Date().getFullYear()}
                       initialFocus
                       disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
                     />

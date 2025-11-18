@@ -47,29 +47,31 @@ export async function searchClinicalTrials(
   statuses?: ClinicalTrial['status'][]
 ): Promise<ClinicalTrial[]> {
   try {
-    const queryParts = [];
+    const params = new URLSearchParams();
+    params.set('pageSize', pageSize.toString());
+
     if (query) {
-        queryParts.push(`query.cond=${encodeURIComponent(query)}`);
+        params.set('query.cond', query);
     }
     
     // Updated to handle both text location and geo-distance
     if (location) {
-        // The API uses geo() for distance search, not query.locn
+        // The API uses filter.geo for distance search, not query.locn
         if (location.startsWith('distance(')) {
-             queryParts.push(`filter.geo=${encodeURIComponent(location)}`);
+             params.set('filter.geo', location);
         } else {
-             queryParts.push(`query.locn=${encodeURIComponent(location)}`);
+             params.set('query.locn', location);
         }
     }
 
     if (statuses && statuses.length > 0) {
         const apiStatuses = statuses.map(s => appToApiStatusMapping[s]).filter(Boolean);
         if (apiStatuses.length > 0) {
-            queryParts.push(`filter.overallStatus=${apiStatuses.join(',')}`);
+            params.set('filter.overallStatus', apiStatuses.join(','));
         }
     }
     
-    let url = `${CLINICAL_TRIALS_API_BASE_URL}/studies?pageSize=${pageSize}${queryParts.length > 0 ? `&${queryParts.join('&')}` : ''}`;
+    let url = `${CLINICAL_TRIALS_API_BASE_URL}/studies?${params.toString()}`;
 
     const response = await fetch(url);
     if (!response.ok) {

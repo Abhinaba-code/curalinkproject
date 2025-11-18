@@ -50,20 +50,16 @@ export async function searchClinicalTrials(
     const params = new URLSearchParams();
     params.set('pageSize', pageSize.toString());
 
-    if (query) {
-        params.set('query.cond', query);
+    let expression = query;
+    if (location && !location.startsWith('distance(')) {
+        expression += ` AND AREA[LocationCity]${location}`
+    }
+    params.set('query.cond', expression);
+    
+    if (location && location.startsWith('distance(')) {
+        params.set('filter.geo', location);
     }
     
-    // Updated to handle both text location and geo-distance
-    if (location) {
-        // The API uses filter.geo for distance search, not query.locn
-        if (location.startsWith('distance(')) {
-             params.set('filter.geo', location);
-        } else {
-             params.set('query.locn', location);
-        }
-    }
-
     if (statuses && statuses.length > 0) {
         const apiStatuses = statuses.map(s => appToApiStatusMapping[s]).filter(Boolean);
         if (apiStatuses.length > 0) {
